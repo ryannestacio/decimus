@@ -7,26 +7,25 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Menu principal',
           style: TextStyle(fontWeight: FontWeight.w300),
         ),
         centerTitle: true,
-        backgroundColor: Colors.yellow,
       ),
-      body: CorpoBotoes(),
+      body: BodyHome(),
     );
   }
 }
 
-class CorpoBotoes extends StatefulWidget {
-  const CorpoBotoes({super.key});
+class BodyHome extends StatefulWidget {
+  const BodyHome({super.key});
 
   @override
-  State<CorpoBotoes> createState() => _CorpoBotoesState();
+  State<BodyHome> createState() => _CorpoBotoesState();
 }
 
-class _CorpoBotoesState extends State<CorpoBotoes> {
+class _CorpoBotoesState extends State<BodyHome> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -37,12 +36,12 @@ class _CorpoBotoesState extends State<CorpoBotoes> {
             ListTile(
               onTap: () => Navigator.pushNamed(context, '/recebiveis'),
               leading: Icon(Icons.attach_money_sharp),
-              title: Text('Recebiveis'),
-              subtitle: Text('Doações, dizimo, leilões e eventos.'),
+              title: const Text('Recebiveis'),
+              subtitle: const Text('Doações, dizimo, leilões e eventos.'),
               shape: BeveledRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
-              tileColor: Colors.grey[100],
+              tileColor: Colors.grey[500],
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 20,
                 vertical: 10,
@@ -52,12 +51,12 @@ class _CorpoBotoesState extends State<CorpoBotoes> {
             ListTile(
               onTap: () => Navigator.pushNamed(context, '/despesas'),
               leading: Icon(Icons.import_export_outlined),
-              title: Text('Despesas'),
-              subtitle: Text('Contas de energia, luz, reformas, etc.'),
+              title: const Text('Despesas'),
+              subtitle: const Text('Contas de energia, luz, reformas, etc.'),
               shape: BeveledRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
-              tileColor: Colors.grey[100],
+              tileColor: Colors.grey[500],
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 20,
                 vertical: 10,
@@ -67,12 +66,12 @@ class _CorpoBotoesState extends State<CorpoBotoes> {
             ListTile(
               onTap: () => Navigator.pushNamed(context, '/devedores'),
               leading: Icon(Icons.person_search_sharp),
-              title: Text('Devedores'),
-              subtitle: Text('Devedores e bonificações pendentes.'),
+              title: const Text('Devedores'),
+              subtitle: const Text('Devedores e bonificações pendentes.'),
               shape: BeveledRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
-              tileColor: Colors.grey[100],
+              tileColor: Colors.grey[500],
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 20,
                 vertical: 10,
@@ -82,12 +81,28 @@ class _CorpoBotoesState extends State<CorpoBotoes> {
             ListTile(
               onTap: () => Navigator.pushNamed(context, '/caixa'),
               leading: Icon(Icons.monetization_on),
-              title: Text('Caixa'),
-              subtitle: Text('Movimentações do caixa: Entradas e saídas'),
+              title: const Text('Caixa'),
+              subtitle: const Text('Movimentações do caixa: Entradas e saídas'),
               shape: BeveledRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
-              tileColor: Colors.grey[100],
+              tileColor: Colors.grey[500],
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 10,
+              ),
+            ),
+            SizedBox(height: 4),
+
+            ListTile(
+              onTap: () => Navigator.pushNamed(context, '/devolucoes'),
+              leading: Icon(Icons.loop_rounded),
+              title: Text('Devoluções'),
+              subtitle: Text('Devolução de saídas e entradas.'),
+              shape: BeveledRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              tileColor: Colors.grey[500],
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 20,
                 vertical: 10,

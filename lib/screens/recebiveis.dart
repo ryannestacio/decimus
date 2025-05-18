@@ -8,21 +8,21 @@ class RecebiveisScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Recebimentos',
+          'Recebíveis',
           style: TextStyle(fontWeight: FontWeight.w300),
         ),
         centerTitle: true,
       ),
-      body: CorpoRecebimentos(),
+      body: BodyRecebiveis(),
     );
   }
 }
 
-class CorpoRecebimentos extends StatefulWidget {
-  const CorpoRecebimentos({super.key});
+class BodyRecebiveis extends StatefulWidget {
+  const BodyRecebiveis({super.key});
 
   @override
-  State<CorpoRecebimentos> createState() => _CorpoRecebimentosState();
+  State<BodyRecebiveis> createState() => _CorpoRecebimentosState();
 }
 
 class Recebimento {
@@ -33,7 +33,7 @@ class Recebimento {
   Recebimento({required this.tipo, required this.valor, required this.data});
 }
 
-class _CorpoRecebimentosState extends State<CorpoRecebimentos> {
+class _CorpoRecebimentosState extends State<BodyRecebiveis> {
   final TextEditingController _typeControler = TextEditingController();
   final TextEditingController _valueControler = TextEditingController();
   final TextEditingController _dateControler = TextEditingController();
@@ -41,7 +41,7 @@ class _CorpoRecebimentosState extends State<CorpoRecebimentos> {
   DateTime? _dataSelecionada;
 
   //Lista onde vou armazenar as informações dos campos de recebimento
-  List<Recebimento> _listaRecebimento = [];
+  final List<Recebimento> _listaRecebimento = [];
 
   void _criarRecebimento() {
     if (_formKey.currentState!.validate()) {
@@ -50,6 +50,8 @@ class _CorpoRecebimentosState extends State<CorpoRecebimentos> {
         valor: double.tryParse(_valueControler.text) ?? 0.0,
         data: _dataSelecionada!,
       );
+
+      _dataSelecionada = null;
 
       setState(() {
         _listaRecebimento.add(meuRecebimento);
@@ -166,6 +168,21 @@ class _CorpoRecebimentosState extends State<CorpoRecebimentos> {
                       ),
                     ),
                   ],
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _listaRecebimento.length,
+                  itemBuilder: (context, index) {
+                    final item = _listaRecebimento[index];
+                    return ListTile(
+                      leading: Icon(Icons.monetization_on),
+                      title: Text(item.tipo),
+                      subtitle: Text(
+                        'Entrada: ${item.data.day}/${item.data.month}/${item.data.year} Valor: R\$${item.valor.toStringAsFixed(2)}',
+                      ),
+                    );
+                  },
                 ),
               ),
             ],

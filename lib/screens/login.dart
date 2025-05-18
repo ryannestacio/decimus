@@ -8,26 +8,26 @@ class LoginScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.yellow,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Decimus App',
           style: TextStyle(fontWeight: FontWeight.w300),
         ),
         centerTitle: true,
         backgroundColor: Colors.yellow,
       ),
-      body: LoginCampos(),
+      body: BodyLogin(),
     );
   }
 }
 
-class LoginCampos extends StatefulWidget {
-  const LoginCampos({super.key});
+class BodyLogin extends StatefulWidget {
+  const BodyLogin({super.key});
 
   @override
-  State<LoginCampos> createState() => _LoginCamposState();
+  State<BodyLogin> createState() => _LoginCamposState();
 }
 
-class _LoginCamposState extends State<LoginCampos> {
+class _LoginCamposState extends State<BodyLogin> {
   final _formKey = GlobalKey<FormState>();
   final _emailControler = TextEditingController();
 
@@ -41,7 +41,7 @@ class _LoginCamposState extends State<LoginCampos> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
+              const Text(
                 'Bem Vindo!\nSalve Maria!',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
@@ -101,7 +101,7 @@ class _LoginCamposState extends State<LoginCampos> {
                       style: ButtonStyle(
                         animationDuration: Duration(seconds: 2),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Entrar',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),

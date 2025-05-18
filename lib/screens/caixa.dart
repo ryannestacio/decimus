@@ -5,6 +5,8 @@ class CaixaScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text('Caixa'), centerTitle: true));
+    return Scaffold(
+      appBar: AppBar(title: const Text('Caixa'), centerTitle: true),
+    );
   }
 }
