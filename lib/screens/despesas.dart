@@ -35,16 +35,20 @@ class _BodyDespesasState extends State<BodyDespesas> {
   final TextEditingController _tipoConta = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  List<Conta> listaContas = [];
+  final List<Conta> _listaContas = [];
 
   void validacao() {
     if (_formKey.currentState!.validate()) {
       final addConta = Conta(tipoConta: _tipoConta.text);
 
       setState(() {
-        listaContas.add(addConta);
+        _listaContas.add(addConta);
         _tipoConta.clear();
       });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Tipo de conta salvo!')));
     }
   }
 
@@ -65,8 +69,9 @@ class _BodyDespesasState extends State<BodyDespesas> {
                     builder:
                         (context) => AlertDialog(
                           title: Text('Cadastrar tipo de conta'),
+                          backgroundColor: Colors.yellow,
                           content: SizedBox(
-                            height: 100,
+                            height: 300,
                             width: 300,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -76,6 +81,8 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                     key: _formKey,
                                     child: TextFormField(
                                       controller: _tipoConta,
+                                      textCapitalization:
+                                          TextCapitalization.words,
                                       decoration: InputDecoration(
                                         hintText:
                                             'Digite um novo tipo de conta...',
@@ -90,22 +97,42 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                     ),
                                   ),
                                 ),
+                                SizedBox(height: 40),
+                                Text(
+                                  'Contas salvas:',
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                                SizedBox(
+                                  height: 150,
+                                  child: ListView.builder(
+                                    itemCount: _listaContas.length,
+                                    itemBuilder: (context, index) {
+                                      final item = _listaContas[index];
+                                      return ListTile(
+                                        onTap: () {},
+                                        leading: Icon(Icons.attachment),
+                                        title: Text(item.tipoConta),
+                                        shape: BeveledRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            5,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
                               ],
                             ),
                           ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),
-                              child: Text('Cancelar'),
+                              child: Text('Fechar'),
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Tipo de conta salvo!'),
-                                  ),
-                                );
+                                validacao();
+                                FocusScope.of(context).unfocus();
                               },
                               child: Text('Salvar'),
                             ),
