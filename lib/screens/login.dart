@@ -52,11 +52,11 @@ class _LoginCamposState extends State<BodyLogin> {
                 children: [
                   SizedBox(height: 100),
                   TextFormField(
+                    controller: _emailControler,
                     decoration: const InputDecoration(
                       label: Text('Digite seu e-mail'),
                     ),
                     autofocus: false,
-                    controller: _emailControler,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, digite o e-mail';

@@ -25,7 +25,29 @@ class BodyDespesas extends StatefulWidget {
   State<BodyDespesas> createState() => _BodyDespesasState();
 }
 
+class Conta {
+  String tipoConta;
+
+  Conta({required this.tipoConta});
+}
+
 class _BodyDespesasState extends State<BodyDespesas> {
+  final TextEditingController _tipoConta = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  List<Conta> listaContas = [];
+
+  void validacao() {
+    if (_formKey.currentState!.validate()) {
+      final addConta = Conta(tipoConta: _tipoConta.text);
+
+      setState(() {
+        listaContas.add(addConta);
+        _tipoConta.clear();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -40,35 +62,55 @@ class _BodyDespesasState extends State<BodyDespesas> {
                 onPressed: () {
                   showDialog(
                     context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text('Cadastrar tipo de conta'),
-                        content: SizedBox(
-                          height: 150,
-                          width: 300,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                    hintText: 'Digite um novo tipo de conta...',
-                                    label: Text('Novo'),
+                    builder:
+                        (context) => AlertDialog(
+                          title: Text('Cadastrar tipo de conta'),
+                          content: SizedBox(
+                            height: 100,
+                            width: 300,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  child: Form(
+                                    key: _formKey,
+                                    child: TextFormField(
+                                      controller: _tipoConta,
+                                      decoration: InputDecoration(
+                                        hintText:
+                                            'Digite um novo tipo de conta...',
+                                        label: Text('Novo'),
+                                      ),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Digite um tipo de conta';
+                                        }
+                                        return null;
+                                      },
+                                    ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(height: 10),
-                              SizedBox(
-                                child: ElevatedButton(
-                                  onPressed: () {},
-                                  child: Text('Salvar conta'),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('Cancelar'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Tipo de conta salvo!'),
+                                  ),
+                                );
+                              },
+                              child: Text('Salvar'),
+                            ),
+                          ],
                         ),
-                      );
-                    },
                   );
                 },
                 child: Text('Tipos de conta'),
