@@ -24,12 +24,23 @@ class BodyLogin extends StatefulWidget {
   const BodyLogin({super.key});
 
   @override
-  State<BodyLogin> createState() => _LoginCamposState();
+  State<BodyLogin> createState() => _BodyLoginState();
 }
 
-class _LoginCamposState extends State<BodyLogin> {
+class _BodyLoginState extends State<BodyLogin> {
   final _formKey = GlobalKey<FormState>();
   final _emailControler = TextEditingController();
+  final _senhaController = TextEditingController();
+
+  void _validation() {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _emailControler.clear();
+        _senhaController.clear();
+      });
+      Navigator.pushNamed(context, '/home');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,29 +58,29 @@ class _LoginCamposState extends State<BodyLogin> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
               ),
 
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(height: 100),
-                  TextFormField(
-                    controller: _emailControler,
-                    decoration: const InputDecoration(
-                      label: Text('Digite seu e-mail'),
-                    ),
-                    autofocus: false,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, digite o e-mail';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
+              SizedBox(height: 100),
+              TextFormField(
+                controller: _emailControler,
+                decoration: const InputDecoration(
+                  labelText: 'Digite seu e-mail',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.mail),
+                ),
+                autofocus: false,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, digite o e-mail';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 10),
               TextFormField(
+                controller: _senhaController,
                 decoration: const InputDecoration(
-                  label: Text('Digite sua senha'),
+                  labelText: 'Digite sua senha',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.password_rounded),
                 ),
                 autofocus: false,
                 obscureText: true,
@@ -84,8 +95,7 @@ class _LoginCamposState extends State<BodyLogin> {
                 },
               ),
 
-              SizedBox(height: 20),
-
+              // SizedBox(height: 10),
               Column(
                 children: [
                   SizedBox(height: 40),
@@ -94,13 +104,8 @@ class _LoginCamposState extends State<BodyLogin> {
                     width: 200,
                     child: ElevatedButton(
                       onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          Navigator.pushNamed(context, '/home');
-                        }
+                        _validation();
                       },
-                      style: ButtonStyle(
-                        animationDuration: Duration(seconds: 2),
-                      ),
                       child: const Text(
                         'Entrar',
                         style: TextStyle(fontWeight: FontWeight.bold),
