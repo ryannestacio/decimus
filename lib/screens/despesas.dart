@@ -31,19 +31,40 @@ class Conta {
   Conta({required this.tipoConta});
 }
 
-class _BodyDespesasState extends State<BodyDespesas> {
-  final TextEditingController _tipoConta = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+class ContaCad {
+  final String? tipoConta;
+  final String? descricao;
+  final String? observacao;
+  final double? valor;
 
+  ContaCad({
+    required this.tipoConta,
+    required this.descricao,
+    required this.observacao,
+    required this.valor,
+  });
+}
+
+class _BodyDespesasState extends State<BodyDespesas> {
+  final TextEditingController _novoTipoConta = TextEditingController();
+  final TextEditingController _tipoConta = TextEditingController();
+  final TextEditingController _descricao = TextEditingController();
+  final TextEditingController _observacoes = TextEditingController();
+  final TextEditingController _valor = TextEditingController();
+
+  final _formKeyTipoConta = GlobalKey<FormState>();
+  final _formKeyNovaConta = GlobalKey<FormState>();
   final List<Conta> _listaContas = [];
 
+  String? tipoSelecionado;
+
   void validacao() {
-    if (_formKey.currentState!.validate()) {
-      final addConta = Conta(tipoConta: _tipoConta.text);
+    if (_formKeyTipoConta.currentState!.validate()) {
+      final addConta = Conta(tipoConta: _novoTipoConta.text);
 
       setState(() {
         _listaContas.add(addConta);
-        _tipoConta.clear();
+        _novoTipoConta.clear();
       });
 
       ScaffoldMessenger.of(
@@ -79,9 +100,9 @@ class _BodyDespesasState extends State<BodyDespesas> {
                               children: [
                                 SizedBox(
                                   child: Form(
-                                    key: _formKey,
+                                    key: _formKeyTipoConta,
                                     child: TextFormField(
-                                      controller: _tipoConta,
+                                      controller: _novoTipoConta,
                                       textCapitalization:
                                           TextCapitalization.words,
                                       decoration: InputDecoration(
@@ -163,14 +184,40 @@ class _BodyDespesasState extends State<BodyDespesas> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                TextFormField(
-                                  decoration: InputDecoration(
-                                    label: Text('Tipo de conta'),
-                                    prefixIcon: Icon(Icons.wallet),
+                                Form(
+                                  key: _formKeyNovaConta,
+                                  child: DropdownButtonFormField<String>(
+                                    value:
+                                        _tipoConta.text.isEmpty
+                                            ? null
+                                            : _tipoConta.text,
+                                    decoration: InputDecoration(
+                                      label: Text('Tipo de conta'),
+                                      prefixIcon: Icon(Icons.wallet),
+                                    ),
+                                    items:
+                                        _listaContas.map((conta) {
+                                          return DropdownMenuItem(
+                                            value: conta.tipoConta,
+                                            child: Text(conta.tipoConta),
+                                          );
+                                        }).toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _tipoConta.text = value!;
+                                      });
+                                    },
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Selecione o tipo da conta';
+                                      }
+                                      return null;
+                                    },
                                   ),
                                 ),
                                 SizedBox(height: 20),
                                 TextFormField(
+                                  controller: _descricao,
                                   decoration: InputDecoration(
                                     label: Text('Descrição'),
                                     prefixIcon: Icon(Icons.label),
@@ -178,6 +225,7 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                 ),
                                 SizedBox(height: 20),
                                 TextFormField(
+                                  controller: _observacoes,
                                   decoration: InputDecoration(
                                     label: Text('Observações(Opcional)'),
                                     prefixIcon: Icon(Icons.abc),
@@ -185,10 +233,12 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                 ),
                                 SizedBox(height: 20),
                                 TextFormField(
+                                  controller: _valor,
                                   decoration: InputDecoration(
                                     label: Text('Valor R\$'),
                                     prefixIcon: Icon(Icons.attach_money),
                                   ),
+                                  keyboardType: TextInputType.number,
                                 ),
                                 SizedBox(height: 20),
                                 ElevatedButton(
