@@ -63,6 +63,7 @@ class _BodyDespesasState extends State<BodyDespesas> {
               height: 60,
               width: 350,
               child: OutlinedButton(
+                child: Text('Tipos de conta'),
                 onPressed: () {
                   showDialog(
                     context: context,
@@ -84,6 +85,7 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                       textCapitalization:
                                           TextCapitalization.words,
                                       decoration: InputDecoration(
+                                        prefixIcon: Icon(Icons.wallet),
                                         hintText:
                                             'Digite um novo tipo de conta...',
                                         label: Text('Novo'),
@@ -140,7 +142,6 @@ class _BodyDespesasState extends State<BodyDespesas> {
                         ),
                   );
                 },
-                child: Text('Tipos de conta'),
               ),
             ),
             SizedBox(height: 10),
@@ -148,8 +149,58 @@ class _BodyDespesasState extends State<BodyDespesas> {
               height: 60,
               width: 350,
               child: OutlinedButton(
-                onPressed: () {},
-                child: Text('Cadastrar conta'),
+                child: Text('Cadastrar nova conta'),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder:
+                        (context) => AlertDialog(
+                          backgroundColor: Colors.yellow,
+                          title: Text('CADASTRAR NOVA CONTA'),
+                          content: SizedBox(
+                            height: 400,
+                            width: 300,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextFormField(
+                                  decoration: InputDecoration(
+                                    label: Text('Tipo de conta'),
+                                    prefixIcon: Icon(Icons.wallet),
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                TextFormField(
+                                  decoration: InputDecoration(
+                                    label: Text('Descrição'),
+                                    prefixIcon: Icon(Icons.label),
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                TextFormField(
+                                  decoration: InputDecoration(
+                                    label: Text('Observações(Opcional)'),
+                                    prefixIcon: Icon(Icons.abc),
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                TextFormField(
+                                  decoration: InputDecoration(
+                                    label: Text('Valor R\$'),
+                                    prefixIcon: Icon(Icons.attach_money),
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                ElevatedButton(
+                                  onPressed: () {},
+                                  child: Text('Cadastrar'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                  );
+                },
               ),
             ),
             SizedBox(height: 10),
@@ -157,8 +208,8 @@ class _BodyDespesasState extends State<BodyDespesas> {
               height: 60,
               width: 350,
               child: OutlinedButton(
-                onPressed: () {},
                 child: Text('Verificar contas'),
+                onPressed: () {},
               ),
             ),
           ],

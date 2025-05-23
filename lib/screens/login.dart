@@ -80,7 +80,7 @@ class _BodyLoginState extends State<BodyLogin> {
                 decoration: const InputDecoration(
                   labelText: 'Digite sua senha',
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.password_rounded),
+                  prefixIcon: Icon(Icons.lock_outline_rounded),
                 ),
                 autofocus: false,
                 obscureText: true,
