@@ -1,10 +1,38 @@
-# decimus
+# 📱 Decimus – Controle de Dízimos e Finanças da Igreja
 
-A new Flutter project.
+Decimus é um aplicativo Flutter em desenvolvimento, criado para ajudar na organização financeira de comunidades religiosas, com foco em simplicidade e praticidade.
 
-## Getting Started
+✅ Funcionalidades Implementadas
+📌 Tela de Despesas
+Cadastro de tipos de contas/despesas (ex: Luz, Água, Outros).
 
-This project is a starting point for a Flutter application.
+Registro de novas despesas, com os campos:
+
+Tipo da conta
+
+Descrição
+
+Observações (opcional)
+
+Valor da despesa
+
+Visualização das contas cadastradas, separando valores pagos e em aberto.
+
+📌 Tela de Recebíveis
+Lista automática de valores a receber baseados nos registros de dízimos e devedores que pagaram.
+
+Estrutura pronta para futura tela de "devoluções" (em caso de registro errado).
+
+## Em Desenvolvimento – Sprint 2
+
+📌 Tela de Devedores
+Cadastro de devedores com valor pendente.
+
+Lista de devedores com opção de marcar como "pagou".
+
+Ao marcar como pago, o valor é automaticamente adicionado à lista de recebíveis.
+
+
 
 A few resources to get you started if this is your first Flutter project:
 
