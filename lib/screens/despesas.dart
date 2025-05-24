@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:decimus/models/contas.dart';
 
 class DespesasScreen extends StatelessWidget {
   const DespesasScreen({super.key});
@@ -25,26 +26,6 @@ class BodyDespesas extends StatefulWidget {
   State<BodyDespesas> createState() => _BodyDespesasState();
 }
 
-class Conta {
-  String tipoConta;
-
-  Conta({required this.tipoConta});
-}
-
-class ContaCad {
-  final String? tipoConta;
-  final String? descricao;
-  final String? observacao;
-  final double? valor;
-
-  ContaCad({
-    required this.tipoConta,
-    required this.descricao,
-    required this.observacao,
-    required this.valor,
-  });
-}
-
 class _BodyDespesasState extends State<BodyDespesas> {
   final TextEditingController _novoTipoConta = TextEditingController();
   final TextEditingController _tipoConta = TextEditingController();
@@ -54,16 +35,17 @@ class _BodyDespesasState extends State<BodyDespesas> {
 
   final _formKeyTipoConta = GlobalKey<FormState>();
   final _formKeyNovaConta = GlobalKey<FormState>();
-  final List<Conta> _listaContas = [];
+  final List<Conta> _listaTipoConta = [];
+  final List<ContaCad> _listaConta = [];
 
   String? tipoSelecionado;
 
-  void validacao() {
+  void validacaoTipoConta() {
     if (_formKeyTipoConta.currentState!.validate()) {
       final addConta = Conta(tipoConta: _novoTipoConta.text);
 
       setState(() {
-        _listaContas.add(addConta);
+        _listaTipoConta.add(addConta);
         _novoTipoConta.clear();
       });
 
@@ -72,6 +54,37 @@ class _BodyDespesasState extends State<BodyDespesas> {
       ).showSnackBar(SnackBar(content: Text('Tipo de conta salvo!')));
     }
   }
+
+  bool validacaoNovaConta() {
+    if (_formKeyNovaConta.currentState!.validate()) {
+      final addConta = ContaCad(
+        tipoConta: _tipoConta.text,
+        descricao: _descricao.text,
+        observacao: _observacoes.text,
+        valor: double.tryParse(_valor.text) ?? 0.0,
+      );
+      setState(() {
+        _listaConta.add(addConta);
+        _tipoConta.clear();
+        _descricao.clear();
+        _observacoes.clear();
+        _valor.clear();
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Conta cadastrada, verifique sua conta em "Verificar contas".',
+          ),
+        ),
+      );
+
+      return true;
+    }
+    return false;
+  }
+
+  Widget espacador([double autura = 20]) => SizedBox(height: autura);
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +133,7 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 40),
+                                espacador(40),
                                 Text(
                                   'Contas salvas:',
                                   style: TextStyle(fontSize: 20),
@@ -128,9 +141,9 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                 SizedBox(
                                   height: 150,
                                   child: ListView.builder(
-                                    itemCount: _listaContas.length,
+                                    itemCount: _listaTipoConta.length,
                                     itemBuilder: (context, index) {
-                                      final item = _listaContas[index];
+                                      final item = _listaTipoConta[index];
                                       return ListTile(
                                         onTap: () {},
                                         leading: Icon(Icons.attachment),
@@ -154,8 +167,9 @@ class _BodyDespesasState extends State<BodyDespesas> {
                             ),
                             TextButton(
                               onPressed: () {
-                                validacao();
+                                validacaoTipoConta();
                                 FocusScope.of(context).unfocus();
+                                // FocusScope.of(context).unfocus(); Fecha o teclado
                               },
                               child: Text('Salvar'),
                             ),
@@ -165,7 +179,7 @@ class _BodyDespesasState extends State<BodyDespesas> {
                 },
               ),
             ),
-            SizedBox(height: 10),
+            espacador(10),
             SizedBox(
               height: 60,
               width: 350,
@@ -177,26 +191,28 @@ class _BodyDespesasState extends State<BodyDespesas> {
                     builder:
                         (context) => AlertDialog(
                           backgroundColor: Colors.yellow,
-                          title: Text('CADASTRAR NOVA CONTA'),
+                          title: Text('Cadastrar nova conta'),
                           content: SizedBox(
-                            height: 400,
+                            height: 350,
                             width: 300,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Form(
-                                  key: _formKeyNovaConta,
-                                  child: DropdownButtonFormField<String>(
+                            child: Form(
+                              //obs: O widget Form, tem que está fora da comumn.
+                              //Ou seja, a column tem que está dentro do form.
+                              key: _formKeyNovaConta,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  DropdownButtonFormField<String>(
                                     value:
                                         _tipoConta.text.isEmpty
                                             ? null
                                             : _tipoConta.text,
                                     decoration: InputDecoration(
-                                      label: Text('Tipo de conta'),
+                                      labelText: 'Tipo de conta',
                                       prefixIcon: Icon(Icons.wallet),
                                     ),
                                     items:
-                                        _listaContas.map((conta) {
+                                        _listaTipoConta.map((conta) {
                                           return DropdownMenuItem(
                                             value: conta.tipoConta,
                                             child: Text(conta.tipoConta),
@@ -214,52 +230,103 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                       return null;
                                     },
                                   ),
-                                ),
-                                SizedBox(height: 20),
-                                TextFormField(
-                                  controller: _descricao,
-                                  decoration: InputDecoration(
-                                    label: Text('Descrição'),
-                                    prefixIcon: Icon(Icons.label),
+                                  espacador(20),
+                                  TextFormField(
+                                    controller: _descricao,
+                                    decoration: InputDecoration(
+                                      labelText: 'Descrição',
+                                      prefixIcon: Icon(Icons.label),
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'O campo é obrigatório';
+                                      }
+                                      return null;
+                                    },
                                   ),
-                                ),
-                                SizedBox(height: 20),
-                                TextFormField(
-                                  controller: _observacoes,
-                                  decoration: InputDecoration(
-                                    label: Text('Observações(Opcional)'),
-                                    prefixIcon: Icon(Icons.abc),
+                                  espacador(20),
+                                  TextFormField(
+                                    controller: _observacoes,
+                                    decoration: InputDecoration(
+                                      labelText: 'Observações(Opcional)',
+                                      prefixIcon: Icon(Icons.abc),
+                                    ),
+                                    validator: (value) => null,
                                   ),
-                                ),
-                                SizedBox(height: 20),
-                                TextFormField(
-                                  controller: _valor,
-                                  decoration: InputDecoration(
-                                    label: Text('Valor R\$'),
-                                    prefixIcon: Icon(Icons.attach_money),
+                                  espacador(20),
+                                  TextFormField(
+                                    controller: _valor,
+                                    decoration: InputDecoration(
+                                      labelText: 'Valor R\$',
+                                      prefixIcon: Icon(Icons.attach_money),
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'O campo é obrigatório';
+                                      }
+                                      return null;
+                                    },
                                   ),
-                                  keyboardType: TextInputType.number,
-                                ),
-                                SizedBox(height: 20),
-                                ElevatedButton(
-                                  onPressed: () {},
-                                  child: Text('Cadastrar'),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
+
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('Cancelar'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                final sucesso = validacaoNovaConta();
+                                if (sucesso == true) Navigator.pop(context);
+                              },
+                              child: Text('Cadastrar'),
+                            ),
+                          ],
                         ),
                   );
                 },
               ),
             ),
-            SizedBox(height: 10),
+            espacador(10),
             SizedBox(
               height: 60,
               width: 350,
               child: OutlinedButton(
                 child: Text('Verificar contas'),
-                onPressed: () {},
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder:
+                        (context) => AlertDialog(
+                          title: Text('Contas cadastradas'),
+                          backgroundColor: Colors.yellow,
+                          content: SizedBox(
+                            height: 400,
+                            width: 300,
+                            child: Expanded(
+                              child: ListView.builder(
+                                itemCount: _listaConta.length,
+                                itemBuilder: (context, index) {
+                                  final item = _listaConta[index];
+                                  return ListTile(
+                                    onTap: () {},
+                                    leading: Icon(Icons.wallet),
+                                    title: Text('Tipo: ${item.tipoConta}'),
+                                    subtitle: Text(
+                                      'Descrição: ${item.descricao}\nValor: ${item.valor}\nObservações: ${item.observacao}',
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                  );
+                },
               ),
             ),
           ],

@@ -48,6 +48,7 @@ class _CorpoRecebimentosState extends State<BodyRecebiveis> {
       final meuRecebimento = Recebimento(
         tipo: _typeControler.text,
         valor: double.tryParse(_valueControler.text) ?? 0.0,
+        // Tranforma de bool para sting
         data: _dataSelecionada!,
       );
 
@@ -179,7 +180,7 @@ class _CorpoRecebimentosState extends State<BodyRecebiveis> {
                       leading: Icon(Icons.monetization_on),
                       title: Text(item.tipo),
                       subtitle: Text(
-                        'Entrada: ${item.data.day}/${item.data.month}/${item.data.year} Valor: R\$${item.valor.toStringAsFixed(2)}',
+                        'Entrada: ${item.data.day}/${item.data.month}/${item.data.year} \nValor: R\$${item.valor.toStringAsFixed(2)}',
                       ),
                     );
                   },
