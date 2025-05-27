@@ -25,24 +25,36 @@ class BodyDevedores extends StatefulWidget {
   State<BodyDevedores> createState() => _BodyDevedoresState();
 }
 
-class _BodyDevedoresState extends State<BodyDevedores>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+Widget espacador([double autura = 20]) => SizedBox(height: autura);
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
+class _BodyDevedoresState extends State<BodyDevedores> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return SafeArea(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 60,
+              width: 350,
+              child: OutlinedButton(
+                onPressed: () {},
+                child: Text('Cadastrar devedor'),
+              ),
+            ),
+            espacador(10),
+            SizedBox(
+              height: 60,
+              width: 350,
+              child: OutlinedButton(
+                onPressed: () {},
+                child: Text('Verifiar Devedores'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
