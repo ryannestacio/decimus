@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -32,13 +33,38 @@ class _BodyLoginState extends State<BodyLogin> {
   final _emailControler = TextEditingController();
   final _senhaController = TextEditingController();
 
-  void _validation() {
+  void _validation() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
+      final email = _emailControler.text.trim();
+      final senha = _senhaController.text.trim();
+
+      try {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: senha,
+        );
+
         _emailControler.clear();
         _senhaController.clear();
-      });
-      Navigator.pushNamed(context, '/home');
+
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, '/home');
+      } on FirebaseException catch (e) {
+        String mensagemErro;
+        if (e.code == 'user-not-found') {
+          mensagemErro = 'Usuário não cadastrado';
+        } else if (e.code == 'wrong-password') {
+          mensagemErro = 'Senha incorreta';
+        } else {
+          mensagemErro = 'Erro: ${e.message}';
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(mensagemErro)));
+        }
+      }
     }
   }
 
