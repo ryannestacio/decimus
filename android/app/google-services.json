@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "779459508336",
+    "project_id": "decimus-app",
+    "storage_bucket": "decimus-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:779459508336:android:9669568c3143d976b25cb5",
+        "android_client_info": {
+          "package_name": "com.example.decimus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYXHrs2vSZdlVM4VuIMbm7dSuqzTas4Q0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
