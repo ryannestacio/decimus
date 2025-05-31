@@ -44,11 +44,11 @@ class _BodyLoginState extends State<BodyLogin> {
           password: senha,
         );
 
-        _emailControler.clear();
-        _senhaController.clear();
-
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/home');
+
+        _emailControler.clear();
+        _senhaController.clear();
       } on FirebaseException catch (e) {
         String mensagemErro;
         if (e.code == 'user-not-found') {
