@@ -55,6 +55,19 @@ class _BodyDespesasState extends State<BodyDespesas> {
     }
   }
 
+  void marcarComoPago(int index) {
+    final antigo = _listaConta[index];
+    final atualizado = ContaCad(
+      tipoConta: antigo.tipoConta,
+      descricao: antigo.descricao,
+      valor: antigo.valor,
+      pago: true,
+    );
+    setState(() {
+      _listaConta[index] = atualizado;
+    });
+  }
+
   bool validacaoNovaConta() {
     if (_formKeyNovaConta.currentState!.validate()) {
       final addConta = ContaCad(
@@ -84,7 +97,7 @@ class _BodyDespesasState extends State<BodyDespesas> {
     return false;
   }
 
-  Widget espacador([double autura = 20]) => SizedBox(height: autura);
+  Widget espacador([double altura = 20]) => SizedBox(height: altura);
 
   @override
   Widget build(BuildContext context) {
@@ -307,21 +320,66 @@ class _BodyDespesasState extends State<BodyDespesas> {
                           content: SizedBox(
                             height: 400,
                             width: 300,
-                            child: Expanded(
-                              child: ListView.builder(
-                                itemCount: _listaConta.length,
-                                itemBuilder: (context, index) {
-                                  final item = _listaConta[index];
-                                  return ListTile(
-                                    onTap: () {},
-                                    leading: Icon(Icons.wallet),
-                                    title: Text('Tipo: ${item.tipoConta}'),
-                                    subtitle: Text(
-                                      'Descrição: ${item.descricao}\nValor: ${item.valor}\nObservações: ${item.observacao}',
-                                    ),
-                                  );
-                                },
-                              ),
+                            child: ListView.builder(
+                              itemCount: _listaConta.length,
+                              itemBuilder: (context, index) {
+                                final item = _listaConta[index];
+                                return ListTile(
+                                  onTap: () {},
+                                  leading: Icon(Icons.wallet),
+                                  title: Text('Tipo: ${item.tipoConta}'),
+                                  subtitle: Text(
+                                    'Descrição: ${item.descricao}\nValor: ${item.valor}\nObservações: ${item.observacao}',
+                                  ),
+                                  trailing:
+                                      _listaConta[index].pago
+                                          ? Icon(
+                                            Icons.check_box,
+                                            color: Colors.green,
+                                          )
+                                          : IconButton(
+                                            icon: Icon(
+                                              Icons.check_box_outline_blank,
+                                              color: Colors.red,
+                                            ),
+                                            onPressed: () {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (context) => AlertDialog(
+                                                      title: Text(
+                                                        'Confirmar pagamento',
+                                                      ),
+                                                      content: Text(
+                                                        'Deseja confirmar o pagamento?',
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                              context,
+                                                            );
+                                                          },
+                                                          child: Text('Não'),
+                                                        ),
+                                                        TextButton(
+                                                          onPressed: () {
+                                                            marcarComoPago(
+                                                              index,
+                                                            );
+                                                            Navigator.pop(
+                                                              context,
+                                                            );
+                                                          },
+                                                          child: Text('Sim'),
+                                                        ),
+                                                      ],
+                                                    ),
+                                              );
+                                            },
+                                          ),
+                                );
+                              },
                             ),
                           ),
                         ),

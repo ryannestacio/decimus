@@ -22,7 +22,7 @@ class BodyRecebiveis extends StatefulWidget {
   const BodyRecebiveis({super.key});
 
   @override
-  State<BodyRecebiveis> createState() => _CorpoRecebimentosState();
+  State<BodyRecebiveis> createState() => _BodyRecebiveisState();
 }
 
 class Recebimento {
@@ -33,10 +33,10 @@ class Recebimento {
   Recebimento({required this.tipo, required this.valor, required this.data});
 }
 
-class _CorpoRecebimentosState extends State<BodyRecebiveis> {
-  final TextEditingController _typeControler = TextEditingController();
-  final TextEditingController _valueControler = TextEditingController();
-  final TextEditingController _dateControler = TextEditingController();
+class _BodyRecebiveisState extends State<BodyRecebiveis> {
+  final TextEditingController _typeController = TextEditingController();
+  final TextEditingController _valueController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   DateTime? _dataSelecionada;
 
@@ -46,19 +46,24 @@ class _CorpoRecebimentosState extends State<BodyRecebiveis> {
   void _criarRecebimento() {
     if (_formKey.currentState!.validate()) {
       final meuRecebimento = Recebimento(
-        tipo: _typeControler.text,
-        valor: double.tryParse(_valueControler.text) ?? 0.0,
+        tipo: _typeController.text,
+        valor: double.tryParse(_valueController.text) ?? 0.0,
         // Tranforma de bool para sting
         data: _dataSelecionada!,
       );
 
-      _dataSelecionada = null;
+      if (_dataSelecionada == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Por favor, selecione uma data.')),
+        );
+        return;
+      }
 
       setState(() {
         _listaRecebimento.add(meuRecebimento);
-        _typeControler.clear();
-        _dateControler.clear();
-        _valueControler.clear();
+        _typeController.clear();
+        _dateController.clear();
+        _valueController.clear();
       });
 
       ScaffoldMessenger.of(
@@ -76,100 +81,97 @@ class _CorpoRecebimentosState extends State<BodyRecebiveis> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    'Adicione um Recebimento',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-                  ),
-                ],
-              ),
-              SizedBox(height: 80),
-              SingleChildScrollView(
-                child: SizedBox(
-                  width: 300,
-                  child: TextFormField(
-                    controller: _typeControler,
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.account_balance_wallet_rounded),
-                      label: Text('Tipo'),
-                      hintText: 'Digite o tipo de recebimento...',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Campo obrigatório';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-              ),
-
-              SingleChildScrollView(
-                child: SizedBox(
-                  width: 300,
-                  child: TextFormField(
-                    controller: _valueControler,
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.attach_money),
-                      label: Text('Valor'),
-                      hintText: 'Digite o valor recebido...',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Campo obrigatório';
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ),
-              SingleChildScrollView(
-                child: SizedBox(
-                  width: 300,
-                  child: TextFormField(
-                    controller: _dateControler,
-                    decoration: InputDecoration(
-                      label: Text('Data de recebimento'),
-                      prefixIcon: Icon(Icons.calendar_today_outlined),
-                    ),
-                    readOnly: true,
-                    onTap: () async {
-                      DateTime? pickedData = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(1900),
-                        lastDate: DateTime(2100),
-                      );
-                      if (pickedData != null) {
-                        _dataSelecionada = pickedData;
-                        _dateControler.text =
-                            '${pickedData.day}/${pickedData.month}/${pickedData.year}';
-                      }
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Campo obrigatório';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-              ),
               SingleChildScrollView(
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SizedBox(height: 30),
-                    SizedBox(
-                      child: ElevatedButton(
-                        onPressed: () => _criarRecebimento(),
-                        child: Text('Receber'),
+                    Text(
+                      'Adicione um Recebimento',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30,
                       ),
                     ),
                   ],
                 ),
+              ),
+              SizedBox(height: 80),
+              SizedBox(
+                width: 300,
+                child: TextFormField(
+                  controller: _typeController,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.account_balance_wallet_rounded),
+                    label: Text('Tipo'),
+                    hintText: 'Digite o tipo de recebimento...',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Campo obrigatório';
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.text,
+                ),
+              ),
+              SizedBox(
+                width: 300,
+                child: TextFormField(
+                  controller: _valueController,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.attach_money),
+                    label: Text('Valor'),
+                    hintText: 'Digite o valor recebido...',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Campo obrigatório';
+                    }
+                    return null;
+                  },
+                  keyboardType: TextInputType.number,
+                ),
+              ),
+              SizedBox(
+                width: 300,
+                child: TextFormField(
+                  controller: _dateController,
+                  decoration: InputDecoration(
+                    label: Text('Data de recebimento'),
+                    prefixIcon: Icon(Icons.calendar_today_outlined),
+                  ),
+                  readOnly: true,
+                  onTap: () async {
+                    DateTime? pickedData = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime(2100),
+                    );
+                    if (pickedData != null) {
+                      _dataSelecionada = pickedData;
+                      _dateController.text =
+                          '${pickedData.day}/${pickedData.month}/${pickedData.year}';
+                    }
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Campo obrigatório';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Column(
+                children: [
+                  SizedBox(height: 30),
+                  SizedBox(
+                    child: ElevatedButton(
+                      onPressed: () => _criarRecebimento(),
+                      child: Text('Receber'),
+                    ),
+                  ),
+                ],
               ),
               Expanded(
                 child: ListView.builder(

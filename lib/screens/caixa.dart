@@ -58,7 +58,7 @@ class _BodyCaixaState extends State<BodyCaixa> {
                 elevation: 3,
                 child: ListTile(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.circular(5),
+                    borderRadius: BorderRadius.circular(5),
                   ),
                   tileColor: Colors.yellow,
                   title: Text('Caixa Atual', style: TextStyle(fontSize: 50)),

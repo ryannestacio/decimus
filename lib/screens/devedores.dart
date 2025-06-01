@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:decimus/models/devedor.dart';
 
 class DevedoresScreen extends StatelessWidget {
   const DevedoresScreen({super.key});
@@ -27,23 +28,39 @@ class BodyDevedores extends StatefulWidget {
 
 Widget espacador([double altura = 20]) => SizedBox(height: altura);
 
-class DevedorClass {
-  String nome;
-  double valor;
-  bool pago;
-
-  DevedorClass({required this.nome, required this.valor, this.pago = false});
-}
-
 class _BodyDevedoresState extends State<BodyDevedores> {
   final TextEditingController _cadDevedor = TextEditingController();
   final TextEditingController _valDevedor = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final List<DevedorClass> _listDevedor = [];
+  final List<Devedor> _listDevedor = [];
+
+  double calcularTotalDevedoresNaoPagos() {
+    return _listDevedor
+        .where((d) => !d.pago)
+        .fold(0.0, (total, d) => total + d.valor);
+  }
+
+  double calcularTotalDevedoresPagos() {
+    return _listDevedor
+        .where((d) => d.pago)
+        .fold(0.0, (total, d) => total + d.valor);
+  }
+
+  void marcarComoPago(int index) {
+    final antigo = _listDevedor[index];
+    final atualizado = Devedor(
+      nome: antigo.nome,
+      valor: antigo.valor,
+      pago: true,
+    );
+    setState(() {
+      _listDevedor[index] = atualizado;
+    });
+  }
 
   void validator() {
     if (_formKey.currentState!.validate()) {
-      final addConta = DevedorClass(
+      final addConta = Devedor(
         nome: _cadDevedor.text,
         valor: double.tryParse(_valDevedor.text) ?? 0.0,
       );
@@ -53,19 +70,20 @@ class _BodyDevedoresState extends State<BodyDevedores> {
         _cadDevedor.clear();
         _valDevedor.clear();
       });
-    }
-  }
 
-  void marcarComoPago(int index) {
-    setState(() {
-      _listDevedor[index].pago = true;
-    });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Devedor salvo com sucesso, verifique em devedores.'),
+        ),
+      );
+      Navigator.pop(context);
+    }
   }
 
   Widget _dialogCadastro() {
     return AlertDialog(
       backgroundColor: Colors.yellow,
-      title: Text('Cadastrar conta de devedor'),
+      title: Text('Novo devedor'),
       content: SizedBox(
         height: 200,
         width: 300,
@@ -116,21 +134,13 @@ class _BodyDevedoresState extends State<BodyDevedores> {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text('Fechar'),
+          child: Text('Cancelar'),
         ),
         TextButton(
           onPressed: () {
             validator();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Devedor salvo com sucesso, verifique em devedores.',
-                ),
-              ),
-            );
-            Navigator.pop(context);
           },
-          child: Text('Salvar'),
+          child: Text('Confirmar'),
         ),
       ],
     );
@@ -147,29 +157,62 @@ class _BodyDevedoresState extends State<BodyDevedores> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-              child: ListView.builder(
-                itemCount: _listDevedor.length,
-                itemBuilder: (context, index) {
-                  final item = _listDevedor[index];
-                  return ListTile(
-                    leading: Icon(Icons.supervised_user_circle_outlined),
-                    title: Text(item.nome),
-                    subtitle: Text('Valor devedor: ${item.valor}'),
-                    trailing:
-                        _listDevedor[index].pago
-                            ? Icon(Icons.check_box, color: Colors.green)
-                            : IconButton(
-                              icon: Icon(
-                                Icons.check_box_outline_blank,
-                                color: Colors.red,
-                              ),
-                              onPressed: () {
-                                marcarComoPago(index);
-                              },
+              child:
+                  _listDevedor.isEmpty
+                      ? Center(child: const Text('Nenhum devedor cadastrado.'))
+                      : ListView.builder(
+                        itemCount: _listDevedor.length,
+                        itemBuilder: (context, index) {
+                          final item = _listDevedor[index];
+                          return ListTile(
+                            leading: Icon(
+                              Icons.supervised_user_circle_outlined,
                             ),
-                  );
-                },
-              ),
+                            title: Text(item.nome),
+                            subtitle: Text(
+                              'R\$ ${item.valor.toStringAsFixed(2)}',
+                            ),
+                            trailing:
+                                _listDevedor[index].pago
+                                    ? Icon(Icons.check_box, color: Colors.green)
+                                    : IconButton(
+                                      icon: Icon(
+                                        Icons.check_box_outline_blank,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder:
+                                              (context) => AlertDialog(
+                                                title: Text(
+                                                  'Confirmar pagamento',
+                                                ),
+                                                content: Text(
+                                                  'Deseja confirmar o pagamento?',
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text('Não'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      marcarComoPago(index);
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text('Sim'),
+                                                  ),
+                                                ],
+                                              ),
+                                        );
+                                      },
+                                    ),
+                          );
+                        },
+                      ),
             ),
           ],
         ),

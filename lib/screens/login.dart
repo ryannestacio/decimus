@@ -132,6 +132,16 @@ class _BodyLoginState extends State<BodyLogin> {
                       onPressed: () {
                         _validation();
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purple,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(color: Colors.white, width: 2),
+                        ),
+                        elevation: 8,
+                      ),
+
                       child: const Text(
                         'Entrar',
                         style: TextStyle(fontWeight: FontWeight.bold),
