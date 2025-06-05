@@ -84,6 +84,10 @@ class _BodyDespesasState extends State<BodyDespesas> {
         _valor.clear();
       });
 
+      double somaDeespesas = _listaConta
+          .where((valorC) => valorC.pago)
+          .fold(0.0, (soma, valorC) => soma + valorC.valor);
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -209,7 +213,7 @@ class _BodyDespesasState extends State<BodyDespesas> {
                             height: 350,
                             width: 300,
                             child: Form(
-                              //obs: O widget Form, tem que está fora da comumn.
+                              //obs: O widget Form, tem que está fora da column.
                               //Ou seja, a column tem que está dentro do form.
                               key: _formKeyNovaConta,
                               child: Column(
