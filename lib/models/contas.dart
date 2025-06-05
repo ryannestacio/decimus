@@ -2,7 +2,7 @@ class ContaCad {
   final String? tipoConta;
   final String? descricao;
   final String? observacao;
-  final double? valor;
+  final double valor;
   final bool pago;
 
   ContaCad({

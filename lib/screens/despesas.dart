@@ -84,9 +84,17 @@ class _BodyDespesasState extends State<BodyDespesas> {
         _valor.clear();
       });
 
-      double somaDeespesas = _listaConta
-          .where((valorC) => valorC.pago)
-          .fold(0.0, (soma, valorC) => soma + valorC.valor);
+      double calcularTotalDespesasPagos() {
+        return _listaConta
+            .where((valorC) => valorC.pago)
+            .fold(0.0, (soma, valorC) => soma + valorC.valor);
+      }
+
+      double calcularTotalDevedoresNaoPagos() {
+        return _listaConta
+            .where((valorC) => !valorC.pago)
+            .fold(0.0, (soma, valorC) => soma + valorC.valor);
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

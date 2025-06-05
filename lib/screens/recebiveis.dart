@@ -72,9 +72,11 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
         _valueController.clear();
       });
 
-      double somaRecebimentos = _listaRecebimento
-          .where((valorR) => valorR.pago)
-          .fold(0.0, (soma, valorR) => soma + valorR.valor);
+      double calcularTotalRecebiveisPagos() {
+        return _listaRecebimento
+            .where((valorR) => valorR.pago)
+            .fold(0.0, (soma, valorR) => soma + valorR.valor);
+      }
 
       ScaffoldMessenger.of(
         context,
