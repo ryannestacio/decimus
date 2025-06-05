@@ -26,7 +26,7 @@ class BodyDevedores extends StatefulWidget {
   State<BodyDevedores> createState() => _BodyDevedoresState();
 }
 
-Widget espacador([double altura = 20]) => SizedBox(height: altura);
+Widget _espacador([double altura = 20]) => SizedBox(height: altura);
 
 class _BodyDevedoresState extends State<BodyDevedores> {
   final TextEditingController _cadDevedor = TextEditingController();
@@ -106,7 +106,7 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                   return null;
                 },
               ),
-              espacador(10),
+              _espacador(10),
               TextFormField(
                 controller: _valDevedor,
                 validator: (value) {
@@ -240,7 +240,7 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                 child: Text('Cadastrar devedor'),
               ),
             ),
-            espacador(10),
+            _espacador(10),
             SizedBox(
               height: 60,
               width: 350,

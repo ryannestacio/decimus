@@ -29,8 +29,14 @@ class Recebimento {
   String tipo;
   double valor;
   DateTime data;
+  bool pago;
 
-  Recebimento({required this.tipo, required this.valor, required this.data});
+  Recebimento({
+    required this.tipo,
+    required this.valor,
+    required this.data,
+    this.pago = true,
+  });
 }
 
 class _BodyRecebiveisState extends State<BodyRecebiveis> {
@@ -65,6 +71,10 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
         _dateController.clear();
         _valueController.clear();
       });
+
+      double somaRecebimentos = _listaRecebimento
+          .where((valorR) => valorR.pago)
+          .fold(0.0, (soma, valorR) => soma + valorR.valor);
 
       ScaffoldMessenger.of(
         context,

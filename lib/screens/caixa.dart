@@ -1,4 +1,3 @@
-import 'package:decimus/screens/devedores.dart';
 import 'package:flutter/material.dart';
 
 class CaixaScreen extends StatelessWidget {
@@ -27,6 +26,7 @@ class BodyCaixa extends StatefulWidget {
 }
 
 class _BodyCaixaState extends State<BodyCaixa> {
+  //Widget reutilizável tipo ListTile
   Widget _buildCard(String title, String content, Color cor) {
     return Card(
       elevation: 3,
@@ -41,6 +41,7 @@ class _BodyCaixaState extends State<BodyCaixa> {
     );
   }
 
+  //Widget reutilizável tipo SizedBox que recebe o parametro como altura
   Widget _espacador(double altura) {
     return SizedBox(height: altura);
   }
@@ -66,11 +67,11 @@ class _BodyCaixaState extends State<BodyCaixa> {
                 ),
               ),
             ),
-            espacador(10),
+            _espacador(10),
             _buildCard('Recebiveis previstos:', 'R\$ 0,00', Colors.green),
             _espacador(10),
             _buildCard('Despesas pendentes:', 'R\$0,00', Colors.red),
-            espacador(20),
+            _espacador(20),
             ElevatedButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
