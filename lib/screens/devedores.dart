@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:decimus/models/devedor.dart';
+import 'package:decimus/models/models_devedores.dart';
 
 class DevedoresScreen extends StatelessWidget {
   const DevedoresScreen({super.key});

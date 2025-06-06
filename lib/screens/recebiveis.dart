@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:decimus/models/models_recebiveis.dart';
 
 class RecebiveisScreen extends StatelessWidget {
   const RecebiveisScreen({super.key});
@@ -25,20 +26,6 @@ class BodyRecebiveis extends StatefulWidget {
   State<BodyRecebiveis> createState() => _BodyRecebiveisState();
 }
 
-class Recebimento {
-  String tipo;
-  double valor;
-  DateTime data;
-  bool pago;
-
-  Recebimento({
-    required this.tipo,
-    required this.valor,
-    required this.data,
-    this.pago = true,
-  });
-}
-
 class _BodyRecebiveisState extends State<BodyRecebiveis> {
   final TextEditingController _typeController = TextEditingController();
   final TextEditingController _valueController = TextEditingController();
@@ -48,6 +35,12 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
 
   //Lista onde vou armazenar as informações dos campos de recebimento
   final List<Recebimento> _listaRecebimento = [];
+
+  double calcularTotalRecebiveisPagos() {
+    return _listaRecebimento
+        .where((valorR) => valorR.pago)
+        .fold(0.0, (soma, valorR) => soma + valorR.valor);
+  }
 
   void _criarRecebimento() {
     if (_formKey.currentState!.validate()) {
@@ -71,12 +64,6 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
         _dateController.clear();
         _valueController.clear();
       });
-
-      double calcularTotalRecebiveisPagos() {
-        return _listaRecebimento
-            .where((valorR) => valorR.pago)
-            .fold(0.0, (soma, valorR) => soma + valorR.valor);
-      }
 
       ScaffoldMessenger.of(
         context,

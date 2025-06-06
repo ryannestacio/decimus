@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:decimus/models/contas.dart';
+import 'package:decimus/models/models_despesas.dart';
 
 class DespesasScreen extends StatelessWidget {
   const DespesasScreen({super.key});
@@ -37,6 +37,18 @@ class _BodyDespesasState extends State<BodyDespesas> {
   final _formKeyNovaConta = GlobalKey<FormState>();
   final List<Conta> _listaTipoConta = [];
   final List<ContaCad> _listaConta = [];
+
+  double calcularTotalDespesasPagos() {
+    return _listaConta
+        .where((valorC) => valorC.pago)
+        .fold(0.0, (soma, valorC) => soma + valorC.valor);
+  }
+
+  double calcularTotalDevedoresNaoPagos() {
+    return _listaConta
+        .where((valorC) => !valorC.pago)
+        .fold(0.0, (soma, valorC) => soma + valorC.valor);
+  }
 
   String? tipoSelecionado;
 
@@ -83,18 +95,6 @@ class _BodyDespesasState extends State<BodyDespesas> {
         _observacoes.clear();
         _valor.clear();
       });
-
-      double calcularTotalDespesasPagos() {
-        return _listaConta
-            .where((valorC) => valorC.pago)
-            .fold(0.0, (soma, valorC) => soma + valorC.valor);
-      }
-
-      double calcularTotalDevedoresNaoPagos() {
-        return _listaConta
-            .where((valorC) => !valorC.pago)
-            .fold(0.0, (soma, valorC) => soma + valorC.valor);
-      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
