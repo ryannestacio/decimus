@@ -1,3 +1,4 @@
+import 'package:decimus/services/services_recebiveis.dart';
 import 'package:flutter/material.dart';
 import 'package:decimus/models/models_recebiveis.dart';
 
@@ -34,14 +35,7 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
   DateTime? _dataSelecionada;
 
   //Lista onde vou armazenar as informações dos campos de recebimento
-  final List<Recebimento> _listaRecebimento = [];
-
-  double calcularTotalRecebiveisPagos() {
-    return _listaRecebimento
-        .where((valorR) => valorR.pago)
-        .fold(0.0, (soma, valorR) => soma + valorR.valor);
-  }
-
+  final listaRecebimento = FinanceiroServiceRecebiveis.listaRecebimentos;
   void _criarRecebimento() {
     if (_formKey.currentState!.validate()) {
       final meuRecebimento = Recebimento(
@@ -59,7 +53,7 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
       }
 
       setState(() {
-        _listaRecebimento.add(meuRecebimento);
+        FinanceiroServiceRecebiveis.listaRecebimentos.add(meuRecebimento);
         _typeController.clear();
         _dateController.clear();
         _valueController.clear();
@@ -174,9 +168,11 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: _listaRecebimento.length,
+                  itemCount:
+                      FinanceiroServiceRecebiveis.listaRecebimentos.length,
                   itemBuilder: (context, index) {
-                    final item = _listaRecebimento[index];
+                    final item =
+                        FinanceiroServiceRecebiveis.listaRecebimentos[index];
                     return ListTile(
                       leading: Icon(Icons.monetization_on),
                       title: Text(item.tipo),
@@ -186,6 +182,9 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
                     );
                   },
                 ),
+              ),
+              Text(
+                'Teste:\n\nTotal recebido: ${FinanceiroServiceRecebiveis.totalRecebiveis}',
               ),
             ],
           ),

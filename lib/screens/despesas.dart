@@ -1,4 +1,4 @@
-import 'package:decimus/services/services_financeiro.dart';
+import 'package:decimus/services/services_despesas.dart';
 import 'package:flutter/material.dart';
 import 'package:decimus/models/models_despesas.dart';
 
@@ -37,7 +37,7 @@ class _BodyDespesasState extends State<BodyDespesas> {
   final _formKeyTipoConta = GlobalKey<FormState>();
   final _formKeyNovaConta = GlobalKey<FormState>();
   final List<Conta> _listaTipoConta = [];
-  final listaConta = FinanceiroService.listaConta;
+  final listaConta = FinanceiroServiceDespesas.listaConta;
 
   /*double calcularTotalDespesasPagos() {
     return _listaConta
@@ -90,7 +90,7 @@ class _BodyDespesasState extends State<BodyDespesas> {
         valor: double.tryParse(_valor.text) ?? 0.0,
       );
       setState(() {
-        FinanceiroService.listaConta.add(addConta);
+        FinanceiroServiceDespesas.listaConta.add(addConta);
         _tipoConta.clear();
         _descricao.clear();
         _observacoes.clear();
@@ -402,9 +402,11 @@ class _BodyDespesasState extends State<BodyDespesas> {
             ),
             SizedBox(height: 20),
             Text('testes:'),
-            Text('Despesas pagas: R\$${FinanceiroService.totalDespesasPagas}'),
             Text(
-              'Despesas pendentes: R\$${FinanceiroService.totalDespesasPendentes}',
+              'Despesas pagas: R\$${FinanceiroServiceDespesas.totalDespesasPagas}',
+            ),
+            Text(
+              'Despesas pendentes: R\$${FinanceiroServiceDespesas.totalDespesasPendentes}',
             ),
           ],
         ),

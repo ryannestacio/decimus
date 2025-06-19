@@ -1,6 +1,6 @@
 import 'package:decimus/models/models_despesas.dart';
 
-class FinanceiroService {
+class FinanceiroServiceDespesas {
   static List<ContaCad> listaConta = [];
 
   static double get totalDespesasPagas =>
