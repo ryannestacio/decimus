@@ -1,3 +1,4 @@
+import 'package:decimus/services/services_financeiro.dart';
 import 'package:flutter/material.dart';
 
 class CaixaScreen extends StatelessWidget {
@@ -63,14 +64,18 @@ class _BodyCaixaState extends State<BodyCaixa> {
                   ),
                   tileColor: Colors.yellow,
                   title: Text('Caixa Atual', style: TextStyle(fontSize: 50)),
-                  subtitle: Text('R\$0,00', style: TextStyle(fontSize: 25)),
+                  subtitle: Text('R\$99999', style: TextStyle(fontSize: 25)),
                 ),
               ),
             ),
             _espacador(10),
             _buildCard('Recebiveis previstos:', 'R\$ 0,00', Colors.green),
             _espacador(10),
-            _buildCard('Despesas pendentes:', 'R\$0,00', Colors.red),
+            _buildCard(
+              'Despesas pendentes:',
+              'R\$${FinanceiroService.totalDespesasPendentes}',
+              Colors.red,
+            ),
             _espacador(20),
             ElevatedButton(
               onPressed: () {
