@@ -38,19 +38,6 @@ class _BodyDespesasState extends State<BodyDespesas> {
   final _formKeyNovaConta = GlobalKey<FormState>();
   final List<Conta> _listaTipoConta = [];
   final listaConta = FinanceiroServiceDespesas.listaConta;
-
-  /*double calcularTotalDespesasPagos() {
-    return _listaConta
-        .where((valorC) => valorC.pago)
-        .fold(0.0, (soma, valorC) => soma + valorC.valor);
-  }
-
-  double calcularTotalDevedoresNaoPagos() {
-    return _listaConta
-        .where((valorC) => !valorC.pago)
-        .fold(0.0, (soma, valorC) => soma + valorC.valor);
-  }*/
-
   String? tipoSelecionado;
 
   void validacaoTipoConta() {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:decimus/services/services_devedores.dart';
 import 'package:decimus/models/models_devedores.dart';
 
 class DevedoresScreen extends StatelessWidget {
@@ -32,29 +33,17 @@ class _BodyDevedoresState extends State<BodyDevedores> {
   final TextEditingController _cadDevedor = TextEditingController();
   final TextEditingController _valDevedor = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final List<Devedor> _listDevedor = [];
-
-  double calcularTotalDevedoresNaoPagos() {
-    return _listDevedor
-        .where((d) => !d.pago)
-        .fold(0.0, (total, d) => total + d.valor);
-  }
-
-  double calcularTotalDevedoresPagos() {
-    return _listDevedor
-        .where((d) => d.pago)
-        .fold(0.0, (total, d) => total + d.valor);
-  }
+  final listaDevedor = FinanceiroServiceDevedores.listDevedor;
 
   void marcarComoPago(int index) {
-    final antigo = _listDevedor[index];
+    final antigo = listaDevedor[index];
     final atualizado = Devedor(
       nome: antigo.nome,
       valor: antigo.valor,
       pago: true,
     );
     setState(() {
-      _listDevedor[index] = atualizado;
+      listaDevedor[index] = atualizado;
     });
   }
 
@@ -66,7 +55,7 @@ class _BodyDevedoresState extends State<BodyDevedores> {
       );
 
       setState(() {
-        _listDevedor.add(addConta);
+        listaDevedor.add(addConta);
         _cadDevedor.clear();
         _valDevedor.clear();
       });
@@ -158,12 +147,12 @@ class _BodyDevedoresState extends State<BodyDevedores> {
           children: [
             Expanded(
               child:
-                  _listDevedor.isEmpty
+                  listaDevedor.isEmpty
                       ? Center(child: const Text('Nenhum devedor cadastrado.'))
                       : ListView.builder(
-                        itemCount: _listDevedor.length,
+                        itemCount: listaDevedor.length,
                         itemBuilder: (context, index) {
-                          final item = _listDevedor[index];
+                          final item = listaDevedor[index];
                           return ListTile(
                             leading: Icon(
                               Icons.supervised_user_circle_outlined,
@@ -173,7 +162,7 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                               'R\$ ${item.valor.toStringAsFixed(2)}',
                             ),
                             trailing:
-                                _listDevedor[index].pago
+                                listaDevedor[index].pago
                                     ? Icon(Icons.check_box, color: Colors.green)
                                     : IconButton(
                                       icon: Icon(
@@ -253,6 +242,9 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                 },
                 child: Text('Verificar Devedores'),
               ),
+            ),
+            Text(
+              'Teste:\n\nValores pendentes: ${FinanceiroServiceDevedores.devedoresPendentes}\nValores pagos: ${FinanceiroServiceDevedores.devedoresPagos}',
             ),
           ],
         ),

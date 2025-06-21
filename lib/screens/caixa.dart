@@ -1,5 +1,9 @@
 import 'package:decimus/services/services_despesas.dart';
 import 'package:decimus/services/services_recebiveis.dart';
+import 'package:decimus/services/services_devedores.dart';
+import 'package:decimus/services/global_services.dart';
+import 'package:decimus/services/services_caixa.dart';
+
 import 'package:flutter/material.dart';
 
 class CaixaScreen extends StatelessWidget {
@@ -66,17 +70,21 @@ class _BodyCaixaState extends State<BodyCaixa> {
                   tileColor: Colors.yellow,
                   title: Text('Caixa Atual', style: TextStyle(fontSize: 50)),
                   subtitle: Text(
-                    'R\$${FinanceiroServiceRecebiveis.totalRecebiveis}',
+                    'R\$${FinanceiroServiceCaixa.totalCaixaDef}',
                     style: TextStyle(fontSize: 25),
                   ),
                 ),
               ),
             ),
             _espacador(10),
-            _buildCard('Recebiveis previstos:', 'R\$ 0,00', Colors.green),
+            _buildCard(
+              'Recebiveis previstos:',
+              'R\$${FinanceiroServiceDevedores.devedoresPendentes}',
+              Colors.green,
+            ),
             _espacador(10),
             _buildCard(
-              'Despesas pendentes:',
+              'Despesas previstas:',
               'R\$${FinanceiroServiceDespesas.totalDespesasPendentes}',
               Colors.red,
             ),
