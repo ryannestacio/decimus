@@ -1,7 +1,5 @@
 import 'package:decimus/services/services_despesas.dart';
-import 'package:decimus/services/services_recebiveis.dart';
 import 'package:decimus/services/services_devedores.dart';
-import 'package:decimus/services/global_services.dart';
 import 'package:decimus/services/services_caixa.dart';
 
 import 'package:flutter/material.dart';
@@ -70,7 +68,7 @@ class _BodyCaixaState extends State<BodyCaixa> {
                   tileColor: Colors.yellow,
                   title: Text('Caixa Atual', style: TextStyle(fontSize: 50)),
                   subtitle: Text(
-                    'R\$${FinanceiroServiceCaixa.totalCaixaDef}',
+                    'R\$${FinanceiroServiceCaixa.saldoFinalDoCaixa}',
                     style: TextStyle(fontSize: 25),
                   ),
                 ),
