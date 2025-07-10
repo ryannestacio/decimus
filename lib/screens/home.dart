@@ -148,7 +148,7 @@ class _CorpoBotoesState extends State<BodyHome> {
               ),
               SizedBox(height: 4),
 
-              ListTile(
+              /*ListTile(
                 onTap: () => Navigator.pushNamed(context, '/devolucoes'),
                 leading: Icon(Icons.loop_rounded),
                 trailing: Icon(Icons.arrow_forward_ios),
@@ -174,7 +174,7 @@ class _CorpoBotoesState extends State<BodyHome> {
                   horizontal: 20,
                   vertical: 10,
                 ),
-              ),
+              ),*/
             ],
           ),
         ),

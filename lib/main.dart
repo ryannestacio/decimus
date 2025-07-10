@@ -1,7 +1,6 @@
 import 'package:decimus/screens/caixa.dart';
 import 'package:decimus/screens/despesas.dart';
 import 'package:decimus/screens/devedores.dart';
-import 'package:decimus/screens/devolucoes.dart';
 import 'package:decimus/screens/recebiveis.dart';
 import 'package:flutter/material.dart';
 import 'screens/login.dart';
@@ -33,7 +32,6 @@ class MyApp extends StatelessWidget {
         '/despesas': (context) => DespesasScreen(),
         '/devedores': (context) => DevedoresScreen(),
         '/caixa': (context) => CaixaScreen(),
-        '/devolucoes': (context) => DevolucoesScreen(),
       },
     );
   }
