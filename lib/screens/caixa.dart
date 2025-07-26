@@ -1,7 +1,7 @@
 import 'package:decimus/services/services_despesas.dart';
 import 'package:decimus/services/services_devedores.dart';
 import 'package:decimus/services/services_caixa.dart';
-
+import 'package:decimus/services/services_recebiveis.dart';
 import 'package:flutter/material.dart';
 
 class CaixaScreen extends StatelessWidget {
@@ -43,6 +43,17 @@ class _BodyCaixaState extends State<BodyCaixa> {
         subtitle: Text(content, style: TextStyle(color: Colors.white)),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarTotalRecebido();
+  }
+
+  Future<void> _carregarTotalRecebido() async {
+    await FinanceiroServiceRecebiveis.calcularTotalRecebiveis();
+    setState(() {}); // Atualiza a tela com o novo total
   }
 
   //Widget reutilizável tipo SizedBox que recebe o parametro como altura
