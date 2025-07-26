@@ -1,6 +1,6 @@
 import 'package:decimus/services/services_recebiveis.dart';
 import 'package:flutter/material.dart';
-import 'package:decimus/models/models_recebiveis.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RecebiveisScreen extends StatelessWidget {
   const RecebiveisScreen({super.key});
@@ -36,9 +36,15 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
 
   //Lista onde vou armazenar as informações dos campos de recebimento
   final listaRecebimento = FinanceiroServiceRecebiveis.listaRecebimentos;
-  void _criarRecebimento() {
+  Future<void> _criarRecebimento() async {
     if (_formKey.currentState!.validate()) {
-      final meuRecebimento = Recebimento(
+      if (_dataSelecionada == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Por favor, selecione uma data.')),
+        );
+        return;
+      }
+      /*final meuRecebimento = Recebimento(
         tipo: _typeController.text,
         valor: double.tryParse(_valueController.text) ?? 0.0,
         // Tranforma de bool para sting
@@ -50,18 +56,39 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
           SnackBar(content: Text('Por favor, selecione uma data.')),
         );
         return;
-      }
+      }*/
 
-      setState(() {
+      final novoRecebimento = {
+        'tipo': _typeController.text,
+        'valor': double.tryParse(_valueController.text) ?? 0.0,
+        'data': Timestamp.fromDate(_dataSelecionada!),
+      };
+
+      await FirebaseFirestore.instance
+          .collection('recebiveis')
+          .add(novoRecebimento);
+
+      /*setState(() {
         FinanceiroServiceRecebiveis.listaRecebimentos.add(meuRecebimento);
         _typeController.clear();
         _dateController.clear();
         _valueController.clear();
+      });*/
+
+      setState(() {
+        _typeController.clear();
+        _valueController.clear();
+        _dateController.clear();
+        _dataSelecionada = null;
       });
+
+      /*ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Recebimento salvo!')));*/
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Recebimento salvo!')));
+      ).showSnackBar(SnackBar(content: Text('Recebimento salvo no Firebase!')));
     }
   }
 
@@ -166,7 +193,7 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
                   ),
                 ],
               ),
-              Expanded(
+              /*Expanded(
                 child: ListView.builder(
                   itemCount:
                       FinanceiroServiceRecebiveis.listaRecebimentos.length,
@@ -182,7 +209,42 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
                     );
                   },
                 ),
+              ),*/
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream:
+                      FirebaseFirestore.instance
+                          .collection('recebiveis')
+                          .orderBy('data', descending: true)
+                          .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+
+                    final docs = snapshot.data?.docs ?? [];
+
+                    return ListView.builder(
+                      itemCount: docs.length,
+                      itemBuilder: (context, index) {
+                        final doc = docs[index];
+                        final tipo = doc['tipo'];
+                        final valor = doc['valor'];
+                        final data = (doc['data'] as Timestamp).toDate();
+
+                        return ListTile(
+                          leading: Icon(Icons.monetization_on),
+                          title: Text(tipo),
+                          subtitle: Text(
+                            'Entrada: ${data.day}/${data.month}/${data.year}\nValor: R\$${valor.toStringAsFixed(2)}',
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
+
               Text(
                 'Teste:\n\nTotal recebido: ${FinanceiroServiceRecebiveis.totalRecebiveis}',
               ),

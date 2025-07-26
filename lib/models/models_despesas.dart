@@ -1,4 +1,5 @@
 class ContaCad {
+  final String? id;
   final String? tipoConta;
   final String? descricao;
   final String? observacao;
@@ -6,6 +7,7 @@ class ContaCad {
   final bool pago;
 
   ContaCad({
+    this.id,
     required this.tipoConta,
     required this.descricao,
     this.observacao,

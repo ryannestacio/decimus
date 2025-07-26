@@ -1,6 +1,7 @@
 import 'package:decimus/services/services_despesas.dart';
 import 'package:flutter/material.dart';
 import 'package:decimus/models/models_despesas.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DespesasScreen extends StatelessWidget {
   const DespesasScreen({super.key});
@@ -34,13 +35,20 @@ class _BodyDespesasState extends State<BodyDespesas> {
   final TextEditingController _observacoes = TextEditingController();
   final TextEditingController _valor = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    carregarTiposDeConta();
+    carregarDespesasDoFirestore();
+    //marcarComoPago(); // Remove or replace with marcarComoPagoLocal if needed
+  }
+
   final _formKeyTipoConta = GlobalKey<FormState>();
   final _formKeyNovaConta = GlobalKey<FormState>();
-  final List<Conta> _listaTipoConta = [];
-  final listaConta = FinanceiroServiceDespesas.listaConta;
+  List<Conta> _listaTipoConta = [];
   String? tipoSelecionado;
 
-  void validacaoTipoConta() {
+  /*void validacaoTipoConta() {
     if (_formKeyTipoConta.currentState!.validate()) {
       final addConta = Conta(tipoConta: _novoTipoConta.text);
 
@@ -53,22 +61,51 @@ class _BodyDespesasState extends State<BodyDespesas> {
         context,
       ).showSnackBar(SnackBar(content: Text('Tipo de conta salvo!')));
     }
+  }*/
+  void validacaoTipoConta() async {
+    if (_formKeyTipoConta.currentState!.validate()) {
+      final tipo = _novoTipoConta.text;
+
+      try {
+        await FirebaseFirestore.instance.collection('tipos_despesas').add({
+          'tipoConta': tipo,
+          'createdAt': Timestamp.now(),
+        });
+
+        /* setState(() {
+          _listaTipoConta.add(Conta(tipoConta: tipo));
+          _novoTipoConta.clear();
+        });*/
+
+        _novoTipoConta.clear();
+        await carregarTiposDeConta();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tipo de conta salvo no Firestore!')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao salvar no Firestore: $e')),
+        );
+      }
+    }
   }
 
-  void marcarComoPago(int index) {
-    final antigo = listaConta[index];
+  void marcarComoPagoLocal(int index) {
+    final antigo = FinanceiroServiceDespesas.listaConta[index];
     final atualizado = ContaCad(
       tipoConta: antigo.tipoConta,
       descricao: antigo.descricao,
       valor: antigo.valor,
+      observacao: antigo.observacao,
       pago: true,
     );
     setState(() {
-      listaConta[index] = atualizado;
+      FinanceiroServiceDespesas.listaConta[index] = atualizado;
     });
   }
 
-  bool validacaoNovaConta() {
+  /*bool validacaoNovaConta() {
     if (_formKeyNovaConta.currentState!.validate()) {
       final addConta = ContaCad(
         tipoConta: _tipoConta.text,
@@ -95,6 +132,117 @@ class _BodyDespesasState extends State<BodyDespesas> {
       return true;
     }
     return false;
+  }*/
+  bool validacaoNovaConta() {
+    if (_formKeyNovaConta.currentState!.validate()) {
+      final novaConta = ContaCad(
+        tipoConta: _tipoConta.text,
+        descricao: _descricao.text,
+        observacao: _observacoes.text,
+        valor: double.tryParse(_valor.text) ?? 0.0,
+        pago: false,
+      );
+
+      FirebaseFirestore.instance.collection('despesas').add({
+        'tipoConta': novaConta.tipoConta,
+        'descricao': novaConta.descricao,
+        'observacao': novaConta.observacao,
+        'valor': novaConta.valor,
+        'pago': false,
+        'createdAt': Timestamp.now(),
+      });
+
+      setState(() {
+        FinanceiroServiceDespesas.listaConta.add(novaConta);
+        _tipoConta.clear();
+        _descricao.clear();
+        _observacoes.clear();
+        _valor.clear();
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Conta cadastrada e salva no Firestore!')),
+      );
+
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> carregarDespesasDoFirestore() async {
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('despesas')
+            .orderBy('createdAt', descending: false)
+            .get();
+
+    final lista =
+        snapshot.docs.map((doc) {
+          final data = doc.data();
+          return ContaCad(
+            id: doc.id,
+            tipoConta: data['tipoConta'] ?? '',
+            descricao: data['descricao'] ?? '',
+            observacao: data['observacao'] ?? '',
+            valor: (data['valor'] ?? 0).toDouble(),
+            pago: data['pago'] ?? false,
+          );
+        }).toList();
+
+    setState(() {
+      FinanceiroServiceDespesas.listaConta = lista;
+    });
+  }
+
+  Future<void> carregarTiposDeConta() async {
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('tipos_despesas')
+            .orderBy('createdAt', descending: false)
+            .get();
+
+    final tipos =
+        snapshot.docs.map((doc) {
+          return Conta(tipoConta: doc['tipoConta']);
+        }).toList();
+
+    setState(() {
+      _listaTipoConta = tipos;
+    });
+  }
+
+  Future<void> marcarComoPago(int index) async {
+    final antigo = FinanceiroServiceDespesas.listaConta[index];
+
+    // Verifique se você tem o ID do documento
+    if (antigo.id == null) {
+      print('ID do documento não encontrado. Não é possível atualizar.');
+      return;
+    }
+
+    final atualizado = ContaCad(
+      id: antigo.id, // mantemos o mesmo ID
+      tipoConta: antigo.tipoConta,
+      descricao: antigo.descricao,
+      valor: antigo.valor,
+      observacao: antigo.observacao,
+      pago: true, // marcar como pago
+    );
+
+    try {
+      // Atualiza no Firestore
+      await FirebaseFirestore.instance
+          .collection('despesas')
+          .doc(antigo.id) // importante usar o ID do documento
+          .update({'pago': true});
+
+      // Atualiza localmente também
+      setState(() {
+        FinanceiroServiceDespesas.listaConta[index] = atualizado;
+      });
+    } catch (e) {
+      print('Erro ao atualizar documento: $e');
+    }
   }
 
   Widget espacador([double altura = 20]) => SizedBox(height: altura);
@@ -215,7 +363,7 @@ class _BodyDespesasState extends State<BodyDespesas> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  DropdownButtonFormField<String>(
+                                  /*DropdownButtonFormField<String>(
                                     value:
                                         _tipoConta.text.isEmpty
                                             ? null
@@ -242,7 +390,35 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                       }
                                       return null;
                                     },
+                                  ),*/
+                                  DropdownButtonFormField<String>(
+                                    value:
+                                        _tipoConta.text.isNotEmpty
+                                            ? _tipoConta.text
+                                            : null,
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        _tipoConta.text = newValue!;
+                                      });
+                                    },
+                                    items:
+                                        _listaTipoConta.map((conta) {
+                                          return DropdownMenuItem<String>(
+                                            value: conta.tipoConta,
+                                            child: Text(conta.tipoConta),
+                                          );
+                                        }).toList(),
+                                    decoration: InputDecoration(
+                                      labelText: 'Tipo de Conta',
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Por favor, selecione um tipo de conta';
+                                      }
+                                      return null;
+                                    },
                                   ),
+
                                   espacador(20),
                                   TextFormField(
                                     controller: _descricao,
@@ -321,9 +497,11 @@ class _BodyDespesasState extends State<BodyDespesas> {
                             height: 400,
                             width: 300,
                             child: ListView.builder(
-                              itemCount: listaConta.length,
+                              itemCount:
+                                  FinanceiroServiceDespesas.listaConta.length,
                               itemBuilder: (context, index) {
-                                final item = listaConta[index];
+                                final item =
+                                    FinanceiroServiceDespesas.listaConta[index];
                                 return ListTile(
                                   onTap: () {},
                                   leading: Icon(Icons.wallet),
@@ -332,7 +510,9 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                     'Descrição: ${item.descricao}\nValor: ${item.valor}\nObservações: ${item.observacao}',
                                   ),
                                   trailing:
-                                      listaConta[index].pago
+                                      FinanceiroServiceDespesas
+                                              .listaConta[index]
+                                              .pago
                                           ? Icon(
                                             Icons.check_box,
                                             color: Colors.green,

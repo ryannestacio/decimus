@@ -147,34 +147,6 @@ class _CorpoBotoesState extends State<BodyHome> {
                 ),
               ),
               SizedBox(height: 4),
-
-              /*ListTile(
-                onTap: () => Navigator.pushNamed(context, '/devolucoes'),
-                leading: Icon(Icons.loop_rounded),
-                trailing: Icon(Icons.arrow_forward_ios),
-                title: const Padding(
-                  padding: EdgeInsets.all(2.0),
-                  child: Text(
-                    'Devoluções',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                  ),
-                ),
-                subtitle: const Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Text(
-                    'Devolução de saídas e entradas.',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                tileColor: Colors.yellow,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-              ),*/
             ],
           ),
         ),
