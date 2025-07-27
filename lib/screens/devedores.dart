@@ -35,24 +35,42 @@ class _BodyDevedoresState extends State<BodyDevedores> {
   final _formKey = GlobalKey<FormState>();
   final listaDevedor = FinanceiroServiceDevedores.listDevedor;
 
-  void marcarComoPago(int index) {
+  @override
+  void initState() {
+    super.initState();
+    _carregarDevedores();
+  }
+
+  Future<void> _carregarDevedores() async {
+    await FinanceiroServiceDevedores.carregarDevedores();
+    setState(() {});
+  }
+
+  void marcarComoPago(int index) async {
     final antigo = listaDevedor[index];
     final atualizado = Devedor(
       nome: antigo.nome,
       valor: antigo.valor,
       pago: true,
     );
+
+    await FinanceiroServiceDevedores.marcarComoPago(listaDevedor[index].id!);
+    await _carregarDevedores();
+
     setState(() {
       listaDevedor[index] = atualizado;
     });
   }
 
-  void validator() {
+  void validator() async {
     if (_formKey.currentState!.validate()) {
       final addConta = Devedor(
         nome: _cadDevedor.text,
         valor: double.tryParse(_valDevedor.text) ?? 0.0,
       );
+
+      await FinanceiroServiceDevedores.salvarDevedor(addConta);
+      await _carregarDevedores(); // recarrega e dá setState
 
       setState(() {
         listaDevedor.add(addConta);

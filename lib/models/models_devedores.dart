@@ -1,7 +1,13 @@
 class Devedor {
-  String nome;
-  double valor;
-  bool pago;
+  final String? id;
+  final String nome;
+  final double valor;
+  final bool pago;
 
-  Devedor({required this.nome, required this.valor, this.pago = false});
+  Devedor({
+    this.id,
+    required this.nome,
+    required this.valor,
+    this.pago = false,
+  });
 }
