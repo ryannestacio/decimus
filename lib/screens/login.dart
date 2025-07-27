@@ -78,13 +78,19 @@ class _BodyLoginState extends State<BodyLogin> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Image.asset(
+                'assets/images/imagem1login.png',
+                width: 150,
+                height: 200,
+              ),
+              //SizedBox(height: 20),
               const Text(
                 'Bem Vindo!\nSalve Maria!',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
               ),
 
-              SizedBox(height: 100),
+              SizedBox(height: 10),
               TextFormField(
                 controller: _emailControler,
                 decoration: const InputDecoration(
