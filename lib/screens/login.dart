@@ -7,14 +7,16 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.yellow,
+      backgroundColor: Colors.blue,
       appBar: AppBar(
         title: const Text(
           'Decimus App',
-          style: TextStyle(fontWeight: FontWeight.w300),
+          style: TextStyle(fontWeight: FontWeight.w300, color: Colors.white),
         ),
         centerTitle: true,
-        backgroundColor: Colors.yellow,
+        backgroundColor: Colors.blue,
+        elevation: 8,
+        shadowColor: Colors.indigo,
       ),
       body: BodyLogin(),
     );
@@ -87,7 +89,11 @@ class _BodyLoginState extends State<BodyLogin> {
               const Text(
                 'Bem Vindo!\nSalve Maria!',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w300,
+                  color: Colors.white,
+                ),
               ),
 
               SizedBox(height: 10),
@@ -95,6 +101,10 @@ class _BodyLoginState extends State<BodyLogin> {
                 controller: _emailControler,
                 decoration: const InputDecoration(
                   labelText: 'Digite seu e-mail',
+                  labelStyle: TextStyle(color: Colors.white),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.mail),
                 ),
@@ -110,7 +120,11 @@ class _BodyLoginState extends State<BodyLogin> {
               TextFormField(
                 controller: _senhaController,
                 decoration: const InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
                   labelText: 'Digite sua senha',
+                  labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.lock_outline_rounded),
                 ),
@@ -139,7 +153,12 @@ class _BodyLoginState extends State<BodyLogin> {
                         _validation();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple,
+                        backgroundColor: const Color.fromARGB(
+                          255,
+                          32,
+                          117,
+                          185,
+                        ),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
@@ -150,7 +169,11 @@ class _BodyLoginState extends State<BodyLogin> {
 
                       child: const Text(
                         'Entrar',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),
