@@ -9,9 +9,12 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Menu principal',
-          style: TextStyle(fontWeight: FontWeight.w300),
+          style: TextStyle(fontWeight: FontWeight.w300, color: Colors.white),
         ),
         centerTitle: true,
+        backgroundColor: Colors.blue,
+        elevation: 8,
+        shadowColor: Colors.indigo,
       ),
       body: BodyHome(),
     );
@@ -28,129 +31,104 @@ class BodyHome extends StatefulWidget {
 class _CorpoBotoesState extends State<BodyHome> {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ListTile(
-                onTap: () => Navigator.pushNamed(context, '/recebiveis'),
-                leading: Icon(Icons.attach_money_sharp),
-                trailing: Icon(Icons.arrow_forward_ios),
-                title: const Padding(
-                  padding: EdgeInsets.all(2.0),
-                  child: Text(
-                    'Recebiveis',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                  ),
-                ),
-                subtitle: const Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Text(
-                    'Doações, dizimo, leilões e eventos.',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                tileColor: Colors.yellow,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-              ),
-              SizedBox(height: 4),
-              ListTile(
-                onTap: () => Navigator.pushNamed(context, '/despesas'),
-                leading: Icon(Icons.import_export_outlined),
-                trailing: Icon(Icons.arrow_forward_ios),
-                title: const Padding(
-                  padding: EdgeInsets.all(2.0),
-                  child: Text(
-                    'Despesas',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                  ),
-                ),
-                subtitle: const Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Text(
-                    'Contas de energia, luz, reformas, etc.',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                tileColor: Colors.yellow,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-              ),
-              SizedBox(height: 4),
-              ListTile(
-                onTap: () => Navigator.pushNamed(context, '/devedores'),
-                leading: Icon(Icons.person_search_sharp),
-                trailing: Icon(Icons.arrow_forward_ios),
-                title: const Padding(
-                  padding: EdgeInsets.all(2.0),
-                  child: Text(
-                    'Devedores',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                  ),
-                ),
-                subtitle: const Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Text(
-                    'Devedores e bonificações pendentes.',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                tileColor: Colors.yellow,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-              ),
-              SizedBox(height: 4),
-              ListTile(
-                onTap: () => Navigator.pushNamed(context, '/caixa'),
-                leading: Icon(Icons.monetization_on),
-                trailing: Icon(Icons.arrow_forward_ios),
-                title: const Padding(
-                  padding: EdgeInsets.all(2.0),
-                  child: Text(
-                    'Caixa',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                  ),
-                ),
-                subtitle: const Padding(
-                  padding: EdgeInsets.all(4.0),
-                  child: Text(
-                    'Info. financeiro, relatórios, etc.',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                tileColor: Colors.yellow,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
-                ),
-              ),
-              SizedBox(height: 4),
-            ],
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/tomas.png'),
+              fit: BoxFit.cover,
+            ),
           ),
         ),
-      ),
+        SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  constraints: BoxConstraints(maxWidth: 420), // largura máxima
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildMenuTile(
+                        context,
+                        title: 'Recebíveis',
+                        subtitle: 'Doações, dízimo, leilões e eventos.',
+                        icon: Icons.attach_money_sharp,
+                        route: '/recebiveis',
+                      ),
+                      SizedBox(height: 4),
+                      _buildMenuTile(
+                        context,
+                        title: 'Despesas',
+                        subtitle: 'Contas a pagar, despesas em geral.',
+                        icon: Icons.attach_money_sharp,
+                        route: '/despesas',
+                      ),
+                      SizedBox(height: 4),
+                      _buildMenuTile(
+                        context,
+                        title: 'Devedores',
+                        subtitle: 'Devedores e bonificações pendentes.',
+                        icon: Icons.person_search_sharp,
+                        route: '/devedores',
+                      ),
+                      SizedBox(height: 4),
+                      _buildMenuTile(
+                        context,
+                        title: 'Caixa',
+                        subtitle: 'Info. financeiro, relatórios, etc.',
+                        icon: Icons.monetization_on,
+                        route: '/caixa',
+                      ),
+                      SizedBox(height: 4),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        // Close the SafeArea widget
+      ],
     );
   }
+}
+
+Widget _buildMenuTile(
+  BuildContext context, {
+  required String title,
+  required String subtitle,
+  required IconData icon,
+  required String route,
+}) {
+  return Card(
+    color: Colors.amber,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    elevation: 18,
+    child: ListTile(
+      onTap: () => Navigator.pushNamed(context, route),
+      leading: Icon(icon, color: Colors.black),
+      trailing: Icon(Icons.arrow_forward_ios, color: Colors.black),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: Colors.black,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: const TextStyle(fontSize: 14, color: Colors.black87),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+    ),
+  );
 }

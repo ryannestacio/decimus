@@ -33,6 +33,7 @@ flutter:
  
   assets:
      - assets/images/imagem1login.png
+     - assets/images/tomas.png
 
   
   # fonts:
