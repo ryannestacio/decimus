@@ -567,14 +567,6 @@ class _BodyDespesasState extends State<BodyDespesas> {
                 },
               ),
             ),
-            SizedBox(height: 20),
-            Text('testes:'),
-            Text(
-              'Despesas pagas: R\$${FinanceiroServiceDespesas.totalDespesasPagas}',
-            ),
-            Text(
-              'Despesas pendentes: R\$${FinanceiroServiceDespesas.totalDespesasPendentes}',
-            ),
           ],
         ),
       ),

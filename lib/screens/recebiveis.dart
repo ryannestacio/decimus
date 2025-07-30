@@ -8,12 +8,16 @@ class RecebiveisScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text(
           'Recebíveis',
-          style: TextStyle(fontWeight: FontWeight.w300),
+          style: TextStyle(fontWeight: FontWeight.w300, color: Colors.white),
         ),
         centerTitle: true,
+        backgroundColor: Colors.blue,
+        elevation: 8,
+        shadowColor: Colors.indigo,
       ),
       body: BodyRecebiveis(),
     );
@@ -88,166 +92,245 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Recebimento salvo no Firebase!')));
+      ).showSnackBar(SnackBar(content: Text('Recebimento salvo!')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Center(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Adicione um Recebimento',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 80),
-              SizedBox(
-                width: 300,
-                child: TextFormField(
-                  controller: _typeController,
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.account_balance_wallet_rounded),
-                    label: Text('Tipo'),
-                    hintText: 'Digite o tipo de recebimento...',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Campo obrigatório';
-                    }
-                    return null;
-                  },
-                  keyboardType: TextInputType.text,
-                ),
-              ),
-              SizedBox(
-                width: 300,
-                child: TextFormField(
-                  controller: _valueController,
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.attach_money),
-                    label: Text('Valor'),
-                    hintText: 'Digite o valor recebido...',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Campo obrigatório';
-                    }
-                    return null;
-                  },
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-              SizedBox(
-                width: 300,
-                child: TextFormField(
-                  controller: _dateController,
-                  decoration: InputDecoration(
-                    label: Text('Data de recebimento'),
-                    prefixIcon: Icon(Icons.calendar_today_outlined),
-                  ),
-                  readOnly: true,
-                  onTap: () async {
-                    DateTime? pickedData = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime(2100),
-                    );
-                    if (pickedData != null) {
-                      _dataSelecionada = pickedData;
-                      _dateController.text =
-                          '${pickedData.day}/${pickedData.month}/${pickedData.year}';
-                    }
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Campo obrigatório';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              Column(
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/saofrancisco.png'),
+              opacity: 0.3,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        SafeArea(
+          child: Center(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height: 30),
+                  SizedBox(height: 80),
                   SizedBox(
-                    child: ElevatedButton(
-                      onPressed: () => _criarRecebimento(),
-                      child: Text('Receber'),
+                    width: 300,
+                    child: TextFormField(
+                      style: TextStyle(color: Colors.white),
+                      controller: _typeController,
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(
+                          Icons.account_balance_wallet_rounded,
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          'Tipo',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        hintText: 'Digite o tipo de recebimento...',
+                        hintStyle: TextStyle(color: Colors.white),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Campo obrigatório';
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.text,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  SizedBox(
+                    width: 300,
+                    child: TextFormField(
+                      style: TextStyle(
+                        color: Colors.white,
+                      ), //Cor do texto digitado pelo usuário
+                      controller: _valueController,
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(
+                          Icons.attach_money,
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          'Valor',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        hintText: 'Digite o valor recebido...',
+                        hintStyle: TextStyle(color: Colors.white),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Campo obrigatório';
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  SizedBox(
+                    width: 300,
+                    child: TextFormField(
+                      style: TextStyle(color: Colors.white),
+                      controller: _dateController,
+                      decoration: InputDecoration(
+                        label: Text(
+                          'Data de recebimento',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        prefixIcon: Icon(
+                          Icons.calendar_today_outlined,
+                          color: Colors.white,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                        border: OutlineInputBorder(),
+                      ),
+                      readOnly: true,
+                      onTap: () async {
+                        DateTime? pickedData = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime(2100),
+                        );
+                        if (pickedData != null) {
+                          _dataSelecionada = pickedData;
+                          _dateController.text =
+                              '${pickedData.day}/${pickedData.month}/${pickedData.year}';
+                        }
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Campo obrigatório';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  Column(
+                    children: [
+                      SizedBox(height: 30),
+                      SizedBox(
+                        child: ElevatedButton(
+                          onPressed: () => _criarRecebimento(),
+                          child: Text('Receber'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromARGB(
+                              255,
+                              32,
+                              117,
+                              185,
+                            ),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(color: Colors.white, width: 2),
+                            ),
+                            elevation: 8,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  /*Expanded(
+                  child: ListView.builder(
+                    itemCount:
+                        FinanceiroServiceRecebiveis.listaRecebimentos.length,
+                    itemBuilder: (context, index) {
+                      final item =
+                          FinanceiroServiceRecebiveis.listaRecebimentos[index];
+                      return ListTile(
+                        leading: Icon(Icons.monetization_on),
+                        title: Text(item.tipo),
+                        subtitle: Text(
+                          'Entrada: ${item.data.day}/${item.data.month}/${item.data.year} \nValor: R\$${item.valor.toStringAsFixed(2)}',
+                        ),
+                      );
+                    },
+                  ),
+                ),*/
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      constraints: BoxConstraints(maxWidth: 420), //
+                      child: StreamBuilder<QuerySnapshot>(
+                        stream:
+                            FirebaseFirestore.instance
+                                .collection('recebiveis')
+                                .orderBy('data', descending: true)
+                                .snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.amber,
+                              ),
+                            );
+                          }
+
+                          final docs = snapshot.data?.docs ?? [];
+
+                          return ListView.builder(
+                            itemCount: docs.length,
+                            itemBuilder: (context, index) {
+                              final doc = docs[index];
+                              final tipo = doc['tipo'];
+                              final valor = doc['valor'];
+                              final data = (doc['data'] as Timestamp).toDate();
+
+                              return ListTile(
+                                leading: Icon(
+                                  Icons.monetization_on,
+                                  color: Colors.white,
+                                ),
+                                title: Text(
+                                  tipo,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Entrada: ${data.day}/${data.month}/${data.year}\nValor: R\$${valor.toStringAsFixed(2)}',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
               ),
-              /*Expanded(
-                child: ListView.builder(
-                  itemCount:
-                      FinanceiroServiceRecebiveis.listaRecebimentos.length,
-                  itemBuilder: (context, index) {
-                    final item =
-                        FinanceiroServiceRecebiveis.listaRecebimentos[index];
-                    return ListTile(
-                      leading: Icon(Icons.monetization_on),
-                      title: Text(item.tipo),
-                      subtitle: Text(
-                        'Entrada: ${item.data.day}/${item.data.month}/${item.data.year} \nValor: R\$${item.valor.toStringAsFixed(2)}',
-                      ),
-                    );
-                  },
-                ),
-              ),*/
-              Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream:
-                      FirebaseFirestore.instance
-                          .collection('recebiveis')
-                          .orderBy('data', descending: true)
-                          .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    }
-
-                    final docs = snapshot.data?.docs ?? [];
-
-                    return ListView.builder(
-                      itemCount: docs.length,
-                      itemBuilder: (context, index) {
-                        final doc = docs[index];
-                        final tipo = doc['tipo'];
-                        final valor = doc['valor'];
-                        final data = (doc['data'] as Timestamp).toDate();
-
-                        return ListTile(
-                          leading: Icon(Icons.monetization_on),
-                          title: Text(tipo),
-                          subtitle: Text(
-                            'Entrada: ${data.day}/${data.month}/${data.year}\nValor: R\$${valor.toStringAsFixed(2)}',
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }
