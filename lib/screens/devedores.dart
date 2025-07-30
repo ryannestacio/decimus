@@ -261,9 +261,6 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                 child: Text('Verificar Devedores'),
               ),
             ),
-            Text(
-              'Teste:\n\nValores pendentes: ${FinanceiroServiceDevedores.devedoresPendentes}\nValores pagos: ${FinanceiroServiceDevedores.devedoresPagos}',
-            ),
           ],
         ),
       ),

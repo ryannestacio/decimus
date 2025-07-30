@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -7,6 +9,13 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () async {
+            await FirebaseAuth.instance.signOut();
+            Navigator.pushReplacementNamed(context, '/login');
+          },
+          icon: Icon(Icons.logout, color: Colors.white),
+        ),
         title: const Text(
           'Menu principal',
           style: TextStyle(fontWeight: FontWeight.w300, color: Colors.white),
@@ -49,7 +58,7 @@ class _CorpoBotoesState extends State<BodyHome> {
                 child: Container(
                   padding: const EdgeInsets.all(7),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.4),
+                    color: Colors.black.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   constraints: BoxConstraints(maxWidth: 420), // largura máxima

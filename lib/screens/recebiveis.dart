@@ -244,10 +244,6 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
                   },
                 ),
               ),
-
-              Text(
-                'Teste:\n\nTotal recebido: ${FinanceiroServiceRecebiveis.totalRecebiveis}',
-              ),
             ],
           ),
         ),
