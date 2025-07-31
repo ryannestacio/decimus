@@ -2,6 +2,8 @@ import 'package:decimus/services/services_recebiveis.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
 class RecebiveisScreen extends StatelessWidget {
   const RecebiveisScreen({super.key});
 
@@ -48,19 +50,6 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
         );
         return;
       }
-      /*final meuRecebimento = Recebimento(
-        tipo: _typeController.text,
-        valor: double.tryParse(_valueController.text) ?? 0.0,
-        // Tranforma de bool para sting
-        data: _dataSelecionada!,
-      );
-
-      if (_dataSelecionada == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Por favor, selecione uma data.')),
-        );
-        return;
-      }*/
 
       final novoRecebimento = {
         'tipo': _typeController.text,
@@ -72,23 +61,12 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
           .collection('recebiveis')
           .add(novoRecebimento);
 
-      /*setState(() {
-        FinanceiroServiceRecebiveis.listaRecebimentos.add(meuRecebimento);
-        _typeController.clear();
-        _dateController.clear();
-        _valueController.clear();
-      });*/
-
       setState(() {
         _typeController.clear();
         _valueController.clear();
         _dateController.clear();
         _dataSelecionada = null;
       });
-
-      /*ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Recebimento salvo!')));*/
 
       ScaffoldMessenger.of(
         context,
@@ -226,9 +204,10 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
                     children: [
                       SizedBox(height: 30),
                       SizedBox(
+                        height: 40,
+                        width: 140,
                         child: ElevatedButton(
                           onPressed: () => _criarRecebimento(),
-                          child: Text('Receber'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color.fromARGB(
                               255,
@@ -243,31 +222,18 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
                             ),
                             elevation: 8,
                           ),
+                          child: Text('Receber'),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
-                  /*Expanded(
-                  child: ListView.builder(
-                    itemCount:
-                        FinanceiroServiceRecebiveis.listaRecebimentos.length,
-                    itemBuilder: (context, index) {
-                      final item =
-                          FinanceiroServiceRecebiveis.listaRecebimentos[index];
-                      return ListTile(
-                        leading: Icon(Icons.monetization_on),
-                        title: Text(item.tipo),
-                        subtitle: Text(
-                          'Entrada: ${item.data.day}/${item.data.month}/${item.data.year} \nValor: R\$${item.valor.toStringAsFixed(2)}',
-                        ),
-                      );
-                    },
-                  ),
-                ),*/
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.all(7),
+                      padding: const EdgeInsets.all(20),
+                      margin: EdgeInsets.symmetric(
+                        vertical: 40,
+                        horizontal: 20,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.7),
                         borderRadius: BorderRadius.circular(20),
@@ -283,9 +249,7 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return Center(
-                              child: CircularProgressIndicator(
-                                color: Colors.amber,
-                              ),
+                              child: SpinKitFadingCircle(color: Colors.amber),
                             );
                           }
 

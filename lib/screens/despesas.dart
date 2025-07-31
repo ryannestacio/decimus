@@ -9,12 +9,15 @@ class DespesasScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
+        backgroundColor: Colors.blue,
         title: const Text(
           'Despesas',
-          style: TextStyle(fontWeight: FontWeight.w300),
+          style: TextStyle(fontWeight: FontWeight.w300, color: Colors.white),
         ),
         centerTitle: true,
+        elevation: 7,
       ),
       body: BodyDespesas(),
     );
@@ -40,7 +43,6 @@ class _BodyDespesasState extends State<BodyDespesas> {
     super.initState();
     carregarTiposDeConta();
     carregarDespesasDoFirestore();
-    //marcarComoPago(); // Remove or replace with marcarComoPagoLocal if needed
   }
 
   final _formKeyTipoConta = GlobalKey<FormState>();
@@ -48,20 +50,6 @@ class _BodyDespesasState extends State<BodyDespesas> {
   List<Conta> _listaTipoConta = [];
   String? tipoSelecionado;
 
-  /*void validacaoTipoConta() {
-    if (_formKeyTipoConta.currentState!.validate()) {
-      final addConta = Conta(tipoConta: _novoTipoConta.text);
-
-      setState(() {
-        _listaTipoConta.add(addConta);
-        _novoTipoConta.clear();
-      });
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Tipo de conta salvo!')));
-    }
-  }*/
   void validacaoTipoConta() async {
     if (_formKeyTipoConta.currentState!.validate()) {
       final tipo = _novoTipoConta.text;
@@ -71,11 +59,6 @@ class _BodyDespesasState extends State<BodyDespesas> {
           'tipoConta': tipo,
           'createdAt': Timestamp.now(),
         });
-
-        /* setState(() {
-          _listaTipoConta.add(Conta(tipoConta: tipo));
-          _novoTipoConta.clear();
-        });*/
 
         _novoTipoConta.clear();
         await carregarTiposDeConta();
@@ -105,34 +88,6 @@ class _BodyDespesasState extends State<BodyDespesas> {
     });
   }
 
-  /*bool validacaoNovaConta() {
-    if (_formKeyNovaConta.currentState!.validate()) {
-      final addConta = ContaCad(
-        tipoConta: _tipoConta.text,
-        descricao: _descricao.text,
-        observacao: _observacoes.text,
-        valor: double.tryParse(_valor.text) ?? 0.0,
-      );
-      setState(() {
-        FinanceiroServiceDespesas.listaConta.add(addConta);
-        _tipoConta.clear();
-        _descricao.clear();
-        _observacoes.clear();
-        _valor.clear();
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Conta cadastrada, verifique sua conta em "Verificar contas".',
-          ),
-        ),
-      );
-
-      return true;
-    }
-    return false;
-  }*/
   bool validacaoNovaConta() {
     if (_formKeyNovaConta.currentState!.validate()) {
       final novaConta = ContaCad(
@@ -249,327 +204,321 @@ class _BodyDespesasState extends State<BodyDespesas> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: 60,
-              width: 350,
-              child: OutlinedButton(
-                child: Text('Tipos de conta'),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder:
-                        (context) => AlertDialog(
-                          title: Text('Cadastrar tipo de conta'),
-                          backgroundColor: Colors.yellow,
-                          content: SizedBox(
-                            height: 300,
-                            width: 300,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  child: Form(
-                                    key: _formKeyTipoConta,
-                                    child: TextFormField(
-                                      controller: _novoTipoConta,
-                                      textCapitalization:
-                                          TextCapitalization.words,
-                                      decoration: InputDecoration(
-                                        prefixIcon: Icon(Icons.wallet),
-                                        hintText:
-                                            'Digite um novo tipo de conta...',
-                                        label: Text('Novo'),
-                                      ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Digite um tipo de conta';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                espacador(40),
-                                Text(
-                                  'Contas salvas:',
-                                  style: TextStyle(fontSize: 20),
-                                ),
-                                SizedBox(
-                                  height: 150,
-                                  child: ListView.builder(
-                                    itemCount: _listaTipoConta.length,
-                                    itemBuilder: (context, index) {
-                                      final item = _listaTipoConta[index];
-                                      return ListTile(
-                                        onTap: () {},
-                                        leading: Icon(Icons.attachment),
-                                        title: Text(item.tipoConta),
-                                        shape: BeveledRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            5,
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/sbento.png'),
+              opacity: 0.3,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: 60,
+                  width: 350,
+                  child: OutlinedButton(
+                    child: Text('Tipos de conta'),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder:
+                            (context) => AlertDialog(
+                              title: Text('Cadastrar tipo de conta'),
+                              backgroundColor: Colors.yellow,
+                              content: SizedBox(
+                                height: 300,
+                                width: 300,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      child: Form(
+                                        key: _formKeyTipoConta,
+                                        child: TextFormField(
+                                          controller: _novoTipoConta,
+                                          textCapitalization:
+                                              TextCapitalization.words,
+                                          decoration: InputDecoration(
+                                            prefixIcon: Icon(Icons.wallet),
+                                            hintText:
+                                                'Digite um novo tipo de conta...',
+                                            label: Text('Novo'),
                                           ),
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'Digite um tipo de conta';
+                                            }
+                                            return null;
+                                          },
                                         ),
-                                      );
-                                    },
-                                  ),
+                                      ),
+                                    ),
+                                    espacador(40),
+                                    Text(
+                                      'Contas salvas:',
+                                      style: TextStyle(fontSize: 20),
+                                    ),
+                                    SizedBox(
+                                      height: 150,
+                                      child: ListView.builder(
+                                        itemCount: _listaTipoConta.length,
+                                        itemBuilder: (context, index) {
+                                          final item = _listaTipoConta[index];
+                                          return ListTile(
+                                            onTap: () {},
+                                            leading: Icon(Icons.attachment),
+                                            title: Text(item.tipoConta),
+                                            shape: BeveledRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text('Fechar'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    validacaoTipoConta();
+                                    FocusScope.of(context).unfocus();
+                                    // FocusScope.of(context).unfocus(); Fecha o teclado
+                                  },
+                                  child: Text('Salvar'),
                                 ),
                               ],
                             ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text('Fechar'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                validacaoTipoConta();
-                                FocusScope.of(context).unfocus();
-                                // FocusScope.of(context).unfocus(); Fecha o teclado
-                              },
-                              child: Text('Salvar'),
-                            ),
-                          ],
-                        ),
-                  );
-                },
-              ),
-            ),
-            espacador(10),
-            SizedBox(
-              height: 60,
-              width: 350,
-              child: OutlinedButton(
-                child: Text('Cadastrar nova conta'),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder:
-                        (context) => AlertDialog(
-                          backgroundColor: Colors.yellow,
-                          title: Text('Cadastrar nova conta'),
-                          content: SizedBox(
-                            height: 350,
-                            width: 300,
-                            child: Form(
-                              //obs: O widget Form, tem que está fora da column.
-                              //Ou seja, a column tem que está dentro do form.
-                              key: _formKeyNovaConta,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  /*DropdownButtonFormField<String>(
-                                    value:
-                                        _tipoConta.text.isEmpty
-                                            ? null
-                                            : _tipoConta.text,
-                                    decoration: InputDecoration(
-                                      labelText: 'Tipo de conta',
-                                      prefixIcon: Icon(Icons.wallet),
-                                    ),
-                                    items:
-                                        _listaTipoConta.map((conta) {
-                                          return DropdownMenuItem(
-                                            value: conta.tipoConta,
-                                            child: Text(conta.tipoConta),
-                                          );
-                                        }).toList(),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _tipoConta.text = value!;
-                                      });
-                                    },
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Selecione o tipo da conta';
-                                      }
-                                      return null;
-                                    },
-                                  ),*/
-                                  DropdownButtonFormField<String>(
-                                    value:
-                                        _tipoConta.text.isNotEmpty
-                                            ? _tipoConta.text
-                                            : null,
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        _tipoConta.text = newValue!;
-                                      });
-                                    },
-                                    items:
-                                        _listaTipoConta.map((conta) {
-                                          return DropdownMenuItem<String>(
-                                            value: conta.tipoConta,
-                                            child: Text(conta.tipoConta),
-                                          );
-                                        }).toList(),
-                                    decoration: InputDecoration(
-                                      labelText: 'Tipo de Conta',
-                                    ),
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Por favor, selecione um tipo de conta';
-                                      }
-                                      return null;
-                                    },
-                                  ),
+                      );
+                    },
+                  ),
+                ),
+                espacador(10),
+                SizedBox(
+                  height: 60,
+                  width: 350,
+                  child: OutlinedButton(
+                    child: Text('Cadastrar nova conta'),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder:
+                            (context) => AlertDialog(
+                              backgroundColor: Colors.yellow,
+                              title: Text('Cadastrar nova conta'),
+                              content: SizedBox(
+                                height: 350,
+                                width: 300,
+                                child: Form(
+                                  //obs: O widget Form, tem que está fora da column.
+                                  //Ou seja, a column tem que está dentro do form.
+                                  key: _formKeyNovaConta,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      DropdownButtonFormField<String>(
+                                        value:
+                                            _tipoConta.text.isNotEmpty
+                                                ? _tipoConta.text
+                                                : null,
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            _tipoConta.text = newValue!;
+                                          });
+                                        },
+                                        items:
+                                            _listaTipoConta.map((conta) {
+                                              return DropdownMenuItem<String>(
+                                                value: conta.tipoConta,
+                                                child: Text(conta.tipoConta),
+                                              );
+                                            }).toList(),
+                                        decoration: InputDecoration(
+                                          labelText: 'Tipo de Conta',
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Por favor, selecione um tipo de conta';
+                                          }
+                                          return null;
+                                        },
+                                      ),
 
-                                  espacador(20),
-                                  TextFormField(
-                                    controller: _descricao,
-                                    decoration: InputDecoration(
-                                      labelText: 'Descrição',
-                                      prefixIcon: Icon(Icons.label),
-                                    ),
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'O campo é obrigatório';
-                                      }
-                                      return null;
-                                    },
+                                      espacador(20),
+                                      TextFormField(
+                                        controller: _descricao,
+                                        decoration: InputDecoration(
+                                          labelText: 'Descrição',
+                                          prefixIcon: Icon(Icons.label),
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'O campo é obrigatório';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                      espacador(20),
+                                      TextFormField(
+                                        controller: _observacoes,
+                                        decoration: InputDecoration(
+                                          labelText: 'Observações(Opcional)',
+                                          prefixIcon: Icon(Icons.abc),
+                                        ),
+                                        validator: (value) => null,
+                                      ),
+                                      espacador(20),
+                                      TextFormField(
+                                        controller: _valor,
+                                        decoration: InputDecoration(
+                                          labelText: 'Valor R\$',
+                                          prefixIcon: Icon(Icons.attach_money),
+                                        ),
+                                        keyboardType: TextInputType.number,
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'O campo é obrigatório';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ],
                                   ),
-                                  espacador(20),
-                                  TextFormField(
-                                    controller: _observacoes,
-                                    decoration: InputDecoration(
-                                      labelText: 'Observações(Opcional)',
-                                      prefixIcon: Icon(Icons.abc),
-                                    ),
-                                    validator: (value) => null,
-                                  ),
-                                  espacador(20),
-                                  TextFormField(
-                                    controller: _valor,
-                                    decoration: InputDecoration(
-                                      labelText: 'Valor R\$',
-                                      prefixIcon: Icon(Icons.attach_money),
-                                    ),
-                                    keyboardType: TextInputType.number,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'O campo é obrigatório';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                ],
+                                ),
+                              ),
+
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text('Cancelar'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    final sucesso = validacaoNovaConta();
+                                    if (sucesso == true) Navigator.pop(context);
+                                  },
+                                  child: Text('Cadastrar'),
+                                ),
+                              ],
+                            ),
+                      );
+                    },
+                  ),
+                ),
+                espacador(10),
+                SizedBox(
+                  height: 60,
+                  width: 350,
+                  child: OutlinedButton(
+                    child: Text('Verificar contas'),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder:
+                            (context) => AlertDialog(
+                              title: Text('Contas cadastradas'),
+                              backgroundColor: Colors.yellow,
+                              content: SizedBox(
+                                height: 400,
+                                width: 300,
+                                child: ListView.builder(
+                                  itemCount:
+                                      FinanceiroServiceDespesas
+                                          .listaConta
+                                          .length,
+                                  itemBuilder: (context, index) {
+                                    final item =
+                                        FinanceiroServiceDespesas
+                                            .listaConta[index];
+                                    return ListTile(
+                                      onTap: () {},
+                                      leading: Icon(Icons.wallet),
+                                      title: Text('Tipo: ${item.tipoConta}'),
+                                      subtitle: Text(
+                                        'Descrição: ${item.descricao}\nValor: ${item.valor}\nObservações: ${item.observacao}',
+                                      ),
+                                      trailing:
+                                          FinanceiroServiceDespesas
+                                                  .listaConta[index]
+                                                  .pago
+                                              ? Icon(
+                                                Icons.check_box,
+                                                color: Colors.green,
+                                              )
+                                              : IconButton(
+                                                icon: Icon(
+                                                  Icons.check_box_outline_blank,
+                                                  color: Colors.red,
+                                                ),
+                                                onPressed: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (
+                                                          context,
+                                                        ) => AlertDialog(
+                                                          title: Text(
+                                                            'Confirmar pagamento',
+                                                          ),
+                                                          content: Text(
+                                                            'Deseja confirmar o pagamento?',
+                                                          ),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.pop(
+                                                                  context,
+                                                                );
+                                                              },
+                                                              child: Text(
+                                                                'Não',
+                                                              ),
+                                                            ),
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                marcarComoPago(
+                                                                  index,
+                                                                );
+                                                                Navigator.pop(
+                                                                  context,
+                                                                );
+                                                              },
+                                                              child: Text(
+                                                                'Sim',
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                  );
+                                                },
+                                              ),
+                                    );
+                                  },
+                                ),
                               ),
                             ),
-                          ),
-
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text('Cancelar'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                final sucesso = validacaoNovaConta();
-                                if (sucesso == true) Navigator.pop(context);
-                              },
-                              child: Text('Cadastrar'),
-                            ),
-                          ],
-                        ),
-                  );
-                },
-              ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-            espacador(10),
-            SizedBox(
-              height: 60,
-              width: 350,
-              child: OutlinedButton(
-                child: Text('Verificar contas'),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder:
-                        (context) => AlertDialog(
-                          title: Text('Contas cadastradas'),
-                          backgroundColor: Colors.yellow,
-                          content: SizedBox(
-                            height: 400,
-                            width: 300,
-                            child: ListView.builder(
-                              itemCount:
-                                  FinanceiroServiceDespesas.listaConta.length,
-                              itemBuilder: (context, index) {
-                                final item =
-                                    FinanceiroServiceDespesas.listaConta[index];
-                                return ListTile(
-                                  onTap: () {},
-                                  leading: Icon(Icons.wallet),
-                                  title: Text('Tipo: ${item.tipoConta}'),
-                                  subtitle: Text(
-                                    'Descrição: ${item.descricao}\nValor: ${item.valor}\nObservações: ${item.observacao}',
-                                  ),
-                                  trailing:
-                                      FinanceiroServiceDespesas
-                                              .listaConta[index]
-                                              .pago
-                                          ? Icon(
-                                            Icons.check_box,
-                                            color: Colors.green,
-                                          )
-                                          : IconButton(
-                                            icon: Icon(
-                                              Icons.check_box_outline_blank,
-                                              color: Colors.red,
-                                            ),
-                                            onPressed: () {
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (context) => AlertDialog(
-                                                      title: Text(
-                                                        'Confirmar pagamento',
-                                                      ),
-                                                      content: Text(
-                                                        'Deseja confirmar o pagamento?',
-                                                      ),
-                                                      actions: [
-                                                        TextButton(
-                                                          onPressed: () {
-                                                            Navigator.pop(
-                                                              context,
-                                                            );
-                                                          },
-                                                          child: Text('Não'),
-                                                        ),
-                                                        TextButton(
-                                                          onPressed: () {
-                                                            marcarComoPago(
-                                                              index,
-                                                            );
-                                                            Navigator.pop(
-                                                              context,
-                                                            );
-                                                          },
-                                                          child: Text('Sim'),
-                                                        ),
-                                                      ],
-                                                    ),
-                                              );
-                                            },
-                                          ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                  );
-                },
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

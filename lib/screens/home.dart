@@ -14,13 +14,20 @@ class HomeScreen extends StatelessWidget {
               context: context,
               builder:
                   (context) => AlertDialog(
-                    title: Text('Deseja deslogar?'),
+                    title: Text(
+                      'Deseja deslogar?',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    backgroundColor: Colors.blue,
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: Text('Não'),
+                        child: Text(
+                          'Não',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                       TextButton(
                         onPressed: () async {
@@ -33,7 +40,7 @@ class HomeScreen extends StatelessWidget {
                           //garantindo que a tela de login seja a única aberta sem arrow de voltar para a tela home
                           //Evita também que um usuário android use o botão de voltar do dispositivo.
                         },
-                        child: Text('Sim'),
+                        child: Text('Sim', style: TextStyle(color: Colors.red)),
                       ),
                     ],
                   ),
