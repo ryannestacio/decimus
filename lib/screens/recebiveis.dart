@@ -98,8 +98,8 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
                   SizedBox(
                     width: 300,
                     child: TextFormField(
-                      style: TextStyle(color: Colors.white),
                       controller: _typeController,
+                      style: TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         prefixIcon: Icon(
                           Icons.account_balance_wallet_rounded,

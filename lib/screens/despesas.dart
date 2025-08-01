@@ -240,7 +240,13 @@ class _BodyDespesasState extends State<BodyDespesas> {
                         context: context,
                         builder:
                             (context) => AlertDialog(
-                              title: Text('Cadastrar tipo de conta'),
+                              title: Text(
+                                'Cadastrar tipo de conta',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               backgroundColor: Colors.yellow,
                               content: SizedBox(
                                 height: 300,
@@ -255,11 +261,34 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                           controller: _novoTipoConta,
                                           textCapitalization:
                                               TextCapitalization.words,
-                                          decoration: InputDecoration(
+                                          /*decoration: InputDecoration(
                                             prefixIcon: Icon(Icons.wallet),
                                             hintText:
                                                 'Digite um novo tipo de conta...',
                                             label: Text('Novo'),
+                                          ),*/
+                                          decoration: InputDecoration(
+                                            prefixIcon: Icon(
+                                              Icons.credit_score,
+                                              color: Colors.black,
+                                            ),
+                                            label: Text(
+                                              'Novo',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            hintText:
+                                                'Digite um novo tipo de conta...',
+                                            hintStyle: TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            border: OutlineInputBorder(),
                                           ),
                                           validator: (value) {
                                             if (value == null ||
@@ -274,24 +303,45 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                     espacador(40),
                                     Text(
                                       'Contas salvas:',
-                                      style: TextStyle(fontSize: 20),
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                      ),
                                     ),
                                     SizedBox(
                                       height: 150,
-                                      child: ListView.builder(
-                                        itemCount: _listaTipoConta.length,
-                                        itemBuilder: (context, index) {
-                                          final item = _listaTipoConta[index];
-                                          return ListTile(
-                                            onTap: () {},
-                                            leading: Icon(Icons.attachment),
-                                            title: Text(item.tipoConta),
-                                            shape: BeveledRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                            ),
-                                          );
-                                        },
+                                      child: Container(
+                                        height: 100,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.7),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        child: ListView.builder(
+                                          itemCount: _listaTipoConta.length,
+                                          itemBuilder: (context, index) {
+                                            final item = _listaTipoConta[index];
+                                            return ListTile(
+                                              onTap: () {},
+                                              leading: Icon(
+                                                Icons.credit_score,
+                                                color: Colors.white,
+                                              ),
+                                              title: Text(
+                                                item.tipoConta,
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              shape: BeveledRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                              ),
+                                            );
+                                          },
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -300,7 +350,10 @@ class _BodyDespesasState extends State<BodyDespesas> {
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(context),
-                                  child: Text('Fechar'),
+                                  child: Text(
+                                    'Fechar',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
                                 ),
                                 TextButton(
                                   onPressed: () {
@@ -308,7 +361,10 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                     FocusScope.of(context).unfocus();
                                     // FocusScope.of(context).unfocus(); Fecha o teclado
                                   },
-                                  child: Text('Salvar'),
+                                  child: Text(
+                                    'Salvar',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
                                 ),
                               ],
                             ),
@@ -338,7 +394,13 @@ class _BodyDespesasState extends State<BodyDespesas> {
                         builder:
                             (context) => AlertDialog(
                               backgroundColor: Colors.yellow,
-                              title: Text('Cadastrar nova conta'),
+                              title: Text(
+                                'Cadastrar nova conta',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               content: SizedBox(
                                 height: 350,
                                 width: 300,
@@ -366,8 +428,22 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                                 child: Text(conta.tipoConta),
                                               );
                                             }).toList(),
-                                        decoration: InputDecoration(
+                                        /*decoration: InputDecoration(
                                           labelText: 'Tipo de Conta',
+                                        ),*/
+                                        decoration: InputDecoration(
+                                          label: Text(
+                                            'Tipo de conta',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          border: OutlineInputBorder(),
                                         ),
                                         validator: (value) {
                                           if (value == null || value.isEmpty) {
@@ -381,9 +457,33 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                       TextFormField(
                                         controller: _descricao,
                                         decoration: InputDecoration(
+                                          prefixIcon: Icon(
+                                            Icons.wallet,
+                                            color: Colors.black,
+                                          ),
+                                          label: Text(
+                                            'Descrição',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          hintText: 'Digite uma descrição...',
+                                          hintStyle: TextStyle(
+                                            color: Colors.black.withOpacity(
+                                              0.7,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          border: OutlineInputBorder(),
+                                        ),
+                                        /*decoration: InputDecoration(
                                           labelText: 'Descrição',
                                           prefixIcon: Icon(Icons.label),
-                                        ),
+                                        ),*/
                                         validator: (value) {
                                           if (value == null || value.isEmpty) {
                                             return 'O campo é obrigatório';
@@ -394,18 +494,67 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                       espacador(20),
                                       TextFormField(
                                         controller: _observacoes,
-                                        decoration: InputDecoration(
+                                        /*decoration: InputDecoration(
                                           labelText: 'Observações(Opcional)',
                                           prefixIcon: Icon(Icons.abc),
+                                        ),*/
+                                        decoration: InputDecoration(
+                                          prefixIcon: Icon(
+                                            Icons.announcement_rounded,
+                                            color: Colors.black,
+                                          ),
+                                          label: Text(
+                                            'Observações(Opcional)',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          hintText: 'Digite uma observação...',
+                                          hintStyle: TextStyle(
+                                            color: Colors.black.withOpacity(
+                                              0.7,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          border: OutlineInputBorder(),
                                         ),
                                         validator: (value) => null,
                                       ),
                                       espacador(20),
                                       TextFormField(
                                         controller: _valor,
-                                        decoration: InputDecoration(
+                                        /*decoration: InputDecoration(
                                           labelText: 'Valor R\$',
                                           prefixIcon: Icon(Icons.attach_money),
+                                        ),*/
+                                        decoration: InputDecoration(
+                                          prefixIcon: Icon(
+                                            Icons.attach_money,
+                                            color: Colors.black,
+                                          ),
+                                          label: Text(
+                                            'Valor R\$',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          hintText:
+                                              'Digite o valor da conta...',
+                                          hintStyle: TextStyle(
+                                            color: Colors.black.withOpacity(
+                                              0.7,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          border: OutlineInputBorder(),
                                         ),
                                         keyboardType: TextInputType.number,
                                         validator: (value) {
@@ -423,14 +572,20 @@ class _BodyDespesasState extends State<BodyDespesas> {
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(context),
-                                  child: Text('Cancelar'),
+                                  child: Text(
+                                    'Cancelar',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
                                 ),
                                 TextButton(
                                   onPressed: () {
                                     final sucesso = validacaoNovaConta();
                                     if (sucesso == true) Navigator.pop(context);
                                   },
-                                  child: Text('Cadastrar'),
+                                  child: Text(
+                                    'Cadastrar',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
                                 ),
                               ],
                             ),
@@ -459,84 +614,117 @@ class _BodyDespesasState extends State<BodyDespesas> {
                         context: context,
                         builder:
                             (context) => AlertDialog(
-                              title: Text('Contas cadastradas'),
+                              title: Text(
+                                'Contas lançadas',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               backgroundColor: Colors.yellow,
                               content: SizedBox(
                                 height: 400,
                                 width: 300,
-                                child: ListView.builder(
-                                  itemCount:
-                                      FinanceiroServiceDespesas
-                                          .listaConta
-                                          .length,
-                                  itemBuilder: (context, index) {
-                                    final item =
+                                child: Container(
+                                  padding: const EdgeInsets.all(7),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.3),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: ListView.builder(
+                                    itemCount:
                                         FinanceiroServiceDespesas
-                                            .listaConta[index];
-                                    return ListTile(
-                                      onTap: () {},
-                                      leading: Icon(Icons.wallet),
-                                      title: Text('Tipo: ${item.tipoConta}'),
-                                      subtitle: Text(
-                                        'Descrição: ${item.descricao}\nValor: ${item.valor}\nObservações: ${item.observacao}',
-                                      ),
-                                      trailing:
+                                            .listaConta
+                                            .length,
+                                    itemBuilder: (context, index) {
+                                      final item =
                                           FinanceiroServiceDespesas
-                                                  .listaConta[index]
-                                                  .pago
-                                              ? Icon(
-                                                Icons.check_box,
-                                                color: Colors.green,
-                                              )
-                                              : IconButton(
-                                                icon: Icon(
-                                                  Icons.check_box_outline_blank,
-                                                  color: Colors.red,
-                                                ),
-                                                onPressed: () {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (
-                                                          context,
-                                                        ) => AlertDialog(
-                                                          title: Text(
-                                                            'Confirmar pagamento',
-                                                          ),
-                                                          content: Text(
-                                                            'Deseja confirmar o pagamento?',
-                                                          ),
-                                                          actions: [
-                                                            TextButton(
-                                                              onPressed: () {
-                                                                Navigator.pop(
-                                                                  context,
-                                                                );
-                                                              },
-                                                              child: Text(
-                                                                'Não',
+                                              .listaConta[index];
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black,
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        child: ListTile(
+                                          onTap: () {},
+                                          leading: Icon(
+                                            Icons.wallet,
+                                            color: Colors.white,
+                                          ),
+                                          title: Text(
+                                            'Tipo: ${item.tipoConta}',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          subtitle: Text(
+                                            'Descrição: ${item.descricao}\nValor: ${item.valor}\nObservações: ${item.observacao}',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          trailing:
+                                              FinanceiroServiceDespesas
+                                                      .listaConta[index]
+                                                      .pago
+                                                  ? Icon(
+                                                    Icons.check_box,
+                                                    color: Colors.green,
+                                                  )
+                                                  : IconButton(
+                                                    icon: Icon(
+                                                      Icons
+                                                          .check_box_outline_blank,
+                                                      color: Colors.red,
+                                                    ),
+                                                    onPressed: () {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder:
+                                                            (
+                                                              context,
+                                                            ) => AlertDialog(
+                                                              title: Text(
+                                                                'Confirmar pagamento',
                                                               ),
-                                                            ),
-                                                            TextButton(
-                                                              onPressed: () {
-                                                                marcarComoPago(
-                                                                  index,
-                                                                );
-                                                                Navigator.pop(
-                                                                  context,
-                                                                );
-                                                              },
-                                                              child: Text(
-                                                                'Sim',
+                                                              content: Text(
+                                                                'Deseja confirmar o pagamento?',
                                                               ),
+                                                              actions: [
+                                                                TextButton(
+                                                                  onPressed: () {
+                                                                    Navigator.pop(
+                                                                      context,
+                                                                    );
+                                                                  },
+                                                                  child: Text(
+                                                                    'Não',
+                                                                  ),
+                                                                ),
+                                                                TextButton(
+                                                                  onPressed: () {
+                                                                    marcarComoPago(
+                                                                      index,
+                                                                    );
+                                                                    Navigator.pop(
+                                                                      context,
+                                                                    );
+                                                                  },
+                                                                  child: Text(
+                                                                    'Sim',
+                                                                  ),
+                                                                ),
+                                                              ],
                                                             ),
-                                                          ],
-                                                        ),
-                                                  );
-                                                },
-                                              ),
-                                    );
-                                  },
+                                                      );
+                                                    },
+                                                  ),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                             ),
