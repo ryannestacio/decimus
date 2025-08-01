@@ -640,87 +640,100 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                       final item =
                                           FinanceiroServiceDespesas
                                               .listaConta[index];
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 1.0,
                                         ),
-                                        child: ListTile(
-                                          onTap: () {},
-                                          leading: Icon(
-                                            Icons.wallet,
-                                            color: Colors.white,
-                                          ),
-                                          title: Text(
-                                            'Tipo: ${item.tipoConta}',
-                                            style: TextStyle(
-                                              color: Colors.white,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black,
+                                            borderRadius: BorderRadius.circular(
+                                              20,
                                             ),
                                           ),
-                                          subtitle: Text(
-                                            'Descrição: ${item.descricao}\nValor: ${item.valor}\nObservações: ${item.observacao}',
-                                            style: TextStyle(
-                                              color: Colors.white,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 5.0,
+                                            ),
+                                            child: ListTile(
+                                              contentPadding: EdgeInsets.all(
+                                                10,
+                                              ),
+                                              onTap: () {},
+                                              leading: Icon(
+                                                Icons.wallet,
+                                                color: Colors.white,
+                                              ),
+                                              title: Text(
+                                                'Tipo: ${item.tipoConta}',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              subtitle: Text(
+                                                'Descrição: ${item.descricao}\nValor: ${item.valor}\nObservações: ${item.observacao}',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              trailing:
+                                                  FinanceiroServiceDespesas
+                                                          .listaConta[index]
+                                                          .pago
+                                                      ? Icon(
+                                                        Icons.check_box,
+                                                        color: Colors.green,
+                                                      )
+                                                      : IconButton(
+                                                        icon: Icon(
+                                                          Icons
+                                                              .check_box_outline_blank,
+                                                          color: Colors.red,
+                                                        ),
+                                                        onPressed: () {
+                                                          showDialog(
+                                                            context: context,
+                                                            builder:
+                                                                (
+                                                                  context,
+                                                                ) => AlertDialog(
+                                                                  title: Text(
+                                                                    'Confirmar pagamento',
+                                                                  ),
+                                                                  content: Text(
+                                                                    'Deseja confirmar o pagamento?',
+                                                                  ),
+                                                                  actions: [
+                                                                    TextButton(
+                                                                      onPressed: () {
+                                                                        Navigator.pop(
+                                                                          context,
+                                                                        );
+                                                                      },
+                                                                      child: Text(
+                                                                        'Não',
+                                                                      ),
+                                                                    ),
+                                                                    TextButton(
+                                                                      onPressed: () {
+                                                                        marcarComoPago(
+                                                                          index,
+                                                                        );
+                                                                        Navigator.pop(
+                                                                          context,
+                                                                        );
+                                                                      },
+                                                                      child: Text(
+                                                                        'Sim',
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                          );
+                                                        },
+                                                      ),
                                             ),
                                           ),
-                                          trailing:
-                                              FinanceiroServiceDespesas
-                                                      .listaConta[index]
-                                                      .pago
-                                                  ? Icon(
-                                                    Icons.check_box,
-                                                    color: Colors.green,
-                                                  )
-                                                  : IconButton(
-                                                    icon: Icon(
-                                                      Icons
-                                                          .check_box_outline_blank,
-                                                      color: Colors.red,
-                                                    ),
-                                                    onPressed: () {
-                                                      showDialog(
-                                                        context: context,
-                                                        builder:
-                                                            (
-                                                              context,
-                                                            ) => AlertDialog(
-                                                              title: Text(
-                                                                'Confirmar pagamento',
-                                                              ),
-                                                              content: Text(
-                                                                'Deseja confirmar o pagamento?',
-                                                              ),
-                                                              actions: [
-                                                                TextButton(
-                                                                  onPressed: () {
-                                                                    Navigator.pop(
-                                                                      context,
-                                                                    );
-                                                                  },
-                                                                  child: Text(
-                                                                    'Não',
-                                                                  ),
-                                                                ),
-                                                                TextButton(
-                                                                  onPressed: () {
-                                                                    marcarComoPago(
-                                                                      index,
-                                                                    );
-                                                                    Navigator.pop(
-                                                                      context,
-                                                                    );
-                                                                  },
-                                                                  child: Text(
-                                                                    'Sim',
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                      );
-                                                    },
-                                                  ),
                                         ),
                                       );
                                     },
