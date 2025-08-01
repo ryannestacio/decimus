@@ -223,7 +223,17 @@ class _BodyDespesasState extends State<BodyDespesas> {
                 SizedBox(
                   height: 60,
                   width: 350,
-                  child: OutlinedButton(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 32, 117, 185),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(color: Colors.white, width: 2),
+                      ),
+                      elevation: 8,
+                    ),
+
                     child: Text('Tipos de conta'),
                     onPressed: () {
                       showDialog(
@@ -310,8 +320,18 @@ class _BodyDespesasState extends State<BodyDespesas> {
                 SizedBox(
                   height: 60,
                   width: 350,
-                  child: OutlinedButton(
-                    child: Text('Cadastrar nova conta'),
+                  child: ElevatedButton(
+                    child: Text('Lançar nova conta'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 32, 117, 185),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(color: Colors.white, width: 2),
+                      ),
+                      elevation: 8,
+                    ),
+
                     onPressed: () {
                       showDialog(
                         context: context,
@@ -422,8 +442,18 @@ class _BodyDespesasState extends State<BodyDespesas> {
                 SizedBox(
                   height: 60,
                   width: 350,
-                  child: OutlinedButton(
-                    child: Text('Verificar contas'),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 32, 117, 185),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(color: Colors.white, width: 2),
+                      ),
+                      elevation: 8,
+                    ),
+
+                    child: Text('Contas lançadas'),
                     onPressed: () {
                       showDialog(
                         context: context,

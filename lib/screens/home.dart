@@ -40,7 +40,10 @@ class HomeScreen extends StatelessWidget {
                           //garantindo que a tela de login seja a única aberta sem arrow de voltar para a tela home
                           //Evita também que um usuário android use o botão de voltar do dispositivo.
                         },
-                        child: Text('Sim', style: TextStyle(color: Colors.red)),
+                        child: Text(
+                          'Sim',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ],
                   ),
