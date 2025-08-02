@@ -2,6 +2,8 @@ import 'package:decimus/services/services_despesas.dart';
 import 'package:flutter/material.dart';
 import 'package:decimus/models/models_despesas.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
+import 'package:intl/intl.dart';
 
 class DespesasScreen extends StatelessWidget {
   const DespesasScreen({super.key});
@@ -37,6 +39,7 @@ class _BodyDespesasState extends State<BodyDespesas> {
   final TextEditingController _descricao = TextEditingController();
   final TextEditingController _observacoes = TextEditingController();
   final TextEditingController _valor = TextEditingController();
+  final formatter = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
 
   @override
   void initState() {
@@ -89,12 +92,16 @@ class _BodyDespesasState extends State<BodyDespesas> {
   }
 
   bool validacaoNovaConta() {
+    final valorLimpo = toNumericString(_valor.text, allowPeriod: false);
+
+    final valorDouble = double.parse(valorLimpo) / 100;
+
     if (_formKeyNovaConta.currentState!.validate()) {
       final novaConta = ContaCad(
         tipoConta: _tipoConta.text,
         descricao: _descricao.text,
         observacao: _observacoes.text,
-        valor: double.tryParse(_valor.text) ?? 0.0,
+        valor: valorDouble,
         pago: false,
       );
 
@@ -557,6 +564,13 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                           border: OutlineInputBorder(),
                                         ),
                                         keyboardType: TextInputType.number,
+                                        inputFormatters: [
+                                          CurrencyInputFormatter(
+                                            leadingSymbol: 'R\$',
+                                            thousandSeparator:
+                                                ThousandSeparator.Period,
+                                          ),
+                                        ],
                                         validator: (value) {
                                           if (value == null || value.isEmpty) {
                                             return 'O campo é obrigatório';
@@ -671,7 +685,7 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                                 ),
                                               ),
                                               subtitle: Text(
-                                                'Descrição: ${item.descricao}\nValor: ${item.valor}\nObservações: ${item.observacao}',
+                                                'Descrição: ${item.descricao}\nValor: ${formatter.format(item.valor)}\nObservações: ${item.observacao}',
                                                 style: TextStyle(
                                                   color: Colors.white,
                                                 ),

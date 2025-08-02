@@ -1,8 +1,9 @@
 import 'package:decimus/services/services_recebiveis.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:intl/intl.dart';
 
 class RecebiveisScreen extends StatelessWidget {
   const RecebiveisScreen({super.key});
@@ -37,6 +38,7 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
   final TextEditingController _typeController = TextEditingController();
   final TextEditingController _valueController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+  final formatter = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
   final _formKey = GlobalKey<FormState>();
   DateTime? _dataSelecionada;
 
@@ -50,10 +52,16 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
         );
         return;
       }
+      final valorLimpo = toNumericString(
+        _valueController.text,
+        allowPeriod: false,
+      );
+
+      final valorDouble = double.parse(valorLimpo) / 100;
 
       final novoRecebimento = {
         'tipo': _typeController.text,
-        'valor': double.tryParse(_valueController.text) ?? 0.0,
+        'valor': valorDouble,
         'data': Timestamp.fromDate(_dataSelecionada!),
       };
 
@@ -156,6 +164,12 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
                         return null;
                       },
                       keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        CurrencyInputFormatter(
+                          leadingSymbol: 'R\$',
+                          thousandSeparator: ThousandSeparator.Period,
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(height: 10),
@@ -276,7 +290,7 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
                                   ),
                                 ),
                                 subtitle: Text(
-                                  'Entrada: ${data.day}/${data.month}/${data.year}\nValor: R\$${valor.toStringAsFixed(2)}',
+                                  'Entrada: ${data.day}/${data.month}/${data.year}\nValor: ${formatter.format(valor)}',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 15,
