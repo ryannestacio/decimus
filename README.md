@@ -9,7 +9,7 @@ O **Decimus** é um aplicativo mobile desenvolvido em Flutter, voltado para o **
 
 - ✅ Cadastro de dízimos e devedores  
 - ✅ Controle de despesas mensais  
-- ✅ Geração de relatórios financeiros  
+- ✅ Geração de relatórios financeiros  (Futura implementação)
 - ✅ Visualização de contas pagas e em aberto  
 - ✅ Tela de caixa com extrato de entradas e saídas  
 - ✅ Autenticação com Firebase  
