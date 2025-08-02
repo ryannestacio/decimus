@@ -1,44 +1,103 @@
-# 📱 Decimus – Controle de Dízimos e Finanças da Igreja
 
-Decimus é um aplicativo Flutter em desenvolvimento, criado para ajudar na organização financeira de comunidades religiosas, com foco em simplicidade e praticidade.
+# 📿 Decimus
 
-✅ Funcionalidades Implementadas
-📌 Tela de Despesas
-Cadastro de tipos de contas/despesas (ex: Luz, Água, Outros).
+O **Decimus** é um aplicativo mobile desenvolvido em Flutter, voltado para o **controle de dízimos, despesas e finanças de paróquias católicas**. O projeto surgiu da necessidade de organizar de forma digital os registros financeiros da comunidade, com foco em usabilidade, segurança e acessibilidade.
 
-Registro de novas despesas, com os campos:
+---
 
-Tipo da conta
+## 📱 Funcionalidades
 
-Descrição
+- ✅ Cadastro de dízimos e devedores  
+- ✅ Controle de despesas mensais  
+- ✅ Geração de relatórios financeiros  
+- ✅ Visualização de contas pagas e em aberto  
+- ✅ Tela de caixa com extrato de entradas e saídas  
+- ✅ Autenticação com Firebase  
+- ✅ Integração com Firestore (banco de dados em nuvem)  
 
-Observações (opcional)
+---
 
-Valor da despesa
+## 🛠️ Tecnologias Utilizadas
 
-Visualização das contas cadastradas, separando valores pagos e em aberto.
+| Tecnologia     | Uso                          |
+|----------------|------------------------------|
+| Flutter        | Desenvolvimento mobile       |
+| Firebase Auth  | Autenticação de usuários     |
+| Cloud Firestore| Armazenamento de dados       |
+| Dart           | Lógica do app                |
+| setState       | Gerenciamento de estado      |
+| Flutter PDF    | Geração de relatórios (futuro) |
 
-📌 Tela de Recebíveis
-Lista automática de valores a receber baseados nos registros de dízimos e devedores que pagaram.
+---
 
-Estrutura pronta para futura tela de "devoluções" (em caso de registro errado).
+## 🧱 Estrutura de Pastas
 
-## Em Desenvolvimento – Sprint 2
+```
+lib/
+├── screens/         # Telas do app
+├── services/        # Lógicas e cálculos financeiros
+├── models/          # Modelos de dados
+├── widgets/         # Componentes reutilizáveis
+├── firebase/        # Integrações com Firestore
+└── main.dart        # Entrada do aplicativo
+```
 
-📌 Tela de Devedores
-Cadastro de devedores com valor pendente.
+---
 
-Lista de devedores com opção de marcar como "pagou".
+## 🧪 Funcionalidades Futuras
 
-Ao marcar como pago, o valor é automaticamente adicionado à lista de recebíveis.
+- [ ] Exportar relatórios em PDF  
+- [ ] Enviar avisos por WhatsApp  
+- [ ] Sistema multi-paróquias  
+- [ ] Integração com API de CEP  
+- [ ] Tema escuro  
 
+---
 
+## 🚀 Como rodar o projeto
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+# Clone o repositório
+git clone https://github.com/ryannestacio/decimus.git
+cd decimus
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+# Instale as dependências
+flutter pub get
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# Execute o app
+flutter run
+```
+
+---
+
+## 📸 Screenshots
+
+Em breve adicionarei imagens da interface do aplicativo.
+
+---
+
+## 🤝 Contribuição
+
+Este projeto é pessoal, mas sugestões de melhorias são bem-vindas. Para contribuir:
+
+1. Faça um fork do projeto.  
+2. Crie uma branch: `git checkout -b minha-feature`  
+3. Commit suas alterações: `git commit -m 'feat: nova funcionalidade'`  
+4. Faça um push: `git push origin minha-feature`  
+5. Crie um Pull Request.  
+
+---
+
+## 🧑‍💻 Autor
+
+**Ryan Estácio dos Santos**  
+📧 Email: [ryannestacio@icloud.com](mailto:ryannestacio@icloud.com)  
+🔗 GitHub: [@ryannestacio](https://github.com/ryannestacio)  
+📸 Instagram: [@ryannestacio](https://instagram.com/ryannestacio)  
+💼 LinkedIn: [@ryannestacio](https://linkedin.com/in/ryannestacio)  
+
+---
+
+## 📜 Licença
+
+Este projeto está licenciado sob a **MIT License**. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
