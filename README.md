@@ -72,7 +72,20 @@ flutter run
 
 ## 📸 Screenshots
 
-Em breve adicionarei imagens da interface do aplicativo.
+<h3>📱 Tela de Login</h3>
+<img src="assets/images-readme/tela-login.png" width="220"/>
+<h3>📱 Tela Princioal</h3>
+<img src="assets/images-readme/tela-principal.png" width="220"/>
+<h3>📱 Tela de recebíveis</h3>
+<img src="assets/images-readme/tela-recebíveis.png" width="220"/>
+<h3>📱 Tela de despesas</h3>
+<img src="assets/images-readme/tela-despesas.png" width="220"/>
+<h3>📱 Tela de Despesas - Tipo de conta</h3>
+<img src="assets/images-readme/alert-dialog-tipo-despesa.png" width="220"/>
+<h3>📱 Tela de Despesas - Cadastrar nova conta</h3>
+<img src="assets/images-readme/alert-dialog-nova despesa.png" width="220"/>
+<h3>📱 Tela de Despesas - Verificar contas</h3>
+<img src="assets/images-readme/alert-dialog-verificar-despesas.png" width="220"/>
 
 ---
 
