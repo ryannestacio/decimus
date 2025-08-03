@@ -384,7 +384,6 @@ class _BodyDespesasState extends State<BodyDespesas> {
                   height: 60,
                   width: 350,
                   child: ElevatedButton(
-                    child: Text('Lançar nova conta'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 32, 117, 185),
                       foregroundColor: Colors.white,
@@ -605,6 +604,7 @@ class _BodyDespesasState extends State<BodyDespesas> {
                             ),
                       );
                     },
+                    child: Text('Lançar nova conta'),
                   ),
                 ),
                 espacador(10),
