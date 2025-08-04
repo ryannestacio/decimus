@@ -39,6 +39,7 @@ flutter:
      - assets/images/tomas.png
      - assets/images/saofrancisco.png
      - assets/images/sbento.png
+     - assets/images/miguel.png
 
   
   # fonts:

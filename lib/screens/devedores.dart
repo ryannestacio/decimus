@@ -8,12 +8,16 @@ class DevedoresScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text(
           'Devedores',
-          style: TextStyle(fontWeight: FontWeight.w300),
+          style: TextStyle(fontWeight: FontWeight.w300, color: Colors.white),
         ),
         centerTitle: true,
+        backgroundColor: Colors.blue,
+        elevation: 8,
+        shadowColor: Colors.indigo,
       ),
       body: BodyDevedores(),
     );
@@ -105,6 +109,7 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                   prefixIcon: Icon(Icons.supervised_user_circle_outlined),
                   labelText: 'Nome',
                   hintText: 'Digite o nome do devedor...',
+                  border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -229,41 +234,72 @@ class _BodyDevedoresState extends State<BodyDevedores> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: 60,
-              width: 350,
-              child: OutlinedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => _dialogCadastro(),
-                  );
-                },
-                child: Text('Cadastrar devedor'),
-              ),
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/miguel.png'),
+              opacity: 0.3,
+              fit: BoxFit.cover,
             ),
-            _espacador(10),
-            SizedBox(
-              height: 60,
-              width: 350,
-              child: OutlinedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => _dialogVerificacao(),
-                  );
-                },
-                child: Text('Verificar Devedores'),
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+        SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: 60,
+                  width: 350,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 32, 117, 185),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(color: Colors.white, width: 2),
+                      ),
+                      elevation: 8,
+                    ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => _dialogCadastro(),
+                      );
+                    },
+                    child: Text('Cadastrar devedor'),
+                  ),
+                ),
+                _espacador(10),
+                SizedBox(
+                  height: 60,
+                  width: 350,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 32, 117, 185),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(color: Colors.white, width: 2),
+                      ),
+                      elevation: 8,
+                    ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => _dialogVerificacao(),
+                      );
+                    },
+                    child: Text('Verificar Devedores'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
