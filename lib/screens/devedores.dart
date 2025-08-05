@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:decimus/services/services_devedores.dart';
 import 'package:decimus/models/models_devedores.dart';
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 
 class DevedoresScreen extends StatelessWidget {
   const DevedoresScreen({super.key});
@@ -67,11 +68,11 @@ class _BodyDevedoresState extends State<BodyDevedores> {
   }
 
   void validator() async {
+    final valorLimpo = toNumericString(_valDevedor.text, allowPeriod: false);
+
+    final valorDouble = double.parse(valorLimpo) / 100;
     if (_formKey.currentState!.validate()) {
-      final addConta = Devedor(
-        nome: _cadDevedor.text,
-        valor: double.tryParse(_valDevedor.text) ?? 0.0,
-      );
+      final addConta = Devedor(nome: _cadDevedor.text, valor: valorDouble);
 
       await FinanceiroServiceDevedores.salvarDevedor(addConta);
       await _carregarDevedores(); // recarrega e dá setState
@@ -94,7 +95,10 @@ class _BodyDevedoresState extends State<BodyDevedores> {
   Widget _dialogCadastro() {
     return AlertDialog(
       backgroundColor: Colors.yellow,
-      title: Text('Novo devedor'),
+      title: Text(
+        'Novo devedor',
+        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+      ),
       content: SizedBox(
         height: 200,
         width: 300,
@@ -106,11 +110,19 @@ class _BodyDevedoresState extends State<BodyDevedores> {
               TextFormField(
                 controller: _cadDevedor,
                 decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.supervised_user_circle_outlined),
-                  labelText: 'Nome',
+                  prefixIcon: Icon(
+                    Icons.supervised_user_circle_outlined,
+                    color: Colors.black,
+                  ),
+                  label: Text('Nome', style: TextStyle(color: Colors.black)),
                   hintText: 'Digite o nome do devedor...',
+                  hintStyle: TextStyle(color: Colors.black.withOpacity(0.7)),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
                   border: OutlineInputBorder(),
                 ),
+
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Digite o nome do devedor';
@@ -125,17 +137,27 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                   if (value == null || value.isEmpty) {
                     return 'Digite o valor a pagar';
                   }
-                  if (double.tryParse(value) == null) {
-                    return 'Digite um valor numérico válido';
-                  }
+
                   return null;
                 },
                 decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.attach_money),
-                  labelText: 'Valor',
+                  prefixIcon: Icon(Icons.attach_money, color: Colors.black),
+                  label: Text('Valor', style: TextStyle(color: Colors.black)),
                   hintText: 'Digite o valor a pagar...',
+                  hintStyle: TextStyle(color: Colors.black.withOpacity(0.7)),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
+                  border: OutlineInputBorder(),
                 ),
+
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  CurrencyInputFormatter(
+                    leadingSymbol: 'R\$',
+                    thousandSeparator: ThousandSeparator.Period,
+                  ),
+                ],
               ),
             ],
           ),
@@ -146,13 +168,19 @@ class _BodyDevedoresState extends State<BodyDevedores> {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text('Cancelar'),
+          child: Text(
+            'Cancelar',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
         ),
         TextButton(
           onPressed: () {
             validator();
           },
-          child: Text('Confirmar'),
+          child: Text(
+            'Confirmar',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
         ),
       ],
     );
@@ -160,8 +188,12 @@ class _BodyDevedoresState extends State<BodyDevedores> {
 
   Widget _dialogVerificacao() {
     return AlertDialog(
+      title: Text(
+        'Devedores',
+        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+      ),
       backgroundColor: Colors.yellow,
-      title: Text('Devedores'),
+
       content: SizedBox(
         height: 500,
         width: 600,
@@ -172,63 +204,121 @@ class _BodyDevedoresState extends State<BodyDevedores> {
               child:
                   listaDevedor.isEmpty
                       ? Center(child: const Text('Nenhum devedor cadastrado.'))
-                      : ListView.builder(
-                        itemCount: listaDevedor.length,
-                        itemBuilder: (context, index) {
-                          final item = listaDevedor[index];
-                          return ListTile(
-                            leading: Icon(
-                              Icons.supervised_user_circle_outlined,
-                            ),
-                            title: Text(item.nome),
-                            subtitle: Text(
-                              'R\$ ${item.valor.toStringAsFixed(2)}',
-                            ),
-                            trailing:
-                                listaDevedor[index].pago
-                                    ? Icon(Icons.check_box, color: Colors.green)
-                                    : IconButton(
-                                      icon: Icon(
-                                        Icons.check_box_outline_blank,
-                                        color: Colors.red,
-                                      ),
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder:
-                                              (context) => AlertDialog(
-                                                title: Text(
-                                                  'Confirmar pagamento',
-                                                ),
-                                                content: Text(
-                                                  'Deseja confirmar o pagamento?',
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: Text('Não'),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      marcarComoPago(index);
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: Text('Sim'),
-                                                  ),
-                                                ],
-                                              ),
-                                        );
-                                      },
+                      : SizedBox(
+                        height: 400,
+                        width: 300,
+                        child: Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: ListView.builder(
+                            itemCount: listaDevedor.length,
+                            itemBuilder: (context, index) {
+                              final item = listaDevedor[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 1.0,
+                                ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.9),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 5.0,
                                     ),
-                          );
-                        },
+                                    child: ListTile(
+                                      leading: Icon(
+                                        Icons.supervised_user_circle_outlined,
+                                        color: Colors.white,
+                                      ),
+                                      title: Text(
+                                        item.nome,
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      subtitle: Text(
+                                        'R\$ ${item.valor.toStringAsFixed(2)}',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      trailing:
+                                          listaDevedor[index].pago
+                                              ? Icon(
+                                                Icons.check_box,
+                                                color: Colors.green,
+                                              )
+                                              : IconButton(
+                                                icon: Icon(
+                                                  Icons.check_box_outline_blank,
+                                                  color: Colors.red,
+                                                ),
+                                                onPressed: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (
+                                                          context,
+                                                        ) => AlertDialog(
+                                                          title: Text(
+                                                            'Confirmar pagamento',
+                                                          ),
+                                                          content: Text(
+                                                            'Deseja confirmar o pagamento?',
+                                                          ),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.pop(
+                                                                  context,
+                                                                );
+                                                              },
+                                                              child: Text(
+                                                                'Não',
+                                                              ),
+                                                            ),
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                marcarComoPago(
+                                                                  index,
+                                                                );
+                                                                Navigator.pop(
+                                                                  context,
+                                                                );
+                                                              },
+                                                              child: Text(
+                                                                'Sim',
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                  );
+                                                },
+                                              ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       ),
             ),
           ],
         ),
       ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text(
+            'Fechar',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
     );
   }
 

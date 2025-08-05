@@ -112,7 +112,7 @@ class _CorpoBotoesState extends State<BodyHome> {
                         context,
                         title: 'Despesas',
                         subtitle: 'Contas a pagar, despesas em geral.',
-                        icon: Icons.attach_money_sharp,
+                        icon: Icons.import_export_sharp,
                         route: '/despesas',
                       ),
                       SizedBox(height: 4),
