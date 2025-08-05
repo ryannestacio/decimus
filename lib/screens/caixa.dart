@@ -11,11 +11,22 @@ class CaixaScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);
+          },
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+        ),
         title: const Text(
           'Caixa',
-          style: TextStyle(fontWeight: FontWeight.w300),
+          style: TextStyle(fontWeight: FontWeight.w300, color: Colors.white),
         ),
         centerTitle: true,
+        backgroundColor: Colors.blue,
+        elevation: 8,
+        shadowColor: Colors.indigo,
       ),
       body: BodyCaixa(),
     );
