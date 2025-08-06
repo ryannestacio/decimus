@@ -3,6 +3,7 @@ import 'package:decimus/services/services_devedores.dart';
 import 'package:decimus/services/services_caixa.dart';
 import 'package:decimus/services/services_recebiveis.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CaixaScreen extends StatelessWidget {
   const CaixaScreen({super.key});
@@ -74,56 +75,73 @@ class _BodyCaixaState extends State<BodyCaixa> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ListView(
-          children: [
-            SizedBox(
-              height: 150,
-              child: Card(
-                elevation: 3,
-                child: ListTile(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  tileColor: Colors.yellow,
-                  title: Text('Caixa Atual', style: TextStyle(fontSize: 50)),
-                  subtitle: Text(
-                    'R\$${FinanceiroServiceCaixa.saldoFinalDoCaixa}',
-                    style: TextStyle(fontSize: 25),
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/agostinho.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: ListView(
+              children: [
+                SizedBox(
+                  height: 150,
+                  child: Card(
+                    elevation: 3,
+                    child: ListTile(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      tileColor: Colors.yellow,
+                      title: Text(
+                        'Caixa Atual',
+                        style: GoogleFonts.bebasNeue(
+                          textStyle: TextStyle(fontSize: 50),
+                        ),
+                      ),
+                      subtitle: Text(
+                        'R\$${FinanceiroServiceCaixa.saldoFinalDoCaixa}',
+                        style: TextStyle(fontSize: 25),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                _espacador(10),
+                _buildCard(
+                  'Recebiveis previstos:',
+                  'R\$${FinanceiroServiceDevedores.devedoresPendentes}',
+                  Colors.green,
+                ),
+                _espacador(10),
+                _buildCard(
+                  'Despesas previstas:',
+                  'R\$${FinanceiroServiceDespesas.totalDespesasPendentes}',
+                  Colors.red,
+                ),
+                _espacador(20),
+                ElevatedButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Gerando relatório em PDF...')),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text('Gerar Relatório'),
+                ),
+              ],
             ),
-            _espacador(10),
-            _buildCard(
-              'Recebiveis previstos:',
-              'R\$${FinanceiroServiceDevedores.devedoresPendentes}',
-              Colors.green,
-            ),
-            _espacador(10),
-            _buildCard(
-              'Despesas previstas:',
-              'R\$${FinanceiroServiceDespesas.totalDespesasPendentes}',
-              Colors.red,
-            ),
-            _espacador(20),
-            ElevatedButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Gerando relatório em PDF...')),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
-                foregroundColor: Colors.white,
-              ),
-              child: Text('Gerar Relatório'),
-            ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }
