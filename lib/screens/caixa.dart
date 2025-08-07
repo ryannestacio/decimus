@@ -44,15 +44,32 @@ class BodyCaixa extends StatefulWidget {
 class _BodyCaixaState extends State<BodyCaixa> {
   //Widget reutilizável tipo ListTile
   Widget _buildCard(String title, String content, Color cor) {
-    return Card(
-      elevation: 3,
-      child: ListTile(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadiusGeometry.circular(5),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [Colors.yellow, Colors.black]),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: SizedBox(
+        height: 100,
+        child: Card(
+          elevation: 3,
+          child: ListTile(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadiusGeometry.circular(5),
+            ),
+            tileColor: cor,
+            title: Text(
+              title,
+              style: GoogleFonts.poppins(
+                textStyle: TextStyle(color: Colors.white, fontSize: 25),
+              ),
+            ),
+            subtitle: Text(
+              content,
+              style: TextStyle(color: Colors.white, fontSize: 15),
+            ),
+          ),
         ),
-        tileColor: cor,
-        title: Text(title, style: TextStyle(color: Colors.white)),
-        subtitle: Text(content, style: TextStyle(color: Colors.white)),
       ),
     );
   }
@@ -92,13 +109,21 @@ class _BodyCaixaState extends State<BodyCaixa> {
               children: [
                 SizedBox(
                   height: 150,
-                  child: Card(
-                    elevation: 3,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.amberAccent,
+                          const Color.fromARGB(255, 105, 86, 28),
+                        ],
+                      ),
+                    ),
                     child: ListTile(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
                       ),
-                      tileColor: Colors.yellow,
+                      tileColor: Colors.amber,
                       title: Text(
                         'Caixa Atual',
                         style: GoogleFonts.bebasNeue(
@@ -113,18 +138,6 @@ class _BodyCaixaState extends State<BodyCaixa> {
                   ),
                 ),
                 _espacador(10),
-                _buildCard(
-                  'Recebiveis previstos:',
-                  'R\$${FinanceiroServiceDevedores.devedoresPendentes}',
-                  Colors.green,
-                ),
-                _espacador(10),
-                _buildCard(
-                  'Despesas previstas:',
-                  'R\$${FinanceiroServiceDespesas.totalDespesasPendentes}',
-                  Colors.red,
-                ),
-                _espacador(20),
                 ElevatedButton(
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -132,10 +145,66 @@ class _BodyCaixaState extends State<BodyCaixa> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple,
+                    fixedSize: Size(20, 60),
+                    backgroundColor: const Color.fromARGB(255, 32, 117, 185),
                     foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(color: Colors.white, width: 2),
+                    ),
+                    elevation: 8,
                   ),
-                  child: Text('Gerar Relatório'),
+                  child: Text('Gerar Relatório de Caixa'),
+                ),
+                _espacador(20),
+                _buildCard(
+                  'Recebiveis previstos:',
+                  'R\$${FinanceiroServiceDevedores.devedoresPendentes}',
+                  Colors.green,
+                ),
+                _espacador(10),
+                ElevatedButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Gerando relatório em PDF...')),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    fixedSize: Size(20, 60),
+                    backgroundColor: const Color.fromARGB(255, 32, 117, 185),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(color: Colors.white, width: 2),
+                    ),
+                    elevation: 8,
+                  ),
+                  child: Text('Gerar Relatório de Recebíveis'),
+                ),
+                _espacador(20),
+                _buildCard(
+                  'Despesas previstas:',
+                  'R\$${FinanceiroServiceDespesas.totalDespesasPendentes}',
+                  Colors.red,
+                ),
+                _espacador(10),
+                ElevatedButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Gerando relatório em PDF...')),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    fixedSize: Size(20, 60),
+                    backgroundColor: const Color.fromARGB(255, 32, 117, 185),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(color: Colors.white, width: 2),
+                    ),
+                    elevation: 8,
+                  ),
+                  child: Text('Gerar Relatório de Despesas'),
                 ),
               ],
             ),

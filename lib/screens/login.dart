@@ -20,6 +20,21 @@ class LoginScreen extends StatelessWidget {
         shadowColor: Colors.indigo,
       ),
       body: BodyLogin(),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(50),
+            topRight: Radius.circular(50),
+          ),
+        ),
+        padding: EdgeInsets.all(12),
+        child: Text(
+          "© 2025 por Ryan Estácio\nTodos os direitos reservados.",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+        ),
+      ),
     );
   }
 }
