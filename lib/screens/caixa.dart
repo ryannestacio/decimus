@@ -11,6 +11,7 @@ class CaixaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
@@ -42,8 +43,38 @@ class BodyCaixa extends StatefulWidget {
 }
 
 class _BodyCaixaState extends State<BodyCaixa> {
+  Widget _buildElevatedButton(
+    String text,
+    Color corBorder,
+    Color corBackground,
+    Color corForegraund,
+  ) {
+    return ElevatedButton(
+      onPressed: () {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gerando relatório em PDF...')));
+      },
+
+      style: ElevatedButton.styleFrom(
+        fixedSize: Size(20, 60),
+        backgroundColor: corBackground,
+        foregroundColor: corForegraund,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: corBorder, width: 2),
+        ),
+        elevation: 8,
+      ),
+      child: Text(
+        text,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+      ),
+    );
+  }
+
   //Widget reutilizável tipo ListTile
-  Widget _buildCard(String title, String content, Color cor) {
+  Widget _buildCard(String title, String content, Color cor, Icon icon) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: [Colors.yellow, Colors.black]),
@@ -54,6 +85,7 @@ class _BodyCaixaState extends State<BodyCaixa> {
         child: Card(
           elevation: 3,
           child: ListTile(
+            leading: icon,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadiusGeometry.circular(5),
             ),
@@ -66,7 +98,7 @@ class _BodyCaixaState extends State<BodyCaixa> {
             ),
             subtitle: Text(
               content,
-              style: TextStyle(color: Colors.white, fontSize: 15),
+              style: TextStyle(color: Colors.white, fontSize: 20),
             ),
           ),
         ),
@@ -99,6 +131,7 @@ class _BodyCaixaState extends State<BodyCaixa> {
             image: DecorationImage(
               image: AssetImage('assets/images/agostinho.png'),
               fit: BoxFit.cover,
+              opacity: 0.7,
             ),
           ),
         ),
@@ -120,6 +153,7 @@ class _BodyCaixaState extends State<BodyCaixa> {
                       ),
                     ),
                     child: ListTile(
+                      leading: Icon(Icons.attach_money, size: 50),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
                       ),
@@ -137,74 +171,48 @@ class _BodyCaixaState extends State<BodyCaixa> {
                     ),
                   ),
                 ),
-                _espacador(10),
-                ElevatedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Gerando relatório em PDF...')),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    fixedSize: Size(20, 60),
-                    backgroundColor: const Color.fromARGB(255, 32, 117, 185),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(color: Colors.white, width: 2),
-                    ),
-                    elevation: 8,
-                  ),
-                  child: Text('Gerar Relatório de Caixa'),
+                _espacador(5),
+                _buildElevatedButton(
+                  'Relatório de caixa',
+                  Colors.white,
+                  const Color.fromARGB(255, 32, 117, 185),
+                  Colors.white,
                 ),
-                _espacador(20),
+                _espacador(50),
                 _buildCard(
                   'Recebiveis previstos:',
                   'R\$${FinanceiroServiceDevedores.devedoresPendentes}',
+
                   Colors.green,
+                  Icon(Icons.trending_up),
                 ),
-                _espacador(10),
-                ElevatedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Gerando relatório em PDF...')),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    fixedSize: Size(20, 60),
-                    backgroundColor: const Color.fromARGB(255, 32, 117, 185),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(color: Colors.white, width: 2),
-                    ),
-                    elevation: 8,
-                  ),
-                  child: Text('Gerar Relatório de Recebíveis'),
+                _espacador(5),
+                _buildElevatedButton(
+                  'Relatório de Recebíveis',
+                  Colors.white,
+                  const Color.fromARGB(255, 32, 117, 185),
+                  Colors.white,
                 ),
-                _espacador(20),
+                _espacador(50),
                 _buildCard(
                   'Despesas previstas:',
                   'R\$${FinanceiroServiceDespesas.totalDespesasPendentes}',
                   Colors.red,
+                  Icon(Icons.trending_down),
                 ),
-                _espacador(10),
-                ElevatedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Gerando relatório em PDF...')),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    fixedSize: Size(20, 60),
-                    backgroundColor: const Color.fromARGB(255, 32, 117, 185),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(color: Colors.white, width: 2),
-                    ),
-                    elevation: 8,
-                  ),
-                  child: Text('Gerar Relatório de Despesas'),
+                _espacador(5),
+                _buildElevatedButton(
+                  'Relatório de Despesas',
+                  Colors.white,
+                  const Color.fromARGB(255, 32, 117, 185),
+                  Colors.white,
+                ),
+                _espacador(50),
+                _buildElevatedButton(
+                  'Relatório Geral',
+                  Colors.blue,
+                  Colors.white,
+                  const Color.fromARGB(255, 32, 117, 185),
                 ),
               ],
             ),

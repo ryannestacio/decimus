@@ -111,10 +111,20 @@ class _BodyLoginState extends State<BodyLogin> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset(
-                      'assets/images/imagem1login.png',
-                      width: 150,
-                      height: 200,
+                    Container(
+                      width: 210,
+                      decoration: BoxDecoration(
+                        color: Colors.amber,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Image.asset(
+                          'assets/images/imagem1login.png',
+                          width: 150,
+                          height: 200,
+                        ),
+                      ),
                     ),
                     //SizedBox(height: 20),
                     const Text(
@@ -126,9 +136,7 @@ class _BodyLoginState extends State<BodyLogin> {
                         color: Colors.white,
                       ),
                     ),
-
-                    SizedBox(height: 10),
-
+                    SizedBox(height: 5),
                     TextFormField(
                       controller: _emailControler,
                       decoration: const InputDecoration(
