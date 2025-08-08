@@ -760,6 +760,9 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                                                           ),
                                                                           TextButton(
                                                                             onPressed: () {
+                                                                              marcarComoPago(
+                                                                                index,
+                                                                              );
                                                                               marcarComoPagoLocal(
                                                                                 index,
                                                                               );

@@ -59,7 +59,7 @@ class _BodyDevedoresState extends State<BodyDevedores> {
     setState(() {});
   }
 
-  void marcarComoPago(int index) async {
+  /*void marcarComoPago(int index) async {
     final antigo = listaDevedor[index];
     final atualizado = Devedor(
       nome: antigo.nome,
@@ -73,7 +73,30 @@ class _BodyDevedoresState extends State<BodyDevedores> {
     setState(() {
       listaDevedor[index] = atualizado;
     });
+  }*/
+
+  void marcarComoPago(
+    int index,
+    void Function(void Function()) setStateDialog,
+  ) async {
+    listaDevedor[index] = listaDevedor[index].copyWith(pago: true);
+    setState(() {}); // atualiza tela principal
+    setStateDialog(() {}); // atualiza diálogo
+
+    await FinanceiroServiceDevedores.marcarComoPago(listaDevedor[index].id!);
   }
+
+  /* void _marcarComoPagoLocalDevedores(int index) {
+    final antigo = FinanceiroServiceDevedores.listDevedor[index];
+    final atualizado = Devedor(
+      nome: antigo.nome,
+      valor: antigo.valor,
+      pago: true,
+    );
+    setState(() {
+      FinanceiroServiceDevedores.listDevedor[index] = atualizado;
+    });
+  }*/
 
   void validator() async {
     final valorLimpo = toNumericString(_valDevedor.text, allowPeriod: false);
@@ -195,138 +218,170 @@ class _BodyDevedoresState extends State<BodyDevedores> {
   }
 
   Widget _dialogVerificacao() {
-    return AlertDialog(
-      title: Text(
-        'Devedores',
-        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-      ),
-      backgroundColor: Colors.yellow,
-
-      content: SizedBox(
-        height: 500,
-        width: 600,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child:
-                  listaDevedor.isEmpty
-                      ? Center(child: const Text('Nenhum devedor cadastrado.'))
-                      : SizedBox(
-                        height: 400,
-                        width: 300,
-                        child: Container(
-                          padding: const EdgeInsets.all(7),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: ListView.builder(
-                            itemCount: listaDevedor.length,
-                            itemBuilder: (context, index) {
-                              final item = listaDevedor[index];
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 1.0,
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.9),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 5.0,
-                                    ),
-                                    child: ListTile(
-                                      leading: Icon(
-                                        Icons.supervised_user_circle_outlined,
-                                        color: Colors.white,
-                                      ),
-                                      title: Text(
-                                        item.nome,
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      subtitle: Text(
-                                        'R\$ ${item.valor.toStringAsFixed(2)}',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      trailing:
-                                          listaDevedor[index].pago
-                                              ? Icon(
-                                                Icons.check_box,
-                                                color: Colors.green,
-                                              )
-                                              : IconButton(
-                                                icon: Icon(
-                                                  Icons.check_box_outline_blank,
-                                                  color: Colors.red,
-                                                ),
-                                                onPressed: () {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (
-                                                          context,
-                                                        ) => AlertDialog(
-                                                          title: Text(
-                                                            'Confirmar pagamento',
-                                                          ),
-                                                          content: Text(
-                                                            'Deseja confirmar o pagamento?',
-                                                          ),
-                                                          actions: [
-                                                            TextButton(
-                                                              onPressed: () {
-                                                                Navigator.pop(
-                                                                  context,
-                                                                );
-                                                              },
-                                                              child: Text(
-                                                                'Não',
-                                                              ),
-                                                            ),
-                                                            TextButton(
-                                                              onPressed: () {
-                                                                marcarComoPago(
-                                                                  index,
-                                                                );
-                                                                Navigator.pop(
-                                                                  context,
-                                                                );
-                                                              },
-                                                              child: Text(
-                                                                'Sim',
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                  );
-                                                },
-                                              ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
+    return StatefulBuilder(
+      builder:
+          (context, setStateDialog) => AlertDialog(
+            title: Text(
+              'Devedores',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text(
-            'Fechar',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            backgroundColor: Colors.yellow,
+
+            content: SizedBox(
+              height: 500,
+              width: 600,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child:
+                        listaDevedor.isEmpty
+                            ? Center(
+                              child: const Text('Nenhum devedor cadastrado.'),
+                            )
+                            : SizedBox(
+                              height: 400,
+                              width: 300,
+                              child: Container(
+                                padding: const EdgeInsets.all(7),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: ListView.builder(
+                                  itemCount: listaDevedor.length,
+                                  itemBuilder: (context, index) {
+                                    final item = listaDevedor[index];
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 1.0,
+                                      ),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.9),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 5.0,
+                                          ),
+                                          child: ListTile(
+                                            leading: Icon(
+                                              Icons
+                                                  .supervised_user_circle_outlined,
+                                              color: Colors.white,
+                                            ),
+                                            title: Text(
+                                              item.nome,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            subtitle: Text(
+                                              'R\$ ${item.valor.toStringAsFixed(2)}',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            trailing:
+                                                listaDevedor[index].pago
+                                                    ? Icon(
+                                                      Icons.check_box,
+                                                      color: Colors.green,
+                                                    )
+                                                    : IconButton(
+                                                      icon: Icon(
+                                                        Icons
+                                                            .check_box_outline_blank,
+                                                        color: Colors.red,
+                                                      ),
+                                                      onPressed: () {
+                                                        showDialog(
+                                                          context: context,
+                                                          builder:
+                                                              (
+                                                                context,
+                                                              ) => AlertDialog(
+                                                                title: Text(
+                                                                  'Confirmar pagamento',
+                                                                ),
+                                                                content: Text(
+                                                                  'Deseja confirmar o pagamento?',
+                                                                ),
+                                                                actions: [
+                                                                  TextButton(
+                                                                    onPressed: () {
+                                                                      Navigator.pop(
+                                                                        context,
+                                                                      );
+                                                                    },
+                                                                    child: Text(
+                                                                      'Não',
+                                                                    ),
+                                                                  ),
+                                                                  TextButton(
+                                                                    onPressed: () {
+                                                                      /*marcarComoPago(
+                                                                        index,
+                                                                      );
+                                                                      _marcarComoPagoLocalDevedores(
+                                                                        index,
+                                                                      );
+                                                                      setStateDialog(
+                                                                        () {},
+                                                                      );
+                                                                      Navigator.pop(
+                                                                        context,
+                                                                      );*/
+                                                                      marcarComoPago(
+                                                                        index,
+                                                                        setStateDialog,
+                                                                      );
+                                                                      Navigator.pop(
+                                                                        context,
+                                                                      );
+                                                                    },
+                                                                    child: Text(
+                                                                      'Sim',
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                        );
+                                                      },
+                                                    ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'Fechar',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
     );
   }
 
