@@ -3,6 +3,7 @@ import 'package:decimus/services/services_devedores.dart';
 import 'package:decimus/services/services_caixa.dart';
 import 'package:decimus/services/services_recebiveis.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CaixaScreen extends StatelessWidget {
@@ -15,9 +16,10 @@ class CaixaScreen extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.of(
+            /*Navigator.of(
               context,
-            ).pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);
+            ).pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);*/
+            context.go('/home');
           },
           icon: Icon(Icons.arrow_back, color: Colors.white),
         ),

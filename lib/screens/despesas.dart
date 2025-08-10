@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:decimus/models/models_despesas.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class DespesasScreen extends StatelessWidget {
@@ -15,9 +16,10 @@ class DespesasScreen extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.of(
+            /*  Navigator.of(
               context,
-            ).pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);
+            ).pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);*/
+            context.go('/home');
           },
           icon: Icon(Icons.arrow_back, color: Colors.white),
         ),

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -32,10 +33,11 @@ class HomeScreen extends StatelessWidget {
                       TextButton(
                         onPressed: () async {
                           await FirebaseAuth.instance.signOut();
-                          Navigator.of(context).pushNamedAndRemoveUntil(
+                          /* Navigator.of(context).pushNamedAndRemoveUntil(
                             '/login',
                             (Route<dynamic> route) => false,
-                          );
+                          );*/
+                          context.go('/login');
                           //pushNamedAndRemoveUntil usado esse tipo de rotas para remover todas as rotas anteriores,
                           //garantindo que a tela de login seja a única aberta sem arrow de voltar para a tela home
                           //Evita também que um usuário android use o botão de voltar do dispositivo.
@@ -157,7 +159,7 @@ Widget _buildMenuTile(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     elevation: 18,
     child: ListTile(
-      onTap: () => Navigator.pushNamed(context, route),
+      onTap: () => context.go(route),
       leading: Icon(icon, color: Colors.black),
       trailing: Icon(Icons.arrow_forward_ios, color: Colors.black),
       title: Text(

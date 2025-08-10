@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -68,7 +69,7 @@ class _BodyLoginState extends State<BodyLogin> {
         );
 
         if (!mounted) return;
-        Navigator.pushReplacementNamed(context, '/home');
+        context.go('/home');
 
         _emailControler.clear();
         _senhaController.clear();

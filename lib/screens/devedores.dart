@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:decimus/services/services_devedores.dart';
 import 'package:decimus/models/models_devedores.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
+import 'package:go_router/go_router.dart';
 
 class DevedoresScreen extends StatelessWidget {
   const DevedoresScreen({super.key});
@@ -13,9 +14,10 @@ class DevedoresScreen extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.of(
+            /* Navigator.of(
               context,
-            ).pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);
+            ).pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);*/
+            context.go('/home');
           },
           icon: Icon(Icons.arrow_back, color: Colors.white),
         ),
