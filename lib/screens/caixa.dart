@@ -76,10 +76,16 @@ class _BodyCaixaState extends State<BodyCaixa> {
   }
 
   //Widget reutilizável tipo ListTile
-  Widget _buildCard(String title, String content, Color cor, Icon icon) {
+  Widget _buildCard(
+    String title,
+    String content,
+    Color cor,
+    Icon icon,
+    Color corBorda,
+  ) {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [Colors.yellow, Colors.black]),
+        gradient: LinearGradient(colors: [corBorda, Colors.black]),
         borderRadius: BorderRadius.circular(5),
       ),
       child: SizedBox(
@@ -95,12 +101,12 @@ class _BodyCaixaState extends State<BodyCaixa> {
             title: Text(
               title,
               style: GoogleFonts.poppins(
-                textStyle: TextStyle(color: Colors.white, fontSize: 25),
+                textStyle: TextStyle(color: Colors.black, fontSize: 25),
               ),
             ),
             subtitle: Text(
               content,
-              style: TextStyle(color: Colors.white, fontSize: 20),
+              style: TextStyle(color: Colors.black, fontSize: 20),
             ),
           ),
         ),
@@ -149,7 +155,7 @@ class _BodyCaixaState extends State<BodyCaixa> {
                       borderRadius: BorderRadius.circular(5),
                       gradient: LinearGradient(
                         colors: [
-                          Colors.amberAccent,
+                          Colors.amber,
                           const Color.fromARGB(255, 105, 86, 28),
                         ],
                       ),
@@ -185,8 +191,9 @@ class _BodyCaixaState extends State<BodyCaixa> {
                   'Recebiveis previstos:',
                   'R\$${FinanceiroServiceDevedores.devedoresPendentes}',
 
+                  Colors.amber,
+                  Icon(Icons.trending_up, color: Colors.green),
                   Colors.green,
-                  Icon(Icons.trending_up),
                 ),
                 _espacador(5),
                 _buildElevatedButton(
@@ -199,8 +206,9 @@ class _BodyCaixaState extends State<BodyCaixa> {
                 _buildCard(
                   'Despesas previstas:',
                   'R\$${FinanceiroServiceDespesas.totalDespesasPendentes}',
+                  Colors.amber,
+                  Icon(Icons.trending_down, color: Colors.red),
                   Colors.red,
-                  Icon(Icons.trending_down),
                 ),
                 _espacador(5),
                 _buildElevatedButton(

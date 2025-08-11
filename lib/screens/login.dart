@@ -20,7 +20,7 @@ class LoginScreen extends StatelessWidget {
         elevation: 8,
         shadowColor: Colors.indigo,
       ),
-      body: BodyLogin(),
+      body: SingleChildScrollView(child: BodyLogin()),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.grey[200],
@@ -109,124 +109,131 @@ class _BodyLoginState extends State<BodyLogin> {
               key: _formKey,
               child: Container(
                 constraints: BoxConstraints(maxWidth: 420),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 210,
-                      decoration: BoxDecoration(
-                        color: Colors.amber,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Image.asset(
-                          'assets/images/imagem1login.png',
-                          width: 150,
-                          height: 200,
+                child: Flexible(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: 30),
+                      Container(
+                        width: 180,
+                        height: 180,
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Image.asset(
+                            'assets/images/imagem1login.png',
+                            width: 150,
+                            height: 200,
+                          ),
                         ),
                       ),
-                    ),
-                    //SizedBox(height: 20),
-                    const Text(
-                      'Bem Vindo!\nSalve Maria!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    TextFormField(
-                      controller: _emailControler,
-                      decoration: const InputDecoration(
-                        labelText: 'Digite seu e-mail',
-                        labelStyle: TextStyle(color: Colors.white),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
+                      SizedBox(height: 10),
+                      const Text(
+                        'Bem Vindo!\nSalve Maria!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w300,
+                          color: Colors.white,
                         ),
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.mail),
                       ),
-                      onFieldSubmitted: (_) {
-                        _validation(); // Chama o login quando aperta Enter
-                      },
-                      autofocus: false,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor, digite o e-mail';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 10),
-                    TextFormField(
-                      controller: _senhaController,
-                      decoration: const InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
+                      SizedBox(height: 30),
+                      TextFormField(
+                        controller: _emailControler,
+                        decoration: const InputDecoration(
+                          labelText: 'Digite seu e-mail',
+                          labelStyle: TextStyle(color: Colors.white),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.mail),
                         ),
-                        labelText: 'Digite sua senha',
-                        labelStyle: TextStyle(color: Colors.white),
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.lock_outline_rounded),
+                        onFieldSubmitted: (_) {
+                          _validation(); // Chama o login quando aperta Enter
+                        },
+                        autofocus: false,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor, digite o e-mail';
+                          }
+                          return null;
+                        },
                       ),
-                      autofocus: false,
-                      obscureText: true,
-                      onFieldSubmitted: (_) {
-                        _validation(); // Chama o login quando aperta Enter
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Por favor digite a sua senha';
-                        }
-                        if (value.length < 6) {
-                          return 'Sua senhha tem que ser maior que 6 dígitos';
-                        }
-                        return null;
-                      },
-                    ),
+                      SizedBox(height: 10),
+                      TextFormField(
+                        controller: _senhaController,
+                        decoration: const InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          labelText: 'Digite sua senha',
+                          labelStyle: TextStyle(color: Colors.white),
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.lock_outline_rounded),
+                        ),
+                        autofocus: false,
+                        obscureText: true,
+                        onFieldSubmitted: (_) {
+                          _validation(); // Chama o login quando aperta Enter
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Por favor digite a sua senha';
+                          }
+                          if (value.length < 6) {
+                            return 'Sua senhha tem que ser maior que 6 dígitos';
+                          }
+                          return null;
+                        },
+                      ),
 
-                    // SizedBox(height: 10),
-                    Column(
-                      children: [
-                        SizedBox(height: 40),
-                        SizedBox(
-                          height: 50,
-                          width: 200,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              _validation();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(
-                                255,
-                                32,
-                                117,
-                                185,
+                      // SizedBox(height: 10),
+                      Column(
+                        children: [
+                          SizedBox(height: 40),
+                          SizedBox(
+                            height: 50,
+                            width: 200,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                _validation();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color.fromARGB(
+                                  255,
+                                  32,
+                                  117,
+                                  185,
+                                ),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: BorderSide(
+                                    color: Colors.white,
+                                    width: 2,
+                                  ),
+                                ),
+                                elevation: 8,
                               ),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: BorderSide(color: Colors.white, width: 2),
-                              ),
-                              elevation: 8,
-                            ),
 
-                            child: const Text(
-                              'Entrar',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 16,
+                              child: const Text(
+                                'Entrar',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
