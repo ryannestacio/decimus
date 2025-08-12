@@ -46,9 +46,26 @@ Widget _espacador([double altura = 20]) => SizedBox(height: altura);
 
 class _BodyDevedoresState extends State<BodyDevedores> {
   final TextEditingController _nomeDevedor = TextEditingController();
+  final TextEditingController _descricaoDevedor = TextEditingController();
+  final TextEditingController _enderecoDevedor = TextEditingController();
+
   final TextEditingController _valDevedor = TextEditingController();
+  DateTime? _dataDeVencimento;
   final _formKey = GlobalKey<FormState>();
-  final listaDevedor = FinanceiroServiceDevedores.listDevedor;
+  List<Devedor> get listaDevedor => FinanceiroServiceDevedores.listDevedor;
+
+  // Filtro
+  String _filtroAtual = 'todos';
+  List<Devedor> get listaFiltrada {
+    switch (_filtroAtual) {
+      case 'todos':
+        return listaDevedor;
+      case 'comDebito':
+        return listaDevedor.where((devedor) => devedor.valor > 0).toList();
+      default:
+        return listaDevedor;
+    }
+  }
 
   @override
   void initState() {
@@ -57,42 +74,210 @@ class _BodyDevedoresState extends State<BodyDevedores> {
   }
 
   Future<void> _carregarDevedores() async {
+    print('_carregarDevedores: Iniciando...');
     await FinanceiroServiceDevedores.carregarDevedores();
+    print('_carregarDevedores: Dados carregados, atualizando tela...');
     setState(() {});
+    print('_carregarDevedores: Tela atualizada');
   }
 
   void marcarComoPago(
     int index,
     void Function(void Function()) setStateDialog,
   ) async {
-    listaDevedor[index] = listaDevedor[index].copyWith(pago: true);
+    final item = listaFiltrada[index];
+
+    await FinanceiroServiceDevedores.marcarComoPago(item.id!);
+
+    // Recarrega os dados para garantir sincronização
+    await _carregarDevedores();
+
     setState(() {}); // atualiza tela principal
     setStateDialog(() {}); // atualiza diálogo
+  }
 
-    await FinanceiroServiceDevedores.marcarComoPago(listaDevedor[index].id!);
+  void _mostrarDialogoPagamentoParcial(
+    BuildContext context,
+    int index,
+    void Function(void Function()) setStateDialog,
+  ) {
+    final TextEditingController valorPagoController = TextEditingController();
+    final formKeyPagamento = GlobalKey<FormState>();
+    final item = listaFiltrada[index];
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(
+              'Pagamento Parcial',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: Form(
+              key: formKeyPagamento,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Devedor: ${item.nome}',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Valor total: R\$ ${item.valor.toStringAsFixed(2)}',
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
+                  SizedBox(height: 16),
+                  TextFormField(
+                    controller: valorPagoController,
+                    decoration: InputDecoration(
+                      labelText: 'Valor a pagar',
+                      prefixIcon: Icon(Icons.attach_money),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      CurrencyInputFormatter(
+                        leadingSymbol: 'R\$',
+                        thousandSeparator: ThousandSeparator.Period,
+                      ),
+                    ],
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Digite o valor a pagar';
+                      }
+                      final valorLimpo = toNumericString(
+                        value,
+                        allowPeriod: false,
+                      );
+                      final valorDouble = double.parse(valorLimpo) / 100;
+                      if (valorDouble <= 0) {
+                        return 'O valor deve ser maior que zero';
+                      }
+                      if (valorDouble > item.valor) {
+                        return 'O valor não pode ser maior que o débito';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  if (formKeyPagamento.currentState!.validate()) {
+                    try {
+                      final valorLimpo = toNumericString(
+                        valorPagoController.text,
+                        allowPeriod: false,
+                      );
+                      final valorDouble = double.parse(valorLimpo) / 100;
+
+                      // Teste simples primeiro
+                      print('Testando pagamento parcial...');
+                      print('ID: ${listaDevedor[index].id}');
+                      print('Valor: $valorDouble');
+
+                      await FinanceiroServiceDevedores.registrarPagamentoParcial(
+                        item.id!,
+                        valorDouble,
+                      );
+
+                      print('Pagamento processado, fechando diálogo...');
+
+                      print('Recarregando dados...');
+                      // Força recarregamento dos dados
+                      await _carregarDevedores();
+
+                      print('Atualizando tela principal...');
+                      // Atualiza a tela principal
+                      setState(() {});
+
+                      print('Atualizando diálogo...');
+                      // Atualiza o diálogo também
+                      setStateDialog(() {});
+
+                      // Fecha o diálogo
+                      Navigator.pop(context);
+
+                      // Mostra mensagem de sucesso (após fechar o diálogo)
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Pagamento parcial registrado com sucesso!',
+                            ),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      // Verifica se o context ainda é válido antes de usar
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Erro ao processar pagamento: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  }
+                },
+                child: Text('Confirmar'),
+              ),
+            ],
+          ),
+    );
   }
 
   void validator() async {
     final valorLimpo = toNumericString(_valDevedor.text, allowPeriod: false);
 
     final valorDouble = double.parse(valorLimpo) / 100;
+
+    if (_dataDeVencimento == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Por favor, selecione uma data de vencimento.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
     if (_formKey.currentState!.validate()) {
-      final addConta = Devedor(nome: _nomeDevedor.text, valor: valorDouble);
+      final addConta = Devedor(
+        nome: _nomeDevedor.text,
+        descricao: _descricaoDevedor.text,
+        endereco: _enderecoDevedor.text,
+        dataVencimento: _dataDeVencimento ?? DateTime.now(),
+        valor: valorDouble,
+      );
 
       await FinanceiroServiceDevedores.salvarDevedor(addConta);
       await _carregarDevedores(); // recarrega e dá setState
 
       setState(() {
-        listaDevedor.add(addConta);
         _nomeDevedor.clear();
         _valDevedor.clear();
+        _dataDeVencimento = null;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Devedor salvo com sucesso, verifique em devedores.'),
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Devedor salvo com sucesso, verifique em devedores.'),
+          ),
+        );
+      }
       Navigator.pop(context);
     }
   }
@@ -105,7 +290,7 @@ class _BodyDevedoresState extends State<BodyDevedores> {
         style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
       ),
       content: SizedBox(
-        height: 200,
+        height: 380,
         width: 300,
         child: Form(
           key: _formKey,
@@ -121,6 +306,57 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                   ),
                   label: Text('Nome', style: TextStyle(color: Colors.black)),
                   hintText: 'Digite o nome do devedor...',
+                  hintStyle: TextStyle(color: Colors.black.withOpacity(0.7)),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
+                  border: OutlineInputBorder(),
+                ),
+
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Digite o nome do devedor';
+                  }
+                  return null;
+                },
+              ),
+              _espacador(10),
+              TextFormField(
+                controller: _descricaoDevedor,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.clear_all_sharp, color: Colors.black),
+                  label: Text(
+                    'Descrição',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  hintText: 'Digite a descrição...',
+                  hintStyle: TextStyle(color: Colors.black.withOpacity(0.7)),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
+                  border: OutlineInputBorder(),
+                ),
+
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Digite o nome do devedor';
+                  }
+                  return null;
+                },
+              ),
+              _espacador(10),
+              TextFormField(
+                controller: _enderecoDevedor,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(
+                    Icons.maps_home_work_outlined,
+                    color: Colors.black,
+                  ),
+                  label: Text(
+                    'Endereço',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  hintText: 'Digite o endereço do devedor...',
                   hintStyle: TextStyle(color: Colors.black.withOpacity(0.7)),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.black),
@@ -164,6 +400,58 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                   ),
                 ],
               ),
+              _espacador(10),
+              InkWell(
+                onTap: () async {
+                  final DateTime? picked = await showDatePicker(
+                    context: context,
+                    initialDate: _dataDeVencimento ?? DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime.now().add(Duration(days: 365 * 10)),
+                    builder: (context, child) {
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: ColorScheme.light(
+                            primary: Colors.blue,
+                            onPrimary: Colors.white,
+                            onSurface: Colors.black,
+                          ),
+                        ),
+                        child: child!,
+                      );
+                    },
+                  );
+                  if (picked != null) {
+                    setState(() {
+                      _dataDeVencimento = picked;
+                    });
+                  }
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.calendar_today, color: Colors.black),
+                      SizedBox(width: 8),
+                      Text(
+                        _dataDeVencimento != null
+                            ? '${_dataDeVencimento!.day.toString().padLeft(2, '0')}/${_dataDeVencimento!.month.toString().padLeft(2, '0')}/${_dataDeVencimento!.year}'
+                            : 'Selecione a data de vencimento',
+                        style: TextStyle(
+                          color:
+                              _dataDeVencimento != null
+                                  ? Colors.black
+                                  : Colors.black.withOpacity(0.7),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -195,12 +483,20 @@ class _BodyDevedoresState extends State<BodyDevedores> {
     return StatefulBuilder(
       builder:
           (context, setStateDialog) => AlertDialog(
-            title: Text(
-              'Devedores',
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
+            title: Column(
+              children: [
+                Text(
+                  'Devedores',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '${listaFiltrada.length} de ${listaDevedor.length}',
+                  style: TextStyle(color: Colors.black54, fontSize: 12),
+                ),
+              ],
             ),
             backgroundColor: Colors.yellow,
 
@@ -212,9 +508,13 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                 children: [
                   Expanded(
                     child:
-                        listaDevedor.isEmpty
+                        listaFiltrada.isEmpty
                             ? Center(
-                              child: const Text('Nenhum devedor cadastrado.'),
+                              child: Text(
+                                _filtroAtual == 'comDebito'
+                                    ? 'Nenhum devedor com débito pendente.'
+                                    : 'Nenhum devedor cadastrado.',
+                              ),
                             )
                             : SizedBox(
                               height: 400,
@@ -226,9 +526,9 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: ListView.builder(
-                                  itemCount: listaDevedor.length,
+                                  itemCount: listaFiltrada.length,
                                   itemBuilder: (context, index) {
-                                    final item = listaDevedor[index];
+                                    final item = listaFiltrada[index];
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(
                                         vertical: 1.0,
@@ -241,82 +541,230 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                                           ),
                                         ),
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 5.0,
-                                          ),
-                                          child: ListTile(
-                                            leading: Icon(
-                                              Icons
-                                                  .supervised_user_circle_outlined,
-                                              color: Colors.white,
-                                            ),
-                                            title: Text(
-                                              item.nome,
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            subtitle: Text(
-                                              'R\$ ${item.valor.toStringAsFixed(2)}',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            trailing:
-                                                listaDevedor[index].pago
-                                                    ? Icon(
-                                                      Icons.check_box,
-                                                      color: Colors.green,
-                                                    )
-                                                    : IconButton(
-                                                      icon: Icon(
-                                                        Icons
-                                                            .check_box_outline_blank,
-                                                        color: Colors.red,
+                                          padding: const EdgeInsets.all(12.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons
+                                                        .supervised_user_circle_outlined,
+                                                    color: Colors.white,
+                                                    size: 24,
+                                                  ),
+                                                  SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: Text(
+                                                      item.nome,
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                       ),
-                                                      onPressed: () {
-                                                        showDialog(
-                                                          context: context,
-                                                          builder:
-                                                              (
-                                                                context,
-                                                              ) => AlertDialog(
-                                                                title: Text(
-                                                                  'Confirmar pagamento',
-                                                                ),
-                                                                content: Text(
-                                                                  'Deseja confirmar o pagamento?',
-                                                                ),
-                                                                actions: [
-                                                                  TextButton(
-                                                                    onPressed: () {
-                                                                      Navigator.pop(
-                                                                        context,
-                                                                      );
-                                                                    },
-                                                                    child: Text(
-                                                                      'Não',
-                                                                    ),
-                                                                  ),
-                                                                  TextButton(
-                                                                    onPressed: () {
-                                                                      marcarComoPago(
-                                                                        index,
-                                                                        setStateDialog,
-                                                                      );
-                                                                      Navigator.pop(
-                                                                        context,
-                                                                      );
-                                                                    },
-                                                                    child: Text(
-                                                                      'Sim',
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                        );
-                                                      },
                                                     ),
+                                                  ),
+                                                  listaDevedor[index].pago
+                                                      ? Icon(
+                                                        Icons.check_circle,
+                                                        color: Colors.green,
+                                                        size: 28,
+                                                      )
+                                                      : Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          IconButton(
+                                                            icon: Icon(
+                                                              Icons.payment,
+                                                              color:
+                                                                  Colors.blue,
+                                                              size: 24,
+                                                            ),
+                                                            onPressed: () {
+                                                              _mostrarDialogoPagamentoParcial(
+                                                                context,
+                                                                index,
+                                                                setStateDialog,
+                                                              );
+                                                            },
+                                                            tooltip:
+                                                                'Pagamento parcial',
+                                                          ),
+                                                          IconButton(
+                                                            icon: Icon(
+                                                              Icons
+                                                                  .check_circle_outline,
+                                                              color: Colors.red,
+                                                              size: 24,
+                                                            ),
+                                                            onPressed: () {
+                                                              showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (
+                                                                      context,
+                                                                    ) => AlertDialog(
+                                                                      title: Text(
+                                                                        'Confirmar pagamento total',
+                                                                      ),
+                                                                      content: Text(
+                                                                        'Deseja confirmar o pagamento total?',
+                                                                      ),
+                                                                      actions: [
+                                                                        TextButton(
+                                                                          onPressed: () {
+                                                                            Navigator.pop(
+                                                                              context,
+                                                                            );
+                                                                          },
+                                                                          child: Text(
+                                                                            'Não',
+                                                                          ),
+                                                                        ),
+                                                                        TextButton(
+                                                                          onPressed: () {
+                                                                            marcarComoPago(
+                                                                              index,
+                                                                              setStateDialog,
+                                                                            );
+                                                                            Navigator.pop(
+                                                                              context,
+                                                                            );
+                                                                          },
+                                                                          child: Text(
+                                                                            'Sim',
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                              );
+                                                            },
+                                                            tooltip:
+                                                                'Pagamento total',
+                                                          ),
+                                                        ],
+                                                      ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 8),
+                                              if (item.descricao.isNotEmpty)
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                    bottom: 4,
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.description,
+                                                        color: Colors.white70,
+                                                        size: 16,
+                                                      ),
+                                                      SizedBox(width: 6),
+                                                      Expanded(
+                                                        child: Text(
+                                                          item.descricao,
+                                                          style: TextStyle(
+                                                            color:
+                                                                Colors.white70,
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              if (item.endereco.isNotEmpty)
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                    bottom: 4,
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.location_on,
+                                                        color: Colors.white70,
+                                                        size: 16,
+                                                      ),
+                                                      SizedBox(width: 6),
+                                                      Expanded(
+                                                        child: Text(
+                                                          item.endereco,
+                                                          style: TextStyle(
+                                                            color:
+                                                                Colors.white70,
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.attach_money,
+                                                    color:
+                                                        item.valor > 0
+                                                            ? Colors.orange
+                                                            : Colors.green,
+                                                    size: 16,
+                                                  ),
+                                                  SizedBox(width: 6),
+                                                  Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        'R\$ ${item.valor.toStringAsFixed(2)}',
+                                                        style: TextStyle(
+                                                          color:
+                                                              item.valor > 0
+                                                                  ? Colors
+                                                                      .orange
+                                                                  : Colors
+                                                                      .green,
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      if (item.valor > 0)
+                                                        Text(
+                                                          'Valor restante',
+                                                          style: TextStyle(
+                                                            color: Colors.blue,
+                                                            fontSize: 12,
+                                                            fontStyle:
+                                                                FontStyle
+                                                                    .italic,
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
+                                                  Spacer(),
+                                                  Icon(
+                                                    Icons.calendar_today,
+                                                    color: Colors.orange,
+                                                    size: 16,
+                                                  ),
+                                                  SizedBox(width: 6),
+                                                  Text(
+                                                    '${item.dataVencimento.day.toString().padLeft(2, '0')}/${item.dataVencimento.month.toString().padLeft(2, '0')}/${item.dataVencimento.year}',
+                                                    style: TextStyle(
+                                                      color: Colors.orange,
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
@@ -368,10 +816,52 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                 color: Colors.black.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(20),
               ),
-              constraints: BoxConstraints(maxWidth: 420, maxHeight: 160),
+              constraints: BoxConstraints(maxWidth: 420, maxHeight: 250),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Filtro
+                  Container(
+                    width: 350,
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: DropdownButtonFormField<String>(
+                      value: _filtroAtual,
+                      decoration: InputDecoration(
+                        labelText: 'Filtrar por:',
+                        labelStyle: TextStyle(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        border: InputBorder.none,
+                        prefixIcon: Icon(Icons.filter_list, color: Colors.blue),
+                      ),
+                      dropdownColor: Colors.white,
+                      style: TextStyle(color: Colors.black87, fontSize: 16),
+                      items: [
+                        DropdownMenuItem(
+                          value: 'todos',
+                          child: Text('Todos os devedores'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'comDebito',
+                          child: Text('Devedor com débito'),
+                        ),
+                      ],
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _filtroAtual = newValue;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  _espacador(15),
                   SizedBox(
                     height: 60,
                     width: 350,

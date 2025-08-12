@@ -638,8 +638,9 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                   TextButton(
                                     onPressed: () {
                                       final sucesso = validacaoNovaConta();
-                                      if (sucesso == true)
+                                      if (sucesso == true) {
                                         Navigator.pop(context);
+                                      }
                                     },
                                     child: Text(
                                       'Cadastrar',

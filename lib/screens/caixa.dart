@@ -117,13 +117,15 @@ class _BodyCaixaState extends State<BodyCaixa> {
   @override
   void initState() {
     super.initState();
-    _carregarTotalRecebido();
+    _carregarDados();
   }
 
-  Future<void> _carregarTotalRecebido() async {
+  Future<void> _carregarDados() async {
+    // Carrega todos os dados necessários para o caixa
     await FinanceiroServiceRecebiveis.calcularTotalRecebiveis();
+    await FinanceiroServiceDevedores.carregarDevedores(); // Isso também carrega o total de pagamentos
     if (!mounted) return; // Garante que o widget ainda está ativo
-    setState(() {}); // Atualiza a tela com o novo total
+    setState(() {}); // Atualiza a tela com os novos dados
   }
 
   //Widget reutilizável tipo SizedBox que recebe o parametro como altura
@@ -189,11 +191,28 @@ class _BodyCaixaState extends State<BodyCaixa> {
                       ),
                     ),
                     _espacador(5),
-                    _buildElevatedButton(
-                      'Relatório de caixa',
-                      Colors.white,
-                      const Color.fromARGB(255, 32, 117, 185),
-                      Colors.white,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildElevatedButton(
+                            'Relatório de caixa',
+                            Colors.white,
+                            const Color.fromARGB(255, 32, 117, 185),
+                            Colors.white,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: _carregarDados,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            shape: CircleBorder(),
+                            padding: EdgeInsets.all(16),
+                          ),
+                          child: Icon(Icons.refresh, size: 24),
+                        ),
+                      ],
                     ),
                     _espacador(50),
                     _buildCard(
