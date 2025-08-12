@@ -45,7 +45,7 @@ class BodyDevedores extends StatefulWidget {
 Widget _espacador([double altura = 20]) => SizedBox(height: altura);
 
 class _BodyDevedoresState extends State<BodyDevedores> {
-  final TextEditingController _cadDevedor = TextEditingController();
+  final TextEditingController _nomeDevedor = TextEditingController();
   final TextEditingController _valDevedor = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final listaDevedor = FinanceiroServiceDevedores.listDevedor;
@@ -61,22 +61,6 @@ class _BodyDevedoresState extends State<BodyDevedores> {
     setState(() {});
   }
 
-  /*void marcarComoPago(int index) async {
-    final antigo = listaDevedor[index];
-    final atualizado = Devedor(
-      nome: antigo.nome,
-      valor: antigo.valor,
-      pago: true,
-    );
-
-    await FinanceiroServiceDevedores.marcarComoPago(listaDevedor[index].id!);
-    await _carregarDevedores();
-
-    setState(() {
-      listaDevedor[index] = atualizado;
-    });
-  }*/
-
   void marcarComoPago(
     int index,
     void Function(void Function()) setStateDialog,
@@ -88,31 +72,19 @@ class _BodyDevedoresState extends State<BodyDevedores> {
     await FinanceiroServiceDevedores.marcarComoPago(listaDevedor[index].id!);
   }
 
-  /* void _marcarComoPagoLocalDevedores(int index) {
-    final antigo = FinanceiroServiceDevedores.listDevedor[index];
-    final atualizado = Devedor(
-      nome: antigo.nome,
-      valor: antigo.valor,
-      pago: true,
-    );
-    setState(() {
-      FinanceiroServiceDevedores.listDevedor[index] = atualizado;
-    });
-  }*/
-
   void validator() async {
     final valorLimpo = toNumericString(_valDevedor.text, allowPeriod: false);
 
     final valorDouble = double.parse(valorLimpo) / 100;
     if (_formKey.currentState!.validate()) {
-      final addConta = Devedor(nome: _cadDevedor.text, valor: valorDouble);
+      final addConta = Devedor(nome: _nomeDevedor.text, valor: valorDouble);
 
       await FinanceiroServiceDevedores.salvarDevedor(addConta);
       await _carregarDevedores(); // recarrega e dá setState
 
       setState(() {
         listaDevedor.add(addConta);
-        _cadDevedor.clear();
+        _nomeDevedor.clear();
         _valDevedor.clear();
       });
 
@@ -141,7 +113,7 @@ class _BodyDevedoresState extends State<BodyDevedores> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextFormField(
-                controller: _cadDevedor,
+                controller: _nomeDevedor,
                 decoration: InputDecoration(
                   prefixIcon: Icon(
                     Icons.supervised_user_circle_outlined,
@@ -328,18 +300,6 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                                                                   ),
                                                                   TextButton(
                                                                     onPressed: () {
-                                                                      /*marcarComoPago(
-                                                                        index,
-                                                                      );
-                                                                      _marcarComoPagoLocalDevedores(
-                                                                        index,
-                                                                      );
-                                                                      setStateDialog(
-                                                                        () {},
-                                                                      );
-                                                                      Navigator.pop(
-                                                                        context,
-                                                                      );*/
                                                                       marcarComoPago(
                                                                         index,
                                                                         setStateDialog,
@@ -402,55 +362,73 @@ class _BodyDevedoresState extends State<BodyDevedores> {
         ),
         SafeArea(
           child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 60,
-                  width: 350,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 32, 117, 185),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: BorderSide(color: Colors.white, width: 2),
+            child: Container(
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              constraints: BoxConstraints(maxWidth: 420, maxHeight: 160),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 60,
+                    width: 350,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(
+                          255,
+                          32,
+                          117,
+                          185,
+                        ),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(color: Colors.white, width: 2),
+                        ),
+                        elevation: 8,
                       ),
-                      elevation: 8,
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => _dialogCadastro(),
+                        );
+                      },
+                      child: Text('Cadastrar devedor'),
                     ),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => _dialogCadastro(),
-                      );
-                    },
-                    child: Text('Cadastrar devedor'),
                   ),
-                ),
-                _espacador(10),
-                SizedBox(
-                  height: 60,
-                  width: 350,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 32, 117, 185),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: BorderSide(color: Colors.white, width: 2),
+                  _espacador(10),
+                  SizedBox(
+                    height: 60,
+                    width: 350,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(
+                          255,
+                          32,
+                          117,
+                          185,
+                        ),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(color: Colors.white, width: 2),
+                        ),
+                        elevation: 8,
                       ),
-                      elevation: 8,
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => _dialogVerificacao(),
+                        );
+                      },
+                      child: Text('Verificar Devedores'),
                     ),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => _dialogVerificacao(),
-                      );
-                    },
-                    child: Text('Verificar Devedores'),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

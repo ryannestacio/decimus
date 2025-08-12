@@ -33,14 +33,7 @@ class HomeScreen extends StatelessWidget {
                       TextButton(
                         onPressed: () async {
                           await FirebaseAuth.instance.signOut();
-                          /* Navigator.of(context).pushNamedAndRemoveUntil(
-                            '/login',
-                            (Route<dynamic> route) => false,
-                          );*/
                           context.go('/login');
-                          //pushNamedAndRemoveUntil usado esse tipo de rotas para remover todas as rotas anteriores,
-                          //garantindo que a tela de login seja a única aberta sem arrow de voltar para a tela home
-                          //Evita também que um usuário android use o botão de voltar do dispositivo.
                         },
                         child: Text(
                           'Sim',

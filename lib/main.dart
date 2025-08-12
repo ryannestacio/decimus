@@ -8,7 +8,7 @@ import 'screens/login.dart';
 import 'screens/home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'package:page_transition/page_transition.dart';
+//import 'package:page_transition/page_transition.dart';
 import 'package:go_router/go_router.dart';
 
 void main() async {

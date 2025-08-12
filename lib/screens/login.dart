@@ -108,7 +108,12 @@ class _BodyLoginState extends State<BodyLogin> {
             child: Form(
               key: _formKey,
               child: Container(
-                constraints: BoxConstraints(maxWidth: 420),
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                constraints: BoxConstraints(maxWidth: 420, maxHeight: 750),
                 child: Flexible(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,

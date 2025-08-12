@@ -122,6 +122,7 @@ class _BodyCaixaState extends State<BodyCaixa> {
 
   Future<void> _carregarTotalRecebido() async {
     await FinanceiroServiceRecebiveis.calcularTotalRecebiveis();
+    if (!mounted) return; // Garante que o widget ainda está ativo
     setState(() {}); // Atualiza a tela com o novo total
   }
 
@@ -144,87 +145,97 @@ class _BodyCaixaState extends State<BodyCaixa> {
           ),
         ),
         SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: ListView(
-              children: [
-                SizedBox(
-                  height: 150,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.amber,
-                          const Color.fromARGB(255, 105, 86, 28),
-                        ],
-                      ),
-                    ),
-                    child: ListTile(
-                      leading: Icon(Icons.attach_money, size: 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      tileColor: Colors.amber,
-                      title: Text(
-                        'Caixa Atual',
-                        style: GoogleFonts.bebasNeue(
-                          textStyle: TextStyle(fontSize: 50),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                constraints: BoxConstraints(maxWidth: 420),
+                child: ListView(
+                  children: [
+                    SizedBox(
+                      height: 150,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.amber,
+                              const Color.fromARGB(255, 105, 86, 28),
+                            ],
+                          ),
+                        ),
+                        child: ListTile(
+                          leading: Icon(Icons.attach_money, size: 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          tileColor: Colors.amber,
+                          title: Text(
+                            'Caixa Atual',
+                            style: GoogleFonts.bebasNeue(
+                              textStyle: TextStyle(fontSize: 50),
+                            ),
+                          ),
+                          subtitle: Text(
+                            'R\$${FinanceiroServiceCaixa.saldoFinalDoCaixa}',
+                            style: TextStyle(fontSize: 25),
+                          ),
                         ),
                       ),
-                      subtitle: Text(
-                        'R\$${FinanceiroServiceCaixa.saldoFinalDoCaixa}',
-                        style: TextStyle(fontSize: 25),
-                      ),
                     ),
-                  ),
-                ),
-                _espacador(5),
-                _buildElevatedButton(
-                  'Relatório de caixa',
-                  Colors.white,
-                  const Color.fromARGB(255, 32, 117, 185),
-                  Colors.white,
-                ),
-                _espacador(50),
-                _buildCard(
-                  'Recebiveis previstos:',
-                  'R\$${FinanceiroServiceDevedores.devedoresPendentes}',
+                    _espacador(5),
+                    _buildElevatedButton(
+                      'Relatório de caixa',
+                      Colors.white,
+                      const Color.fromARGB(255, 32, 117, 185),
+                      Colors.white,
+                    ),
+                    _espacador(50),
+                    _buildCard(
+                      'Recebiveis previstos:',
+                      'R\$${FinanceiroServiceDevedores.devedoresPendentes}',
 
-                  Colors.amber,
-                  Icon(Icons.trending_up, color: Colors.green),
-                  Colors.green,
+                      Colors.amber,
+                      Icon(Icons.trending_up, color: Colors.green),
+                      Colors.green,
+                    ),
+                    _espacador(5),
+                    _buildElevatedButton(
+                      'Relatório de Recebíveis',
+                      Colors.white,
+                      const Color.fromARGB(255, 32, 117, 185),
+                      Colors.white,
+                    ),
+                    _espacador(50),
+                    _buildCard(
+                      'Despesas previstas:',
+                      'R\$${FinanceiroServiceDespesas.totalDespesasPendentes}',
+                      Colors.amber,
+                      Icon(Icons.trending_down, color: Colors.red),
+                      Colors.red,
+                    ),
+                    _espacador(5),
+                    _buildElevatedButton(
+                      'Relatório de Despesas',
+                      Colors.white,
+                      const Color.fromARGB(255, 32, 117, 185),
+                      Colors.white,
+                    ),
+                    _espacador(50),
+                    _buildElevatedButton(
+                      'Relatório Geral',
+                      Colors.blue,
+                      Colors.white,
+                      const Color.fromARGB(255, 32, 117, 185),
+                    ),
+                  ],
                 ),
-                _espacador(5),
-                _buildElevatedButton(
-                  'Relatório de Recebíveis',
-                  Colors.white,
-                  const Color.fromARGB(255, 32, 117, 185),
-                  Colors.white,
-                ),
-                _espacador(50),
-                _buildCard(
-                  'Despesas previstas:',
-                  'R\$${FinanceiroServiceDespesas.totalDespesasPendentes}',
-                  Colors.amber,
-                  Icon(Icons.trending_down, color: Colors.red),
-                  Colors.red,
-                ),
-                _espacador(5),
-                _buildElevatedButton(
-                  'Relatório de Despesas',
-                  Colors.white,
-                  const Color.fromARGB(255, 32, 117, 185),
-                  Colors.white,
-                ),
-                _espacador(50),
-                _buildElevatedButton(
-                  'Relatório Geral',
-                  Colors.blue,
-                  Colors.white,
-                  const Color.fromARGB(255, 32, 117, 185),
-                ),
-              ],
+              ),
             ),
           ),
         ),
