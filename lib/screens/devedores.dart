@@ -14,9 +14,6 @@ class DevedoresScreen extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            /* Navigator.of(
-              context,
-            ).pushNamedAndRemoveUntil('/home', (Route<dynamic> route) => false);*/
             context.go('/home');
           },
           icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -830,7 +827,7 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                       border: Border.all(color: Colors.white, width: 2),
                     ),
                     child: DropdownButtonFormField<String>(
-                      value: _filtroAtual,
+                      initialValue: _filtroAtual,
                       decoration: InputDecoration(
                         labelText: 'Filtrar por:',
                         labelStyle: TextStyle(

@@ -456,7 +456,7 @@ class _BodyDespesasState extends State<BodyDespesas> {
                                           MainAxisAlignment.center,
                                       children: [
                                         DropdownButtonFormField<String>(
-                                          value:
+                                          initialValue:
                                               _tipoConta.text.isNotEmpty
                                                   ? _tipoConta.text
                                                   : null,

@@ -98,7 +98,7 @@ class _CorpoBotoesState extends State<BodyHome> {
                       _buildMenuTile(
                         context,
                         title: 'Recebíveis',
-                        subtitle: 'Doações, dízimo, leilões e eventos.',
+                        subtitle: 'Doações, dízimo e eventos.',
                         icon: Icons.attach_money_sharp,
                         route: '/recebiveis',
                       ),
@@ -114,7 +114,7 @@ class _CorpoBotoesState extends State<BodyHome> {
                       _buildMenuTile(
                         context,
                         title: 'Devedores',
-                        subtitle: 'Devedores e bonificações pendentes.',
+                        subtitle: 'Devedores pagos e  pendentes.',
                         icon: Icons.person_search_sharp,
                         route: '/devedores',
                       ),
