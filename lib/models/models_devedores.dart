@@ -3,6 +3,7 @@ class Devedor {
   final String nome;
   final String descricao;
   final String endereco;
+  final double valorOriginal;
   final double valor;
   final DateTime dataVencimento;
   final bool pago;
@@ -12,6 +13,7 @@ class Devedor {
     required this.nome,
     required this.descricao,
     required this.endereco,
+    required this.valorOriginal,
     required this.valor,
     required this.dataVencimento,
     this.pago = false,
@@ -22,6 +24,7 @@ class Devedor {
     String? nome,
     String? descricao,
     String? endereco,
+    double? valorOriginal,
     double? valor,
     DateTime? dataVencimento,
     bool? pago,
@@ -31,6 +34,7 @@ class Devedor {
       nome: nome ?? this.nome,
       descricao: descricao ?? this.descricao,
       endereco: endereco ?? this.endereco,
+      valorOriginal: valorOriginal ?? this.valorOriginal,
       valor: valor ?? this.valor,
       dataVencimento: dataVencimento ?? this.dataVencimento,
       pago: pago ?? this.pago,
@@ -42,6 +46,7 @@ class Devedor {
       'nome': nome,
       'descricao': descricao,
       'endereco': endereco,
+      'valorOriginal': valorOriginal,
       'valor': valor,
       'dataVencimento': dataVencimento.toIso8601String(),
       'pago': pago,
@@ -54,6 +59,7 @@ class Devedor {
       nome: map['nome'] ?? '',
       descricao: map['descricao'] ?? '',
       endereco: map['endereco'] ?? '',
+      valorOriginal: (map['valorOriginal'] ?? map['valor'] ?? 0).toDouble(),
       valor: (map['valor'] ?? 0).toDouble(),
       dataVencimento:
           DateTime.tryParse(map['dataVencimento'] ?? '') ?? DateTime.now(),

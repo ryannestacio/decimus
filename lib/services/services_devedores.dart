@@ -17,6 +17,7 @@ class FinanceiroServiceDevedores {
       'nome': devedor.nome,
       'descricao': devedor.descricao,
       'endereco': devedor.endereco,
+      'valorOriginal': devedor.valorOriginal,
       'valor': devedor.valor,
       'data-vencimento': Timestamp.fromDate(devedor.dataVencimento),
       'pago': devedor.pago,
@@ -31,6 +32,22 @@ class FinanceiroServiceDevedores {
       // Limpa a lista antes de recarregar para evitar duplicações
       listDevedor.clear();
 
+      // Carrega pagamentos para conseguir reconstruir o valor original se faltar
+      final pagamentosSnapshot =
+          await FirebaseFirestore.instance
+              .collection('pagamentos_devedores')
+              .get();
+
+      final Map<String, double> totalPagoPorDevedor = {};
+      for (final doc in pagamentosSnapshot.docs) {
+        final data = doc.data();
+        final String devedorId = (data['devedorId'] ?? '').toString();
+        final double valorPago = (data['valorPago'] ?? 0).toDouble();
+        if (devedorId.isEmpty) continue;
+        totalPagoPorDevedor[devedorId] =
+            (totalPagoPorDevedor[devedorId] ?? 0.0) + valorPago;
+      }
+
       final snapshot =
           await FirebaseFirestore.instance.collection('devedores').get();
 
@@ -38,27 +55,49 @@ class FinanceiroServiceDevedores {
         'carregarDevedores: ${snapshot.docs.length} documentos encontrados',
       );
 
-      listDevedor =
-          snapshot.docs.map((doc) {
-            final data = doc.data();
-            final devedor = Devedor(
-              id: doc.id,
-              nome: data['nome'] ?? '',
-              descricao: data['descricao'] ?? '',
-              endereco: data['endereco'] ?? '',
-              valor: (data['valor'] ?? 0).toDouble(),
-              dataVencimento:
-                  data['data-vencimento'] is Timestamp
-                      ? (data['data-vencimento'] as Timestamp).toDate()
-                      : DateTime.tryParse(data['data-vencimento'] ?? '') ??
-                          DateTime.now(),
-              pago: data['pago'] ?? false,
-            );
-            print(
-              'carregarDevedores: Devedor carregado - ${devedor.nome}: R\$ ${devedor.valor.toStringAsFixed(2)}',
-            );
-            return devedor;
-          }).toList();
+      listDevedor = await Future.wait(
+        snapshot.docs.map((doc) async {
+          final data = doc.data();
+          final bool pago = data['pago'] ?? false;
+          final double valorAtual = (data['valor'] ?? 0).toDouble();
+          final double valorOriginalDoc =
+              (data['valorOriginal'] ?? 0).toDouble();
+          final double totalPago = totalPagoPorDevedor[doc.id] ?? 0.0;
+          final double valorOriginalCalculado =
+              valorOriginalDoc > 0
+                  ? valorOriginalDoc
+                  : (totalPago + valorAtual);
+
+          // Backfill no Firebase quando valorOriginal estiver faltando e for possível calcular
+          if ((valorOriginalDoc <= 0) && (valorOriginalCalculado > 0)) {
+            try {
+              await FirebaseFirestore.instance
+                  .collection('devedores')
+                  .doc(doc.id)
+                  .update({'valorOriginal': valorOriginalCalculado});
+            } catch (_) {}
+          }
+
+          final devedor = Devedor(
+            id: doc.id,
+            nome: data['nome'] ?? '',
+            descricao: data['descricao'] ?? '',
+            endereco: data['endereco'] ?? '',
+            valorOriginal: valorOriginalCalculado,
+            valor: pago ? 0.0 : valorAtual,
+            dataVencimento:
+                data['data-vencimento'] is Timestamp
+                    ? (data['data-vencimento'] as Timestamp).toDate()
+                    : DateTime.tryParse(data['data-vencimento'] ?? '') ??
+                        DateTime.now(),
+            pago: pago,
+          );
+          print(
+            'carregarDevedores: Devedor carregado - ${devedor.nome}: original R\$ ${devedor.valorOriginal.toStringAsFixed(2)} | restante R\$ ${devedor.valor.toStringAsFixed(2)}',
+          );
+          return devedor;
+        }).toList(),
+      );
 
       print(
         'carregarDevedores: Lista atualizada com ${listDevedor.length} devedores',
@@ -94,6 +133,7 @@ class FinanceiroServiceDevedores {
 
     await FirebaseFirestore.instance.collection('devedores').doc(id).update({
       'pago': true,
+      'valor': 0.0,
     });
     await carregarDevedores(); // recarrega lista
   }

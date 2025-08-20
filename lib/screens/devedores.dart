@@ -52,13 +52,17 @@ class _BodyDevedoresState extends State<BodyDevedores> {
   List<Devedor> get listaDevedor => FinanceiroServiceDevedores.listDevedor;
 
   // Filtro
-  String _filtroAtual = 'todos';
+  String _filtroAtual = 'emAberto';
   List<Devedor> get listaFiltrada {
     switch (_filtroAtual) {
-      case 'todos':
-        return listaDevedor;
-      case 'comDebito':
-        return listaDevedor.where((devedor) => devedor.valor > 0).toList();
+      case 'emAberto':
+        return listaDevedor
+            .where((devedor) => !devedor.pago && devedor.valor > 0)
+            .toList();
+      case 'pagos':
+        return listaDevedor
+            .where((devedor) => devedor.pago || devedor.valor <= 0)
+            .toList();
       default:
         return listaDevedor;
     }
@@ -121,8 +125,13 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Valor total: R\$ ${item.valor.toStringAsFixed(2)}',
+                    'Valor original: R\$ ${item.valorOriginal.toStringAsFixed(2)}',
                     style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Restante: R\$ ${item.valor.toStringAsFixed(2)}',
+                    style: TextStyle(fontSize: 13, color: Colors.grey[700]),
                   ),
                   SizedBox(height: 16),
                   TextFormField(
@@ -177,7 +186,7 @@ class _BodyDevedoresState extends State<BodyDevedores> {
 
                       // Teste simples primeiro
                       print('Testando pagamento parcial...');
-                      print('ID: ${listaDevedor[index].id}');
+                      print('ID: ${item.id}');
                       print('Valor: $valorDouble');
 
                       await FinanceiroServiceDevedores.registrarPagamentoParcial(
@@ -256,6 +265,7 @@ class _BodyDevedoresState extends State<BodyDevedores> {
         descricao: _descricaoDevedor.text,
         endereco: _enderecoDevedor.text,
         dataVencimento: _dataDeVencimento ?? DateTime.now(),
+        valorOriginal: valorDouble,
         valor: valorDouble,
       );
 
@@ -280,199 +290,236 @@ class _BodyDevedoresState extends State<BodyDevedores> {
   }
 
   Widget _dialogCadastro() {
-    return AlertDialog(
-      backgroundColor: Colors.yellow,
-      title: Text(
-        'Novo devedor',
-        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-      ),
-      content: SizedBox(
-        height: 380,
-        width: 300,
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextFormField(
-                controller: _nomeDevedor,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(
-                    Icons.supervised_user_circle_outlined,
-                    color: Colors.black,
-                  ),
-                  label: Text('Nome', style: TextStyle(color: Colors.black)),
-                  hintText: 'Digite o nome do devedor...',
-                  hintStyle: TextStyle(color: Colors.black.withOpacity(0.7)),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  border: OutlineInputBorder(),
-                ),
-
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Digite o nome do devedor';
-                  }
-                  return null;
-                },
+    return StatefulBuilder(
+      builder:
+          (context, setStateDialog) => AlertDialog(
+            backgroundColor: Colors.yellow,
+            title: Text(
+              'Novo devedor',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
               ),
-              _espacador(10),
-              TextFormField(
-                controller: _descricaoDevedor,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.clear_all_sharp, color: Colors.black),
-                  label: Text(
-                    'Descrição',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  hintText: 'Digite a descrição...',
-                  hintStyle: TextStyle(color: Colors.black.withOpacity(0.7)),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  border: OutlineInputBorder(),
-                ),
-
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Digite o nome do devedor';
-                  }
-                  return null;
-                },
-              ),
-              _espacador(10),
-              TextFormField(
-                controller: _enderecoDevedor,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(
-                    Icons.maps_home_work_outlined,
-                    color: Colors.black,
-                  ),
-                  label: Text(
-                    'Endereço',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  hintText: 'Digite o endereço do devedor...',
-                  hintStyle: TextStyle(color: Colors.black.withOpacity(0.7)),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  border: OutlineInputBorder(),
-                ),
-
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Digite o nome do devedor';
-                  }
-                  return null;
-                },
-              ),
-              _espacador(10),
-              TextFormField(
-                controller: _valDevedor,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Digite o valor a pagar';
-                  }
-
-                  return null;
-                },
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.attach_money, color: Colors.black),
-                  label: Text('Valor', style: TextStyle(color: Colors.black)),
-                  hintText: 'Digite o valor a pagar...',
-                  hintStyle: TextStyle(color: Colors.black.withOpacity(0.7)),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  border: OutlineInputBorder(),
-                ),
-
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  CurrencyInputFormatter(
-                    leadingSymbol: 'R\$',
-                    thousandSeparator: ThousandSeparator.Period,
-                  ),
-                ],
-              ),
-              _espacador(10),
-              InkWell(
-                onTap: () async {
-                  final DateTime? picked = await showDatePicker(
-                    context: context,
-                    initialDate: _dataDeVencimento ?? DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(Duration(days: 365 * 10)),
-                    builder: (context, child) {
-                      return Theme(
-                        data: Theme.of(context).copyWith(
-                          colorScheme: ColorScheme.light(
-                            primary: Colors.blue,
-                            onPrimary: Colors.white,
-                            onSurface: Colors.black,
-                          ),
+            ),
+            content: SizedBox(
+              height: 380,
+              width: 300,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextFormField(
+                      controller: _nomeDevedor,
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(
+                          Icons.supervised_user_circle_outlined,
+                          color: Colors.black,
                         ),
-                        child: child!,
-                      );
-                    },
-                  );
-                  if (picked != null) {
-                    setState(() {
-                      _dataDeVencimento = picked;
-                    });
-                  }
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.calendar_today, color: Colors.black),
-                      SizedBox(width: 8),
-                      Text(
-                        _dataDeVencimento != null
-                            ? '${_dataDeVencimento!.day.toString().padLeft(2, '0')}/${_dataDeVencimento!.month.toString().padLeft(2, '0')}/${_dataDeVencimento!.year}'
-                            : 'Selecione a data de vencimento',
-                        style: TextStyle(
-                          color:
+                        label: Text(
+                          'Nome',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        hintText: 'Digite o nome do devedor...',
+                        hintStyle: TextStyle(
+                          color: Colors.black.withOpacity(0.7),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        border: OutlineInputBorder(),
+                      ),
+
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Digite o nome do devedor';
+                        }
+                        return null;
+                      },
+                    ),
+                    _espacador(10),
+                    TextFormField(
+                      controller: _descricaoDevedor,
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(
+                          Icons.clear_all_sharp,
+                          color: Colors.black,
+                        ),
+                        label: Text(
+                          'Descrição',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        hintText: 'Digite a descrição...',
+                        hintStyle: TextStyle(
+                          color: Colors.black.withOpacity(0.7),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        border: OutlineInputBorder(),
+                      ),
+
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Digite o nome do devedor';
+                        }
+                        return null;
+                      },
+                    ),
+                    _espacador(10),
+                    TextFormField(
+                      controller: _enderecoDevedor,
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(
+                          Icons.maps_home_work_outlined,
+                          color: Colors.black,
+                        ),
+                        label: Text(
+                          'Endereço',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        hintText: 'Digite o endereço do devedor...',
+                        hintStyle: TextStyle(
+                          color: Colors.black.withOpacity(0.7),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        border: OutlineInputBorder(),
+                      ),
+
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Digite o nome do devedor';
+                        }
+                        return null;
+                      },
+                    ),
+                    _espacador(10),
+                    TextFormField(
+                      controller: _valDevedor,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Digite o valor a pagar';
+                        }
+
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(
+                          Icons.attach_money,
+                          color: Colors.black,
+                        ),
+                        label: Text(
+                          'Valor',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        hintText: 'Digite o valor a pagar...',
+                        hintStyle: TextStyle(
+                          color: Colors.black.withOpacity(0.7),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        border: OutlineInputBorder(),
+                      ),
+
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        CurrencyInputFormatter(
+                          leadingSymbol: 'R\$',
+                          thousandSeparator: ThousandSeparator.Period,
+                        ),
+                      ],
+                    ),
+                    _espacador(10),
+                    InkWell(
+                      onTap: () async {
+                        final DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: _dataDeVencimento ?? DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime.now().add(
+                            Duration(days: 365 * 10),
+                          ),
+                          builder: (context, child) {
+                            return Theme(
+                              data: Theme.of(context).copyWith(
+                                colorScheme: ColorScheme.light(
+                                  primary: Colors.blue,
+                                  onPrimary: Colors.white,
+                                  onSurface: Colors.black,
+                                ),
+                              ),
+                              child: child!,
+                            );
+                          },
+                        );
+                        if (picked != null) {
+                          setStateDialog(() {
+                            _dataDeVencimento = picked;
+                          });
+                        }
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.calendar_today, color: Colors.black),
+                            SizedBox(width: 8),
+                            Text(
                               _dataDeVencimento != null
-                                  ? Colors.black
-                                  : Colors.black.withOpacity(0.7),
+                                  ? '${_dataDeVencimento!.day.toString().padLeft(2, '0')}/${_dataDeVencimento!.month.toString().padLeft(2, '0')}/${_dataDeVencimento!.year}'
+                                  : 'Selecione a data de vencimento',
+                              style: TextStyle(
+                                color:
+                                    _dataDeVencimento != null
+                                        ? Colors.black
+                                        : Colors.black.withOpacity(0.7),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'Cancelar',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  validator();
+                },
+                child: Text(
+                  'Confirmar',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ],
           ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text(
-            'Cancelar',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            validator();
-          },
-          child: Text(
-            'Confirmar',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-          ),
-        ),
-      ],
     );
   }
 
@@ -508,9 +555,9 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                         listaFiltrada.isEmpty
                             ? Center(
                               child: Text(
-                                _filtroAtual == 'comDebito'
-                                    ? 'Nenhum devedor com débito pendente.'
-                                    : 'Nenhum devedor cadastrado.',
+                                _filtroAtual == 'emAberto'
+                                    ? 'Nenhum devedor em aberto.'
+                                    : 'Nenhum devedor pago.',
                               ),
                             )
                             : SizedBox(
@@ -563,7 +610,7 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                                                       ),
                                                     ),
                                                   ),
-                                                  listaDevedor[index].pago
+                                                  item.pago
                                                       ? Icon(
                                                         Icons.check_circle,
                                                         color: Colors.green,
@@ -702,14 +749,6 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                                                 ),
                                               Row(
                                                 children: [
-                                                  Icon(
-                                                    Icons.attach_money,
-                                                    color:
-                                                        item.valor > 0
-                                                            ? Colors.orange
-                                                            : Colors.green,
-                                                    size: 16,
-                                                  ),
                                                   SizedBox(width: 6),
                                                   Column(
                                                     crossAxisAlignment:
@@ -717,30 +756,28 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                                                             .start,
                                                     children: [
                                                       Text(
-                                                        'R\$ ${item.valor.toStringAsFixed(2)}',
+                                                        'R\$ ${item.valorOriginal.toStringAsFixed(2)}',
+                                                        style: TextStyle(
+                                                          color: Colors.green,
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        'Restante: R\$ ${item.valor.toStringAsFixed(2)}',
                                                         style: TextStyle(
                                                           color:
                                                               item.valor > 0
                                                                   ? Colors
                                                                       .orange
                                                                   : Colors
-                                                                      .green,
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.bold,
+                                                                      .blueGrey,
+                                                          fontSize: 12,
+                                                          fontStyle:
+                                                              FontStyle.italic,
                                                         ),
                                                       ),
-                                                      if (item.valor > 0)
-                                                        Text(
-                                                          'Valor restante',
-                                                          style: TextStyle(
-                                                            color: Colors.blue,
-                                                            fontSize: 12,
-                                                            fontStyle:
-                                                                FontStyle
-                                                                    .italic,
-                                                          ),
-                                                        ),
                                                     ],
                                                   ),
                                                   Spacer(),
@@ -751,7 +788,7 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                                                   ),
                                                   SizedBox(width: 6),
                                                   Text(
-                                                    '${item.dataVencimento.day.toString().padLeft(2, '0')}/${item.dataVencimento.month.toString().padLeft(2, '0')}/${item.dataVencimento.year}',
+                                                    'Vencimento\n${item.dataVencimento.day.toString().padLeft(2, '0')}/${item.dataVencimento.month.toString().padLeft(2, '0')}/${item.dataVencimento.year}',
                                                     style: TextStyle(
                                                       color: Colors.orange,
                                                       fontSize: 14,
@@ -841,12 +878,12 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                       style: TextStyle(color: Colors.black87, fontSize: 16),
                       items: [
                         DropdownMenuItem(
-                          value: 'todos',
-                          child: Text('Todos os devedores'),
+                          value: 'emAberto',
+                          child: Text('Devedores em aberto'),
                         ),
                         DropdownMenuItem(
-                          value: 'comDebito',
-                          child: Text('Devedor com débito'),
+                          value: 'pagos',
+                          child: Text('Devedores pagos'),
                         ),
                       ],
                       onChanged: (String? newValue) {

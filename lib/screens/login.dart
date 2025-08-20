@@ -107,13 +107,14 @@ class _BodyLoginState extends State<BodyLogin> {
             padding: const EdgeInsets.all(30.0),
             child: Form(
               key: _formKey,
-              child: Flexible(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 560),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(height: 30),
                     SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.8,
+                      width: MediaQuery.of(context).size.width * 0.9,
                       child: Container(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
