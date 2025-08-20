@@ -45,7 +45,8 @@ class BodyRecebiveis extends StatefulWidget {
 }
 
 class _BodyRecebiveisState extends State<BodyRecebiveis> {
-  final TextEditingController _typeController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _valueController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final formatter = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
@@ -70,7 +71,8 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
       final valorDouble = double.parse(valorLimpo) / 100;
 
       final novoRecebimento = {
-        'tipo': _typeController.text,
+        'nome': _nameController.text,
+        'descricao': _descriptionController.text,
         'valor': valorDouble,
         'data': Timestamp.fromDate(_dataSelecionada!),
       };
@@ -80,7 +82,8 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
           .add(novoRecebimento);
 
       setState(() {
-        _typeController.clear();
+        _nameController.clear();
+        _descriptionController.clear();
         _valueController.clear();
         _dateController.clear();
         _dataSelecionada = null;
@@ -116,7 +119,35 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
                   SizedBox(
                     width: 300,
                     child: TextFormField(
-                      controller: _typeController,
+                      controller: _nameController,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.person, color: Colors.white),
+                        label: Text(
+                          'Nome',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        hintText: 'Digite o nome do pagador...',
+                        hintStyle: TextStyle(color: Colors.white),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Campo obrigatório';
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.text,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  SizedBox(
+                    width: 300,
+                    child: TextFormField(
+                      controller: _descriptionController,
                       style: TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         prefixIcon: Icon(
@@ -124,10 +155,10 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
                           color: Colors.white,
                         ),
                         label: Text(
-                          'Tipo',
+                          'Descrição',
                           style: TextStyle(color: Colors.white),
                         ),
-                        hintText: 'Digite o tipo de recebimento...',
+                        hintText: 'Digite a descrição de recebimento...',
                         hintStyle: TextStyle(color: Colors.white),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.white),
@@ -251,66 +282,149 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
                       ),
                     ],
                   ),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      margin: EdgeInsets.symmetric(
-                        vertical: 40,
-                        horizontal: 20,
+                  SizedBox(height: 40),
+                  SizedBox(
+                    height: 60,
+                    width: 350,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(
+                          255,
+                          32,
+                          117,
+                          185,
+                        ),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(color: Colors.white, width: 2),
+                        ),
+                        elevation: 8,
                       ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      constraints: BoxConstraints(maxWidth: 420), //
-                      child: StreamBuilder<QuerySnapshot>(
-                        stream:
-                            FirebaseFirestore.instance
-                                .collection('recebiveis')
-                                .orderBy('data', descending: true)
-                                .snapshots(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(
-                              child: SpinKitFadingCircle(color: Colors.amber),
-                            );
-                          }
-
-                          final docs = snapshot.data?.docs ?? [];
-
-                          return ListView.builder(
-                            itemCount: docs.length,
-                            itemBuilder: (context, index) {
-                              final doc = docs[index];
-                              final tipo = doc['tipo'];
-                              final valor = doc['valor'];
-                              final data = (doc['data'] as Timestamp).toDate();
-
-                              return ListTile(
-                                leading: Icon(
-                                  Icons.monetization_on,
-                                  color: Colors.white,
-                                ),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder:
+                              (context) => AlertDialog(
                                 title: Text(
-                                  tipo,
+                                  'Recebíveis',
                                   style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                subtitle: Text(
-                                  'Entrada: ${data.day}/${data.month}/${data.year}\nValor: ${formatter.format(valor)}',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
+                                backgroundColor: Colors.yellow,
+                                content: SizedBox(
+                                  height: 380,
+                                  width: 350,
+                                  child: Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.3),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      //
+                                      child: StreamBuilder<QuerySnapshot>(
+                                        stream:
+                                            FirebaseFirestore.instance
+                                                .collection('recebiveis')
+                                                .orderBy(
+                                                  'data',
+                                                  descending: true,
+                                                )
+                                                .snapshots(),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return Center(
+                                              child: SpinKitFadingCircle(
+                                                color: Colors.amber,
+                                              ),
+                                            );
+                                          }
+
+                                          final docs =
+                                              snapshot.data?.docs ?? [];
+
+                                          return ListView.builder(
+                                            itemCount: docs.length,
+                                            itemBuilder: (context, index) {
+                                              final doc = docs[index];
+                                              final nome = doc['nome'];
+                                              final tipo = doc['descricao'];
+                                              final valor = doc['valor'];
+                                              final data =
+                                                  (doc['data'] as Timestamp)
+                                                      .toDate();
+
+                                              return Padding(
+                                                padding: const EdgeInsets.all(
+                                                  1.0,
+                                                ),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black
+                                                        .withOpacity(0.9),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          20,
+                                                        ),
+                                                  ),
+                                                  child: ListTile(
+                                                    leading: Icon(
+                                                      Icons.monetization_on,
+                                                      color: Colors.white,
+                                                    ),
+                                                    title: Text(
+                                                      nome,
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 20,
+                                                      ),
+                                                    ),
+                                                    subtitle: Text(
+                                                      'Entrada: ${data.day}/${data.month}/${data.year}\nDescrição: $tipo',
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 15,
+                                                      ),
+                                                    ),
+                                                    trailing: Text(
+                                                      '${formatter.format(valor)}',
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 15,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              );
-                            },
-                          );
-                        },
-                      ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text(
+                                      'Fechar',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                        );
+                      },
+                      child: Text('Verificar Recebíveis'),
                     ),
                   ),
                 ],
