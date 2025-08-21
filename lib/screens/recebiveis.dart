@@ -391,7 +391,7 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
                                                       ),
                                                     ),
                                                     trailing: Text(
-                                                      '${formatter.format(valor)}',
+                                                      formatter.format(valor),
                                                       style: TextStyle(
                                                         color: Colors.white,
                                                         fontSize: 15,

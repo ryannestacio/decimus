@@ -12,6 +12,14 @@ class FinanceiroServiceDevedores {
   static double _totalPagamentosRecebidos = 0.0;
   static double get totalPagamentosRecebidos => _totalPagamentosRecebidos;
 
+  // Lista de devedores pagos
+  static List<Devedor> get ultimosDevedoresPagos {
+    // Retorna os últimos 10 devedores pagos, ordenados por data de vencimento
+    return listDevedor.where((d) => d.pago).toList()
+      ..sort((a, b) => b.dataVencimento.compareTo(a.dataVencimento));
+    return listDevedor.where((d) => d.pago).take(10).toList();
+  }
+
   static Future<void> salvarDevedor(Devedor devedor) async {
     await FirebaseFirestore.instance.collection('devedores').add({
       'nome': devedor.nome,

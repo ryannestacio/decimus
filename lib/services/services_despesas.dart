@@ -8,4 +8,7 @@ class FinanceiroServiceDespesas {
 
   static double get totalDespesasPendentes =>
       listaConta.where((c) => !c.pago).fold(0.0, (soma, c) => soma + c.valor);
+
+  static double get totalDespesas =>
+      listaConta.fold(0.0, (soma, c) => soma + c.valor);
 }

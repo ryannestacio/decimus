@@ -2,6 +2,7 @@ import 'package:decimus/services/services_despesas.dart';
 import 'package:decimus/services/services_devedores.dart';
 import 'package:decimus/services/services_caixa.dart';
 import 'package:decimus/services/services_recebiveis.dart';
+import 'package:decimus/services/services_relatorios.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -45,19 +46,17 @@ class BodyCaixa extends StatefulWidget {
 }
 
 class _BodyCaixaState extends State<BodyCaixa> {
+  bool _isGeneratingReport = false;
+
   Widget _buildElevatedButton(
     String text,
     Color corBorder,
     Color corBackground,
     Color corForegraund,
+    VoidCallback? onPressed,
   ) {
     return ElevatedButton(
-      onPressed: () {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Gerando relatório em PDF...')));
-      },
-
+      onPressed: _isGeneratingReport ? null : onPressed,
       style: ElevatedButton.styleFrom(
         fixedSize: Size(20, 60),
         backgroundColor: corBackground,
@@ -68,10 +67,20 @@ class _BodyCaixaState extends State<BodyCaixa> {
         ),
         elevation: 8,
       ),
-      child: Text(
-        text,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-      ),
+      child:
+          _isGeneratingReport
+              ? SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(corForegraund),
+                ),
+              )
+              : Text(
+                text,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
     );
   }
 
@@ -123,6 +132,7 @@ class _BodyCaixaState extends State<BodyCaixa> {
   Future<void> _carregarDados() async {
     // Carrega todos os dados necessários para o caixa
     await FinanceiroServiceRecebiveis.calcularTotalRecebiveis();
+    await FinanceiroServiceRecebiveis.carregarRecebiveis(); // Carrega lista de recebíveis
     await FinanceiroServiceDevedores.carregarDevedores(); // Isso também carrega o total de pagamentos
     if (!mounted) return; // Garante que o widget ainda está ativo
     setState(() {}); // Atualiza a tela com os novos dados
@@ -199,6 +209,7 @@ class _BodyCaixaState extends State<BodyCaixa> {
                             Colors.white,
                             const Color.fromARGB(255, 32, 117, 185),
                             Colors.white,
+                            () => _gerarRelatorioCaixa(),
                           ),
                         ),
                         SizedBox(width: 10),
@@ -218,7 +229,6 @@ class _BodyCaixaState extends State<BodyCaixa> {
                     _buildCard(
                       'Recebiveis previstos:',
                       'R\$${FinanceiroServiceDevedores.devedoresPendentes}',
-
                       Colors.amber,
                       Icon(Icons.trending_up, color: Colors.green),
                       Colors.green,
@@ -229,6 +239,7 @@ class _BodyCaixaState extends State<BodyCaixa> {
                       Colors.white,
                       const Color.fromARGB(255, 32, 117, 185),
                       Colors.white,
+                      () => _gerarRelatorioRecebiveis(),
                     ),
                     _espacador(50),
                     _buildCard(
@@ -244,6 +255,7 @@ class _BodyCaixaState extends State<BodyCaixa> {
                       Colors.white,
                       const Color.fromARGB(255, 32, 117, 185),
                       Colors.white,
+                      () => _gerarRelatorioDespesas(),
                     ),
                     _espacador(50),
                     _buildElevatedButton(
@@ -251,6 +263,15 @@ class _BodyCaixaState extends State<BodyCaixa> {
                       Colors.blue,
                       Colors.white,
                       const Color.fromARGB(255, 32, 117, 185),
+                      () => _gerarRelatorioGeral(),
+                    ),
+                    _espacador(20),
+                    _buildElevatedButton(
+                      'Relatório Excel',
+                      Colors.green,
+                      Colors.white,
+                      Colors.green,
+                      () => _gerarRelatorioExcel(),
                     ),
                   ],
                 ),
@@ -259,6 +280,112 @@ class _BodyCaixaState extends State<BodyCaixa> {
           ),
         ),
       ],
+    );
+  }
+
+  // Métodos para gerar relatórios
+  Future<void> _gerarRelatorioCaixa() async {
+    setState(() {
+      _isGeneratingReport = true;
+    });
+
+    try {
+      await RelatoriosService.gerarRelatorioCaixa();
+      _mostrarMensagemSucesso('Relatório de caixa gerado com sucesso!');
+    } catch (e) {
+      _mostrarMensagemErro('Erro ao gerar relatório: $e');
+    } finally {
+      setState(() {
+        _isGeneratingReport = false;
+      });
+    }
+  }
+
+  Future<void> _gerarRelatorioRecebiveis() async {
+    setState(() {
+      _isGeneratingReport = true;
+    });
+
+    try {
+      await RelatoriosService.gerarRelatorioRecebiveis();
+      _mostrarMensagemSucesso('Relatório de recebíveis gerado com sucesso!');
+    } catch (e) {
+      _mostrarMensagemErro('Erro ao gerar relatório: $e');
+    } finally {
+      setState(() {
+        _isGeneratingReport = false;
+      });
+    }
+  }
+
+  Future<void> _gerarRelatorioDespesas() async {
+    setState(() {
+      _isGeneratingReport = true;
+    });
+
+    try {
+      await RelatoriosService.gerarRelatorioDespesas();
+      _mostrarMensagemSucesso('Relatório de despesas gerado com sucesso!');
+    } catch (e) {
+      _mostrarMensagemErro('Erro ao gerar relatório: $e');
+    } finally {
+      setState(() {
+        _isGeneratingReport = false;
+      });
+    }
+  }
+
+  Future<void> _gerarRelatorioGeral() async {
+    setState(() {
+      _isGeneratingReport = true;
+    });
+
+    try {
+      await RelatoriosService.gerarRelatorioGeral();
+      _mostrarMensagemSucesso('Relatório geral gerado com sucesso!');
+    } catch (e) {
+      _mostrarMensagemErro('Erro ao gerar relatório: $e');
+    } finally {
+      setState(() {
+        _isGeneratingReport = false;
+      });
+    }
+  }
+
+  Future<void> _gerarRelatorioExcel() async {
+    setState(() {
+      _isGeneratingReport = true;
+    });
+
+    try {
+      await RelatoriosService.gerarRelatorioExcel();
+      _mostrarMensagemSucesso('Relatório Excel gerado com sucesso!');
+    } catch (e) {
+      _mostrarMensagemErro('Erro ao gerar relatório Excel: $e');
+    } finally {
+      setState(() {
+        _isGeneratingReport = false;
+      });
+    }
+  }
+
+  void _mostrarMensagemSucesso(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensagem),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
+
+  void _mostrarMensagemErro(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensagem),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 4),
+      ),
     );
   }
 }
