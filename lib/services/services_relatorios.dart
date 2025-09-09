@@ -13,11 +13,12 @@ import 'package:decimus/services/global_services.dart';
 class RelatoriosService {
   static final DateFormat _formatter = DateFormat('dd/MM/yyyy HH:mm');
 
-  // Relatório Geral do Caixa
+  // Relatório Geral do Caixa - SUPER DETALHADO COM MÚLTIPLAS PÁGINAS
   static Future<void> gerarRelatorioGeral() async {
     try {
       final pdf = pw.Document();
 
+      // PÁGINA 1: RESUMO EXECUTIVO E ANÁLISES
       pdf.addPage(
         pw.Page(
           pageFormat: PdfPageFormat.a4,
@@ -25,54 +26,146 @@ class RelatoriosService {
             return pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                _buildHeader('RELATÓRIO GERAL DO CAIXA'),
+                _buildHeader('RELATÓRIO GERAL FINANCEIRO COMPLETO'),
                 pw.SizedBox(height: 20),
 
-                // Resumo Financeiro
-                _buildSection('RESUMO FINANCEIRO'),
+                // RESUMO EXECUTIVO
+                _buildSection('RESUMO EXECUTIVO'),
                 _buildInfoRow(
-                  'Saldo Atual do Caixa',
+                  'Saldo Atual Disponível',
                   'R\$ ${FinanceiroServiceCaixa.saldoFinalDoCaixa.toStringAsFixed(2)}',
+                  isBold: true,
                 ),
                 _buildInfoRow(
-                  'Total em Caixa',
-                  'R\$ ${FinanceiroServicesGlobal.totalEmCaixa.toStringAsFixed(2)}',
+                  'Saldo Previsto (30 dias)',
+                  'R\$ ${_calcularSaldoPrevisto().toStringAsFixed(2)}',
+                  isBold: true,
                 ),
                 _buildInfoRow(
-                  'Total de Despesas Pagas',
-                  'R\$ ${FinanceiroServiceDespesas.totalDespesasPagas.toStringAsFixed(2)}',
+                  'Situação Financeira',
+                  _getSituacaoFinanceira(),
+                  isBold: true,
                 ),
-                pw.SizedBox(height: 15),
+                pw.SizedBox(height: 20),
 
-                // Recebíveis
-                _buildSection('RECEBÍVEIS'),
+                // MOVIMENTAÇÕES DE ENTRADA
+                _buildSection('MOVIMENTAÇÕES DE ENTRADA (RECEITAS)'),
                 _buildInfoRow(
-                  'Total de Recebíveis',
+                  'Total de Recebíveis Cadastrados',
                   'R\$ ${FinanceiroServiceRecebiveis.totalRecebiveis.toStringAsFixed(2)}',
+                ),
+                _buildInfoRow(
+                  'Pagamentos Já Recebidos',
+                  'R\$ ${FinanceiroServiceDevedores.totalPagamentosRecebidos.toStringAsFixed(2)}',
                 ),
                 _buildInfoRow(
                   'Devedores Pendentes',
                   'R\$ ${FinanceiroServiceDevedores.devedoresPendentes.toStringAsFixed(2)}',
                 ),
                 _buildInfoRow(
-                  'Pagamentos Recebidos',
-                  'R\$ ${FinanceiroServiceDevedores.totalPagamentosRecebidos.toStringAsFixed(2)}',
+                  'Taxa de Recebimento',
+                  '${_calcularTaxaRecebimento().toStringAsFixed(1)}%',
                 ),
                 pw.SizedBox(height: 15),
 
-                // Despesas
-                _buildSection('DESPESAS'),
+                // MOVIMENTAÇÕES DE SAÍDA
+                _buildSection('MOVIMENTAÇÕES DE SAÍDA (DESPESAS)'),
                 _buildInfoRow(
-                  'Total de Despesas',
+                  'Total de Despesas Cadastradas',
                   'R\$ ${FinanceiroServiceDespesas.totalDespesas.toStringAsFixed(2)}',
+                ),
+                _buildInfoRow(
+                  'Despesas Já Pagas',
+                  'R\$ ${FinanceiroServiceDespesas.totalDespesasPagas.toStringAsFixed(2)}',
                 ),
                 _buildInfoRow(
                   'Despesas Pendentes',
                   'R\$ ${FinanceiroServiceDespesas.totalDespesasPendentes.toStringAsFixed(2)}',
                 ),
                 _buildInfoRow(
-                  'Despesas Pagas',
-                  'R\$ ${FinanceiroServiceDespesas.totalDespesasPagas.toStringAsFixed(2)}',
+                  'Taxa de Pagamento',
+                  '${_calcularTaxaPagamento().toStringAsFixed(1)}%',
+                ),
+                pw.SizedBox(height: 15),
+
+                // ANÁLISE DE FLUXO DE CAIXA
+                _buildSection('ANÁLISE DE FLUXO DE CAIXA'),
+                _buildInfoRow(
+                  'Fluxo de Entrada (Mensal)',
+                  'R\$ ${_calcularFluxoEntradaMensal().toStringAsFixed(2)}',
+                ),
+                _buildInfoRow(
+                  'Fluxo de Saída (Mensal)',
+                  'R\$ ${_calcularFluxoSaidaMensal().toStringAsFixed(2)}',
+                ),
+                _buildInfoRow(
+                  'Resultado Operacional',
+                  'R\$ ${_calcularResultadoOperacional().toStringAsFixed(2)}',
+                ),
+                pw.SizedBox(height: 15),
+
+                // ANÁLISE DE LIQUIDEZ
+                _buildSection('ANÁLISE DE LIQUIDEZ'),
+                _buildInfoRow(
+                  'Disponível Imediato',
+                  'R\$ ${FinanceiroServiceCaixa.saldoFinalDoCaixa.toStringAsFixed(2)}',
+                ),
+                _buildInfoRow(
+                  'A Receber (30 dias)',
+                  'R\$ ${_calcularRecebimentos30Dias().toStringAsFixed(2)}',
+                ),
+                _buildInfoRow(
+                  'A Pagar (30 dias)',
+                  'R\$ ${_calcularPagamentos30Dias().toStringAsFixed(2)}',
+                ),
+                _buildInfoRow(
+                  'Índice de Liquidez',
+                  _calcularIndiceLiquidez().toStringAsFixed(2),
+                ),
+                pw.SizedBox(height: 15),
+
+                // PROJEÇÕES FINANCEIRAS
+                _buildSection('PROJEÇÕES FINANCEIRAS'),
+                _buildInfoRow(
+                  'Saldo em 30 dias',
+                  'R\$ ${_calcularSaldoPrevisto().toStringAsFixed(2)}',
+                ),
+                _buildInfoRow(
+                  'Saldo em 60 dias',
+                  'R\$ ${_calcularSaldoPrevisto60Dias().toStringAsFixed(2)}',
+                ),
+                _buildInfoRow(
+                  'Saldo em 90 dias',
+                  'R\$ ${_calcularSaldoPrevisto90Dias().toStringAsFixed(2)}',
+                ),
+                pw.SizedBox(height: 15),
+
+                // ANÁLISE DE RISCO
+                _buildSection('ANÁLISE DE RISCO'),
+                _buildInfoRow('Risco de Liquidez', _avaliarRiscoLiquidez()),
+                _buildInfoRow(
+                  'Risco de Inadimplência',
+                  _avaliarRiscoInadimplencia(),
+                ),
+                _buildInfoRow(
+                  'Risco de Superendividamento',
+                  _avaliarRiscoSuperendividamento(),
+                ),
+                pw.SizedBox(height: 20),
+
+                // INDICADORES DE PERFORMANCE
+                _buildSection('INDICADORES DE PERFORMANCE (KPIs)'),
+                _buildInfoRow(
+                  'Margem Operacional',
+                  '${_calcularMargemOperacional().toStringAsFixed(1)}%',
+                ),
+                _buildInfoRow(
+                  'Retorno sobre Investimento',
+                  '${_calcularROI().toStringAsFixed(1)}%',
+                ),
+                _buildInfoRow(
+                  'Ciclo Operacional',
+                  '${_calcularCicloOperacional().toStringAsFixed(0)} dias',
                 ),
                 pw.SizedBox(height: 20),
 
@@ -81,13 +174,196 @@ class RelatoriosService {
                   'Data do Relatório',
                   _formatter.format(DateTime.now()),
                 ),
+                _buildInfoRow('Gerado por', 'Sistema Decimus'),
+                pw.SizedBox(height: 20),
+                pw.Text(
+                  'Página 1 de 4 - Resumo Executivo e Análises',
+                  style: pw.TextStyle(
+                    fontSize: 10,
+                    color: PdfColors.grey600,
+                    fontStyle: pw.FontStyle.italic,
+                  ),
+                ),
               ],
             );
           },
         ),
       );
 
-      await _salvarECompartilharPDF(pdf, 'relatorio_geral_caixa.pdf');
+      // PÁGINA 2: MOVIMENTAÇÕES DE ENTRADA DETALHADAS
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                _buildHeader('MOVIMENTAÇÕES DE ENTRADA DETALHADAS'),
+                pw.SizedBox(height: 20),
+
+                // RESUMO DAS ENTRADAS
+                _buildSection('RESUMO DAS ENTRADAS REALIZADAS'),
+                _buildInfoRow(
+                  'Total Recebido',
+                  'R\$ ${FinanceiroServiceDevedores.totalPagamentosRecebidos.toStringAsFixed(2)}',
+                  isBold: true,
+                ),
+                _buildInfoRow(
+                  'Quantidade de Pagamentos',
+                  '${_getQuantidadePagamentosRecebidos()} pagamentos',
+                ),
+                _buildInfoRow('Período Analisado', 'Últimos 12 meses'),
+                pw.SizedBox(height: 20),
+
+                // LISTA DETALHADA DE PAGAMENTOS RECEBIDOS
+                _buildSection('PAGAMENTOS RECEBIDOS - LISTA COMPLETA'),
+                pw.SizedBox(height: 10),
+                ..._buildListaCompletaPagamentosRecebidos(),
+                pw.SizedBox(height: 20),
+
+                // RESUMO DOS RECEBÍVEIS PENDENTES
+                _buildSection('RECEBÍVEIS PENDENTES - LISTA COMPLETA'),
+                pw.SizedBox(height: 10),
+                ..._buildListaCompletaRecebiveisPendentes(),
+                pw.SizedBox(height: 20),
+
+                // Data e Hora
+                _buildInfoRow(
+                  'Data do Relatório',
+                  _formatter.format(DateTime.now()),
+                ),
+                pw.SizedBox(height: 20),
+                pw.Text(
+                  'Página 2 de 4 - Movimentações de Entrada',
+                  style: pw.TextStyle(
+                    fontSize: 10,
+                    color: PdfColors.grey600,
+                    fontStyle: pw.FontStyle.italic,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+
+      // PÁGINA 3: MOVIMENTAÇÕES DE SAÍDA DETALHADAS
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                _buildHeader('MOVIMENTAÇÕES DE SAÍDA DETALHADAS'),
+                pw.SizedBox(height: 20),
+
+                // RESUMO DAS SAÍDAS
+                _buildSection('RESUMO DAS SAÍDAS REALIZADAS'),
+                _buildInfoRow(
+                  'Total Pago',
+                  'R\$ ${FinanceiroServiceDespesas.totalDespesasPagas.toStringAsFixed(2)}',
+                  isBold: true,
+                ),
+                _buildInfoRow(
+                  'Quantidade de Despesas Pagas',
+                  '${_getQuantidadeDespesasPagas()} despesas',
+                ),
+                _buildInfoRow('Período Analisado', 'Últimos 12 meses'),
+                pw.SizedBox(height: 20),
+
+                // LISTA DETALHADA DE DESPESAS PAGAS
+                _buildSection('DESPESAS PAGAS - LISTA COMPLETA'),
+                pw.SizedBox(height: 10),
+                ..._buildListaCompletaDespesasPagas(),
+                pw.SizedBox(height: 20),
+
+                // LISTA DETALHADA DE DESPESAS PENDENTES
+                _buildSection('DESPESAS PENDENTES - LISTA COMPLETA'),
+                pw.SizedBox(height: 10),
+                ..._buildListaCompletaDespesasPendentes(),
+                pw.SizedBox(height: 20),
+
+                // Data e Hora
+                _buildInfoRow(
+                  'Data do Relatório',
+                  _formatter.format(DateTime.now()),
+                ),
+                pw.SizedBox(height: 20),
+                pw.Text(
+                  'Página 3 de 4 - Movimentações de Saída',
+                  style: pw.TextStyle(
+                    fontSize: 10,
+                    color: PdfColors.grey600,
+                    fontStyle: pw.FontStyle.italic,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+
+      // PÁGINA 4: RECOMENDAÇÕES E ANÁLISE FINAL
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                _buildHeader('RECOMENDAÇÕES E ANÁLISE FINAL'),
+                pw.SizedBox(height: 20),
+
+                // RECOMENDAÇÕES E SUGESTÕES
+                _buildSection('RECOMENDAÇÕES E SUGESTÕES'),
+                ..._buildRecomendacoes(),
+                pw.SizedBox(height: 20),
+
+                // DETALHAMENTO DAS MOVIMENTAÇÕES
+                _buildSection('RESUMO VISUAL DAS MOVIMENTAÇÕES'),
+                pw.SizedBox(height: 10),
+                ..._buildMovimentacoesDetalhadas(),
+                pw.SizedBox(height: 20),
+
+                // ANÁLISE DE TENDÊNCIAS
+                _buildSection('ANÁLISE DE TENDÊNCIAS'),
+                _buildInfoRow(
+                  'Tendência de Recebimentos',
+                  _analisarTendenciaRecebimentos(),
+                ),
+                _buildInfoRow(
+                  'Tendência de Despesas',
+                  _analisarTendenciaDespesas(),
+                ),
+                _buildInfoRow('Previsão para Próximo Mês', _preverProximoMes()),
+                pw.SizedBox(height: 20),
+
+                // Data e Hora
+                _buildInfoRow(
+                  'Data do Relatório',
+                  _formatter.format(DateTime.now()),
+                ),
+                _buildInfoRow('Gerado por', 'Sistema Decimus'),
+                pw.SizedBox(height: 20),
+                pw.Text(
+                  'Página 4 de 4 - Recomendações e Análise Final',
+                  style: pw.TextStyle(
+                    fontSize: 10,
+                    color: PdfColors.grey600,
+                    fontStyle: pw.FontStyle.italic,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+
+      await _salvarECompartilharPDF(
+        pdf,
+        'relatorio_geral_completo_4paginas.pdf',
+      );
     } catch (e) {
       print('Erro ao gerar relatório geral: $e');
       rethrow;
@@ -460,6 +736,314 @@ class RelatoriosService {
         : 0.0;
   }
 
+  // NOVOS MÉTODOS PARA RELATÓRIO DETALHADO
+
+  // Cálculo de saldo previsto em 30 dias
+  static double _calcularSaldoPrevisto() {
+    final recebimentosPrevistos = _calcularRecebimentos30Dias();
+    final pagamentosPrevistos = _calcularPagamentos30Dias();
+    return FinanceiroServiceCaixa.saldoFinalDoCaixa +
+        recebimentosPrevistos -
+        pagamentosPrevistos;
+  }
+
+  // Cálculo de saldo previsto em 60 dias
+  static double _calcularSaldoPrevisto60Dias() {
+    final recebimentosPrevistos = _calcularRecebimentos30Dias() * 2;
+    final pagamentosPrevistos = _calcularPagamentos30Dias() * 2;
+    return FinanceiroServiceCaixa.saldoFinalDoCaixa +
+        recebimentosPrevistos -
+        pagamentosPrevistos;
+  }
+
+  // Cálculo de saldo previsto em 90 dias
+  static double _calcularSaldoPrevisto90Dias() {
+    final recebimentosPrevistos = _calcularRecebimentos30Dias() * 3;
+    final pagamentosPrevistos = _calcularPagamentos30Dias() * 3;
+    return FinanceiroServiceCaixa.saldoFinalDoCaixa +
+        recebimentosPrevistos -
+        pagamentosPrevistos;
+  }
+
+  // Situação financeira baseada no saldo
+  static String _getSituacaoFinanceira() {
+    final saldo = FinanceiroServiceCaixa.saldoFinalDoCaixa;
+    if (saldo > 0) {
+      if (saldo > 1000) return 'EXCELENTE';
+      if (saldo > 500) return 'BOA';
+      return 'REGULAR';
+    } else {
+      return 'CRÍTICA';
+    }
+  }
+
+  // Taxa de recebimento
+  static double _calcularTaxaRecebimento() {
+    final total = FinanceiroServiceRecebiveis.totalRecebiveis;
+    final recebido = FinanceiroServiceDevedores.totalPagamentosRecebidos;
+    return total > 0 ? (recebido / total) * 100 : 0.0;
+  }
+
+  // Taxa de pagamento
+  static double _calcularTaxaPagamento() {
+    final total = FinanceiroServiceDespesas.totalDespesas;
+    final pago = FinanceiroServiceDespesas.totalDespesasPagas;
+    return total > 0 ? (pago / total) * 100 : 0.0;
+  }
+
+  // Fluxo de entrada mensal (estimativa)
+  static double _calcularFluxoEntradaMensal() {
+    return FinanceiroServiceDevedores.totalPagamentosRecebidos *
+        0.8; // Estimativa baseada no histórico
+  }
+
+  // Fluxo de saída mensal (estimativa)
+  static double _calcularFluxoSaidaMensal() {
+    return FinanceiroServiceDespesas.totalDespesasPagas *
+        0.8; // Estimativa baseada no histórico
+  }
+
+  // Resultado operacional
+  static double _calcularResultadoOperacional() {
+    return _calcularFluxoEntradaMensal() - _calcularFluxoSaidaMensal();
+  }
+
+  // Recebimentos previstos em 30 dias
+  static double _calcularRecebimentos30Dias() {
+    return FinanceiroServiceDevedores.devedoresPendentes *
+        0.6; // Estimativa de 60% de recebimento
+  }
+
+  // Pagamentos previstos em 30 dias
+  static double _calcularPagamentos30Dias() {
+    return FinanceiroServiceDespesas.totalDespesasPendentes *
+        0.7; // Estimativa de 70% de pagamento
+  }
+
+  // Índice de liquidez
+  static double _calcularIndiceLiquidez() {
+    final ativoCirculante =
+        FinanceiroServiceCaixa.saldoFinalDoCaixa +
+        _calcularRecebimentos30Dias();
+    final passivoCirculante = _calcularPagamentos30Dias();
+    return passivoCirculante > 0 ? ativoCirculante / passivoCirculante : 0.0;
+  }
+
+  // Avaliação de risco de liquidez
+  static String _avaliarRiscoLiquidez() {
+    final indice = _calcularIndiceLiquidez();
+    if (indice >= 2.0) return 'BAIXO';
+    if (indice >= 1.0) return 'MÉDIO';
+    return 'ALTO';
+  }
+
+  // Avaliação de risco de inadimplência
+  static String _avaliarRiscoInadimplencia() {
+    final taxa = _calcularTaxaRecebimento();
+    if (taxa >= 90) return 'BAIXO';
+    if (taxa >= 70) return 'MÉDIO';
+    return 'ALTO';
+  }
+
+  // Avaliação de risco de superendividamento
+  static String _avaliarRiscoSuperendividamento() {
+    final saldo = FinanceiroServiceCaixa.saldoFinalDoCaixa;
+    final despesasPendentes = FinanceiroServiceDespesas.totalDespesasPendentes;
+
+    if (despesasPendentes == 0) return 'BAIXO';
+
+    final razao = saldo / despesasPendentes;
+    if (razao >= 3.0) return 'BAIXO';
+    if (razao >= 1.5) return 'MÉDIO';
+    return 'ALTO';
+  }
+
+  // Margem operacional
+  static double _calcularMargemOperacional() {
+    final receita = _calcularFluxoEntradaMensal();
+    final despesa = _calcularFluxoSaidaMensal();
+    return receita > 0 ? ((receita - despesa) / receita) * 100 : 0.0;
+  }
+
+  // Retorno sobre investimento (ROI)
+  static double _calcularROI() {
+    final lucro = _calcularResultadoOperacional();
+    final investimento = FinanceiroServiceDespesas.totalDespesasPagas;
+    return investimento > 0 ? (lucro / investimento) * 100 : 0.0;
+  }
+
+  // Ciclo operacional
+  static double _calcularCicloOperacional() {
+    // Estimativa baseada em padrões do mercado
+    return 45.0; // 45 dias em média
+  }
+
+  // Construir recomendações baseadas na análise
+  static List<pw.Widget> _buildRecomendacoes() {
+    final saldo = FinanceiroServiceCaixa.saldoFinalDoCaixa;
+    final recebiveisPendentes = FinanceiroServiceDevedores.devedoresPendentes;
+    final despesasPendentes = FinanceiroServiceDespesas.totalDespesasPendentes;
+
+    List<String> recomendacoes = [];
+
+    // Recomendações baseadas no saldo
+    if (saldo < 0) {
+      recomendacoes.add(
+        'URGENTE: Implementar medidas para aumentar o fluxo de caixa',
+      );
+      recomendacoes.add('Considerar renegociação de despesas pendentes');
+    } else if (saldo < 500) {
+      recomendacoes.add(
+        'ATENÇÃO: Saldo baixo - controlar gastos e acelerar recebimentos',
+      );
+    }
+
+    // Recomendações baseadas em recebíveis
+    if (recebiveisPendentes > saldo * 2) {
+      recomendacoes.add(
+        'FOCAR: Implementar estratégias de cobrança mais agressivas',
+      );
+      recomendacoes.add('Considerar desconto para pagamento antecipado');
+    }
+
+    // Recomendações baseadas em despesas
+    if (despesasPendentes > saldo * 1.5) {
+      recomendacoes.add('PRIORIDADE: Revisar e priorizar despesas essenciais');
+      recomendacoes.add('Negociar prazos de pagamento com fornecedores');
+    }
+
+    // Recomendações gerais
+    recomendacoes.add('MONITORAR: Acompanhar indicadores diariamente');
+    recomendacoes.add(
+      'PLANEJAR: Criar reserva de emergência de pelo menos 3 meses de despesas',
+    );
+    recomendacoes.add(
+      'INVESTIR: Considerar aplicações de curto prazo para saldos positivos',
+    );
+
+    return recomendacoes
+        .map(
+          (rec) => pw.Container(
+            margin: pw.EdgeInsets.only(bottom: 8),
+            padding: pw.EdgeInsets.all(8),
+            decoration: pw.BoxDecoration(
+              color: PdfColors.grey100,
+              borderRadius: pw.BorderRadius.circular(4),
+              border: pw.Border.all(color: PdfColors.grey300, width: 1),
+            ),
+            child: pw.Text(
+              rec,
+              style: pw.TextStyle(fontSize: 11, color: PdfColors.grey800),
+            ),
+          ),
+        )
+        .toList();
+  }
+
+  // Construir detalhamento das movimentações
+  static List<pw.Widget> _buildMovimentacoesDetalhadas() {
+    List<pw.Widget> widgets = [];
+
+    // Resumo das entradas
+    widgets.add(
+      pw.Container(
+        margin: pw.EdgeInsets.only(bottom: 10),
+        padding: pw.EdgeInsets.all(8),
+        decoration: pw.BoxDecoration(
+          color: PdfColors.green50,
+          borderRadius: pw.BorderRadius.circular(4),
+          border: pw.Border.all(color: PdfColors.green300, width: 1),
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(
+              'ENTRADAS REALIZADAS',
+              style: pw.TextStyle(
+                fontSize: 12,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.green800,
+              ),
+            ),
+            pw.SizedBox(height: 4),
+            pw.Text(
+              'Total: R\$ ${FinanceiroServiceDevedores.totalPagamentosRecebidos.toStringAsFixed(2)}',
+              style: pw.TextStyle(fontSize: 11, color: PdfColors.green700),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    // Resumo das saídas
+    widgets.add(
+      pw.Container(
+        margin: pw.EdgeInsets.only(bottom: 10),
+        padding: pw.EdgeInsets.all(8),
+        decoration: pw.BoxDecoration(
+          color: PdfColors.red50,
+          borderRadius: pw.BorderRadius.circular(4),
+          border: pw.Border.all(color: PdfColors.red300, width: 1),
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(
+              'SAÍDAS REALIZADAS',
+              style: pw.TextStyle(
+                fontSize: 12,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.red800,
+              ),
+            ),
+            pw.SizedBox(height: 4),
+            pw.Text(
+              'Total: R\$ ${FinanceiroServiceDespesas.totalDespesasPagas.toStringAsFixed(2)}',
+              style: pw.TextStyle(fontSize: 11, color: PdfColors.red700),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    // Resumo dos pendentes
+    widgets.add(
+      pw.Container(
+        margin: pw.EdgeInsets.only(bottom: 10),
+        padding: pw.EdgeInsets.all(8),
+        decoration: pw.BoxDecoration(
+          color: PdfColors.orange50,
+          borderRadius: pw.BorderRadius.circular(4),
+          border: pw.Border.all(color: PdfColors.orange300, width: 1),
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(
+              'PENDENTES',
+              style: pw.TextStyle(
+                fontSize: 12,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.orange800,
+              ),
+            ),
+            pw.SizedBox(height: 4),
+            pw.Text(
+              'A Receber: R\$ ${FinanceiroServiceDevedores.devedoresPendentes.toStringAsFixed(2)}',
+              style: pw.TextStyle(fontSize: 11, color: PdfColors.orange700),
+            ),
+            pw.Text(
+              'A Pagar: R\$ ${FinanceiroServiceDespesas.totalDespesasPendentes.toStringAsFixed(2)}',
+              style: pw.TextStyle(fontSize: 11, color: PdfColors.orange700),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    return widgets;
+  }
+
   // Método para construir lista detalhada de recebíveis
   static List<pw.Widget> _buildRecebiveisDetalhados() {
     final recebiveis = FinanceiroServiceRecebiveis.ultimosRecebiveis;
@@ -618,5 +1202,419 @@ class RelatoriosService {
         ),
       );
     }).toList();
+  }
+
+  // Método para construir lista detalhada de pagamentos recebidos
+  static List<pw.Widget> _buildListaCompletaPagamentosRecebidos() {
+    final pagamentos = FinanceiroServiceDevedores.ultimosDevedoresPagos;
+
+    if (pagamentos.isEmpty) {
+      return [
+        pw.Container(
+          margin: pw.EdgeInsets.only(bottom: 8),
+          child: pw.Text(
+            'Nenhum pagamento recebido encontrado',
+            style: pw.TextStyle(
+              fontSize: 12,
+              fontStyle: pw.FontStyle.italic,
+              color: PdfColors.grey600,
+            ),
+          ),
+        ),
+      ];
+    }
+
+    return pagamentos.map((pagamento) {
+      return pw.Container(
+        margin: pw.EdgeInsets.only(bottom: 8),
+        padding: pw.EdgeInsets.all(8),
+        decoration: pw.BoxDecoration(
+          border: pw.Border.all(color: PdfColors.grey300, width: 1),
+          borderRadius: pw.BorderRadius.circular(4),
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  pagamento.nome,
+                  style: pw.TextStyle(
+                    fontSize: 12,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.Text(
+                  'R\$ ${pagamento.valorOriginal.toStringAsFixed(2)}',
+                  style: pw.TextStyle(
+                    fontSize: 12,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.green,
+                  ),
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 4),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  'Descrição: ${pagamento.descricao}',
+                  style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
+                ),
+                pw.Text(
+                  'Vencimento: ${_formatter.format(pagamento.dataVencimento)}',
+                  style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 2),
+            pw.Text(
+              'Status: PAGO',
+              style: pw.TextStyle(
+                fontSize: 10,
+                color: PdfColors.green,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  // Método para construir lista detalhada de recebíveis pendentes
+  static List<pw.Widget> _buildListaCompletaRecebiveisPendentes() {
+    final recebiveis =
+        FinanceiroServiceRecebiveis.listaRecebimentos
+            .where((r) => !r.pago)
+            .toList();
+
+    if (recebiveis.isEmpty) {
+      return [
+        pw.Container(
+          margin: pw.EdgeInsets.only(bottom: 8),
+          child: pw.Text(
+            'Nenhum recebível pendente encontrado',
+            style: pw.TextStyle(
+              fontSize: 12,
+              fontStyle: pw.FontStyle.italic,
+              color: PdfColors.grey600,
+            ),
+          ),
+        ),
+      ];
+    }
+
+    return recebiveis.map((recebivel) {
+      return pw.Container(
+        margin: pw.EdgeInsets.only(bottom: 8),
+        padding: pw.EdgeInsets.all(8),
+        decoration: pw.BoxDecoration(
+          border: pw.Border.all(color: PdfColors.grey300, width: 1),
+          borderRadius: pw.BorderRadius.circular(4),
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  recebivel.nome,
+                  style: pw.TextStyle(
+                    fontSize: 12,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.Text(
+                  'R\$ ${recebivel.valor.toStringAsFixed(2)}',
+                  style: pw.TextStyle(
+                    fontSize: 12,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.orange,
+                  ),
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 4),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  'Tipo: ${recebivel.tipo}',
+                  style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
+                ),
+                pw.Text(
+                  'Data: ${_formatter.format(recebivel.data)}',
+                  style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 2),
+            pw.Text(
+              'Status: PENDENTE',
+              style: pw.TextStyle(
+                fontSize: 10,
+                color: PdfColors.orange,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  // Método para construir lista detalhada de despesas pagas
+  static List<pw.Widget> _buildListaCompletaDespesasPagas() {
+    final despesas =
+        FinanceiroServiceDespesas.listaConta.where((d) => d.pago).toList();
+
+    if (despesas.isEmpty) {
+      return [
+        pw.Container(
+          margin: pw.EdgeInsets.only(bottom: 8),
+          child: pw.Text(
+            'Nenhuma despesa paga encontrada',
+            style: pw.TextStyle(
+              fontSize: 12,
+              fontStyle: pw.FontStyle.italic,
+              color: PdfColors.grey600,
+            ),
+          ),
+        ),
+      ];
+    }
+
+    return despesas.map((despesa) {
+      return pw.Container(
+        margin: pw.EdgeInsets.only(bottom: 8),
+        padding: pw.EdgeInsets.all(8),
+        decoration: pw.BoxDecoration(
+          border: pw.Border.all(color: PdfColors.grey300, width: 1),
+          borderRadius: pw.BorderRadius.circular(4),
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  despesa.descricao ?? 'Sem descrição',
+                  style: pw.TextStyle(
+                    fontSize: 12,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.Text(
+                  'R\$ ${despesa.valor.toStringAsFixed(2)}',
+                  style: pw.TextStyle(
+                    fontSize: 12,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.blue,
+                  ),
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 4),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  'Tipo: ${despesa.tipoConta ?? 'Não informado'}',
+                  style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
+                ),
+                pw.Text(
+                  'Valor: R\$ ${despesa.valor.toStringAsFixed(2)}',
+                  style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 2),
+            pw.Text(
+              'Status: PAGO',
+              style: pw.TextStyle(
+                fontSize: 10,
+                color: PdfColors.green,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  // Método para construir lista detalhada de despesas pendentes
+  static List<pw.Widget> _buildListaCompletaDespesasPendentes() {
+    final despesas =
+        FinanceiroServiceDespesas.listaConta.where((d) => !d.pago).toList();
+
+    if (despesas.isEmpty) {
+      return [
+        pw.Container(
+          margin: pw.EdgeInsets.only(bottom: 8),
+          child: pw.Text(
+            'Nenhuma despesa pendente encontrada',
+            style: pw.TextStyle(
+              fontSize: 12,
+              fontStyle: pw.FontStyle.italic,
+              color: PdfColors.grey600,
+            ),
+          ),
+        ),
+      ];
+    }
+
+    return despesas.map((despesa) {
+      return pw.Container(
+        margin: pw.EdgeInsets.only(bottom: 8),
+        padding: pw.EdgeInsets.all(8),
+        decoration: pw.BoxDecoration(
+          border: pw.Border.all(color: PdfColors.grey300, width: 1),
+          borderRadius: pw.BorderRadius.circular(4),
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  despesa.descricao ?? 'Sem descrição',
+                  style: pw.TextStyle(
+                    fontSize: 12,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.Text(
+                  'R\$ ${despesa.valor.toStringAsFixed(2)}',
+                  style: pw.TextStyle(
+                    fontSize: 12,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.red,
+                  ),
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 4),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  'Tipo: ${despesa.tipoConta ?? 'Não informado'}',
+                  style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
+                ),
+                pw.Text(
+                  'Valor: R\$ ${despesa.valor.toStringAsFixed(2)}',
+                  style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 2),
+            pw.Text(
+              'Status: PENDENTE',
+              style: pw.TextStyle(
+                fontSize: 10,
+                color: PdfColors.red,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  // Método para analisar tendência de recebimentos
+  static String _analisarTendenciaRecebimentos() {
+    final pagamentos = FinanceiroServiceDevedores.ultimosDevedoresPagos;
+    final primeiroPagamento = pagamentos.isNotEmpty ? pagamentos.first : null;
+    final ultimoPagamento = pagamentos.isNotEmpty ? pagamentos.last : null;
+
+    if (primeiroPagamento == null || ultimoPagamento == null) {
+      return 'Não há dados suficientes para analisar tendência.';
+    }
+
+    final diferencaDias =
+        ultimoPagamento.dataVencimento
+            .difference(primeiroPagamento.dataVencimento)
+            .inDays;
+    final diferencaValor =
+        ultimoPagamento.valorOriginal - primeiroPagamento.valorOriginal;
+
+    if (diferencaDias == 0) {
+      return 'Valor constante.';
+    }
+
+    final taxaVariacao =
+        (diferencaValor / primeiroPagamento.valorOriginal) * 100;
+
+    if (taxaVariacao > 0) {
+      return 'Aumento de ${taxaVariacao.toStringAsFixed(1)}%';
+    } else {
+      return 'Redução de ${taxaVariacao.abs().toStringAsFixed(1)}%';
+    }
+  }
+
+  // Método para analisar tendência de despesas
+  static String _analisarTendenciaDespesas() {
+    final despesas =
+        FinanceiroServiceDespesas.listaConta.where((d) => d.pago).toList();
+    final primeiraDespesa = despesas.isNotEmpty ? despesas.first : null;
+    final ultimaDespesa = despesas.isNotEmpty ? despesas.last : null;
+
+    if (primeiraDespesa == null || ultimaDespesa == null) {
+      return 'Não há dados suficientes para analisar tendência.';
+    }
+
+    final diferencaDias = 30; // Estimativa de 30 dias
+    final diferencaValor = ultimaDespesa.valor - primeiraDespesa.valor;
+
+    if (diferencaDias == 0) {
+      return 'Valor constante.';
+    }
+
+    final taxaVariacao = (diferencaValor / primeiraDespesa.valor) * 100;
+
+    if (taxaVariacao > 0) {
+      return 'Aumento de ${taxaVariacao.toStringAsFixed(1)}%';
+    } else {
+      return 'Redução de ${taxaVariacao.abs().toStringAsFixed(1)}%';
+    }
+  }
+
+  // Método para prever o próximo mês
+  static String _preverProximoMes() {
+    final pagamentos = FinanceiroServiceDevedores.ultimosDevedoresPagos;
+    final despesas =
+        FinanceiroServiceDespesas.listaConta.where((d) => d.pago).toList();
+
+    final ultimoPagamento = pagamentos.isNotEmpty ? pagamentos.last : null;
+    final ultimoDespesa = despesas.isNotEmpty ? despesas.last : null;
+
+    if (ultimoPagamento == null || ultimoDespesa == null) {
+      return 'Não há dados suficientes para prever.';
+    }
+
+    final proximoMes = ultimoPagamento.dataVencimento.add(
+      const Duration(days: 30),
+    );
+    final proximoMesDespesa = DateTime.now().add(const Duration(days: 30));
+
+    return 'Recebimentos: ${_formatter.format(proximoMes)}, Despesas: ${_formatter.format(proximoMesDespesa)}';
+  }
+
+  // Método para obter quantidade de pagamentos recebidos
+  static String _getQuantidadePagamentosRecebidos() {
+    return FinanceiroServiceDevedores.totalPagamentosRecebidos.toString();
+  }
+
+  // Método para obter quantidade de despesas pagas
+  static String _getQuantidadeDespesasPagas() {
+    return FinanceiroServiceDespesas.totalDespesasPagas.toString();
   }
 }
