@@ -2,6 +2,8 @@ import 'package:decimus/screens/caixa.dart';
 import 'package:decimus/screens/despesas.dart';
 import 'package:decimus/screens/devedores.dart';
 import 'package:decimus/screens/recebiveis.dart';
+import 'package:decimus/screens/mural.dart';
+import 'package:decimus/screens/gestao_mural.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'screens/login.dart';
@@ -23,6 +25,9 @@ final recebiveisRouter = '/recebiveis';
 final despesasRouter = '/despesas';
 final devedoresRouter = '/devedores';
 final caixaRouter = '/caixa';
+final muralRouter = '/mural';
+final muralPublicoRouter = '/mural-publico';
+final gestaoMuralRouter = '/gestao-mural';
 
 final GoRouter router = GoRouter(
   routes: <RouteBase>[
@@ -74,9 +79,21 @@ final GoRouter router = GoRouter(
       },
     ),
     GoRoute(
-      path: loginRouter,
+      path: muralRouter,
       builder: (BuildContext context, GoRouterState state) {
-        return const LoginScreen();
+        return const MuralScreen();
+      },
+    ),
+    GoRoute(
+      path: muralPublicoRouter,
+      builder: (BuildContext context, GoRouterState state) {
+        return const MuralScreen();
+      },
+    ),
+    GoRoute(
+      path: gestaoMuralRouter,
+      builder: (BuildContext context, GoRouterState state) {
+        return const GestaoMuralScreen();
       },
     ),
   ],
@@ -90,6 +107,9 @@ final GoRouter router = GoRouter(
     final goingDespesas = state.fullPath == despesasRouter;
     final goingDevedores = state.fullPath == devedoresRouter;
     final goingCaixa = state.fullPath == caixaRouter;
+    final goingMural = state.fullPath == muralRouter;
+    final goingMuralPublico = state.fullPath == muralPublicoRouter;
+    final goingGestaoMural = state.fullPath == gestaoMuralRouter;
 
     //se o usuário quer ir para qualquer outra rota mas  não está logado
     if (!isLoggedIn && goingHome) {
@@ -112,6 +132,18 @@ final GoRouter router = GoRouter(
       //Ele irá retornar para o login
       return loginRouter;
     }
+    if (!isLoggedIn && goingMural) {
+      //Ele irá retornar para o login
+      return loginRouter;
+    }
+    if (!isLoggedIn && goingMuralPublico) {
+      // Rota pública - permitir acesso sem login
+      return null;
+    }
+    if (!isLoggedIn && goingGestaoMural) {
+      //Ele irá retornar para o login
+      return loginRouter;
+    }
 
     //Se o usuário está lgado e quer
     if (isLoggedIn && state.fullPath == loginRouter) {
@@ -130,55 +162,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Decimus',
       routerConfig: router,
-
-      /*onGenerateRoute: (settings) {
-        switch (settings.name) {
-          case '/':
-            return MaterialPageRoute(builder: (context) => const LoginScreen());
-          case '/home':
-            return PageTransition(
-              type: PageTransitionType.fade, // Escolha o tipo de transição
-              child: const HomeScreen(),
-            );
-          case '/recebiveis':
-            return PageTransition(
-              type: PageTransitionType.fade,
-              child: const RecebiveisScreen(),
-            );
-          case '/despesas':
-            return PageTransition(
-              type: PageTransitionType.fade,
-              child: const DespesasScreen(),
-            );
-          case '/devedores':
-            return PageTransition(
-              type: PageTransitionType.fade,
-              child: const DevedoresScreen(),
-            );
-          case '/caixa':
-            return PageTransition(
-              type: PageTransitionType.fade,
-              child: const CaixaScreen(),
-            );
-          case '/login':
-            return PageTransition(
-              type: PageTransitionType.bottomToTop,
-              child: const LoginScreen(),
-              duration: Duration(milliseconds: 550),
-            );
-          default:
-            return null;
-        }
-      },*/
-
-      /*routes: {
-        '/login': (context) => LoginScreen(),
-        '/home': (context) => HomeScreen(),
-        '/recebiveis': (context) => RecebiveisScreen(),
-        '/despesas': (context) => DespesasScreen(),
-        '/devedores': (context) => DevedoresScreen(),
-        '/caixa': (context) => CaixaScreen(),
-      },*/
     );
   }
 }

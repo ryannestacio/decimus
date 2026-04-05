@@ -1,7 +1,7 @@
-import 'dart:typed_data';
 import 'package:excel/excel.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:flutter/foundation.dart';
 import 'package:decimus/utils/file_saver/file_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:decimus/services/services_caixa.dart';
@@ -20,171 +20,173 @@ class RelatoriosService {
 
       // PÁGINA 1: RESUMO EXECUTIVO E ANÁLISES
       pdf.addPage(
-        pw.Page(
+        pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
-            return pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildHeader('RELATÓRIO GERAL FINANCEIRO COMPLETO'),
-                pw.SizedBox(height: 20),
+            return _asMultiPage(
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  _buildHeader('RELATÓRIO GERAL FINANCEIRO COMPLETO'),
+                  pw.SizedBox(height: 20),
 
-                // RESUMO EXECUTIVO
-                _buildSection('RESUMO EXECUTIVO'),
-                _buildInfoRow(
-                  'Saldo Atual Disponível',
-                  'R\$ ${FinanceiroServiceCaixa.saldoFinalDoCaixa.toStringAsFixed(2)}',
-                  isBold: true,
-                ),
-                _buildInfoRow(
-                  'Saldo Previsto (30 dias)',
-                  'R\$ ${_calcularSaldoPrevisto().toStringAsFixed(2)}',
-                  isBold: true,
-                ),
-                _buildInfoRow(
-                  'Situação Financeira',
-                  _getSituacaoFinanceira(),
-                  isBold: true,
-                ),
-                pw.SizedBox(height: 20),
-
-                // MOVIMENTAÇÕES DE ENTRADA
-                _buildSection('MOVIMENTAÇÕES DE ENTRADA (RECEITAS)'),
-                _buildInfoRow(
-                  'Total de Recebíveis Cadastrados',
-                  'R\$ ${FinanceiroServiceRecebiveis.totalRecebiveis.toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Pagamentos Já Recebidos',
-                  'R\$ ${FinanceiroServiceDevedores.totalPagamentosRecebidos.toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Devedores Pendentes',
-                  'R\$ ${FinanceiroServiceDevedores.devedoresPendentes.toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Taxa de Recebimento',
-                  '${_calcularTaxaRecebimento().toStringAsFixed(1)}%',
-                ),
-                pw.SizedBox(height: 15),
-
-                // MOVIMENTAÇÕES DE SAÍDA
-                _buildSection('MOVIMENTAÇÕES DE SAÍDA (DESPESAS)'),
-                _buildInfoRow(
-                  'Total de Despesas Cadastradas',
-                  'R\$ ${FinanceiroServiceDespesas.totalDespesas.toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Despesas Já Pagas',
-                  'R\$ ${FinanceiroServiceDespesas.totalDespesasPagas.toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Despesas Pendentes',
-                  'R\$ ${FinanceiroServiceDespesas.totalDespesasPendentes.toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Taxa de Pagamento',
-                  '${_calcularTaxaPagamento().toStringAsFixed(1)}%',
-                ),
-                pw.SizedBox(height: 15),
-
-                // ANÁLISE DE FLUXO DE CAIXA
-                _buildSection('ANÁLISE DE FLUXO DE CAIXA'),
-                _buildInfoRow(
-                  'Fluxo de Entrada (Mensal)',
-                  'R\$ ${_calcularFluxoEntradaMensal().toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Fluxo de Saída (Mensal)',
-                  'R\$ ${_calcularFluxoSaidaMensal().toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Resultado Operacional',
-                  'R\$ ${_calcularResultadoOperacional().toStringAsFixed(2)}',
-                ),
-                pw.SizedBox(height: 15),
-
-                // ANÁLISE DE LIQUIDEZ
-                _buildSection('ANÁLISE DE LIQUIDEZ'),
-                _buildInfoRow(
-                  'Disponível Imediato',
-                  'R\$ ${FinanceiroServiceCaixa.saldoFinalDoCaixa.toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'A Receber (30 dias)',
-                  'R\$ ${_calcularRecebimentos30Dias().toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'A Pagar (30 dias)',
-                  'R\$ ${_calcularPagamentos30Dias().toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Índice de Liquidez',
-                  _calcularIndiceLiquidez().toStringAsFixed(2),
-                ),
-                pw.SizedBox(height: 15),
-
-                // PROJEÇÕES FINANCEIRAS
-                _buildSection('PROJEÇÕES FINANCEIRAS'),
-                _buildInfoRow(
-                  'Saldo em 30 dias',
-                  'R\$ ${_calcularSaldoPrevisto().toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Saldo em 60 dias',
-                  'R\$ ${_calcularSaldoPrevisto60Dias().toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Saldo em 90 dias',
-                  'R\$ ${_calcularSaldoPrevisto90Dias().toStringAsFixed(2)}',
-                ),
-                pw.SizedBox(height: 15),
-
-                // ANÁLISE DE RISCO
-                _buildSection('ANÁLISE DE RISCO'),
-                _buildInfoRow('Risco de Liquidez', _avaliarRiscoLiquidez()),
-                _buildInfoRow(
-                  'Risco de Inadimplência',
-                  _avaliarRiscoInadimplencia(),
-                ),
-                _buildInfoRow(
-                  'Risco de Superendividamento',
-                  _avaliarRiscoSuperendividamento(),
-                ),
-                pw.SizedBox(height: 20),
-
-                // INDICADORES DE PERFORMANCE
-                _buildSection('INDICADORES DE PERFORMANCE (KPIs)'),
-                _buildInfoRow(
-                  'Margem Operacional',
-                  '${_calcularMargemOperacional().toStringAsFixed(1)}%',
-                ),
-                _buildInfoRow(
-                  'Retorno sobre Investimento',
-                  '${_calcularROI().toStringAsFixed(1)}%',
-                ),
-                _buildInfoRow(
-                  'Ciclo Operacional',
-                  '${_calcularCicloOperacional().toStringAsFixed(0)} dias',
-                ),
-                pw.SizedBox(height: 20),
-
-                // Data e Hora
-                _buildInfoRow(
-                  'Data do Relatório',
-                  _formatter.format(DateTime.now()),
-                ),
-                _buildInfoRow('Gerado por', 'Sistema Decimus'),
-                pw.SizedBox(height: 20),
-                pw.Text(
-                  'Página 1 de 4 - Resumo Executivo e Análises',
-                  style: pw.TextStyle(
-                    fontSize: 10,
-                    color: PdfColors.grey600,
-                    fontStyle: pw.FontStyle.italic,
+                  // RESUMO EXECUTIVO
+                  _buildSection('RESUMO EXECUTIVO'),
+                  _buildInfoRow(
+                    'Saldo Atual Disponível',
+                    'R\$ ${FinanceiroServiceCaixa.saldoFinalDoCaixa.toStringAsFixed(2)}',
+                    isBold: true,
                   ),
-                ),
-              ],
+                  _buildInfoRow(
+                    'Saldo Previsto (30 dias)',
+                    'R\$ ${_calcularSaldoPrevisto().toStringAsFixed(2)}',
+                    isBold: true,
+                  ),
+                  _buildInfoRow(
+                    'Situação Financeira',
+                    _getSituacaoFinanceira(),
+                    isBold: true,
+                  ),
+                  pw.SizedBox(height: 20),
+
+                  // MOVIMENTAÇÕES DE ENTRADA
+                  _buildSection('MOVIMENTAÇÕES DE ENTRADA (RECEITAS)'),
+                  _buildInfoRow(
+                    'Total de Recebíveis Cadastrados',
+                    'R\$ ${FinanceiroServiceRecebiveis.totalRecebiveis.toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Pagamentos Já Recebidos',
+                    'R\$ ${FinanceiroServiceDevedores.totalPagamentosRecebidos.toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Devedores Pendentes',
+                    'R\$ ${FinanceiroServiceDevedores.devedoresPendentes.toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Taxa de Recebimento',
+                    '${_calcularTaxaRecebimento().toStringAsFixed(1)}%',
+                  ),
+                  pw.SizedBox(height: 15),
+
+                  // MOVIMENTAÇÕES DE SAÍDA
+                  _buildSection('MOVIMENTAÇÕES DE SAÍDA (DESPESAS)'),
+                  _buildInfoRow(
+                    'Total de Despesas Cadastradas',
+                    'R\$ ${FinanceiroServiceDespesas.totalDespesas.toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Despesas Já Pagas',
+                    'R\$ ${FinanceiroServiceDespesas.totalDespesasPagas.toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Despesas Pendentes',
+                    'R\$ ${FinanceiroServiceDespesas.totalDespesasPendentes.toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Taxa de Pagamento',
+                    '${_calcularTaxaPagamento().toStringAsFixed(1)}%',
+                  ),
+                  pw.SizedBox(height: 15),
+
+                  // ANÁLISE DE FLUXO DE CAIXA
+                  _buildSection('ANÁLISE DE FLUXO DE CAIXA'),
+                  _buildInfoRow(
+                    'Fluxo de Entrada (Mensal)',
+                    'R\$ ${_calcularFluxoEntradaMensal().toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Fluxo de Saída (Mensal)',
+                    'R\$ ${_calcularFluxoSaidaMensal().toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Resultado Operacional',
+                    'R\$ ${_calcularResultadoOperacional().toStringAsFixed(2)}',
+                  ),
+                  pw.SizedBox(height: 15),
+
+                  // ANÁLISE DE LIQUIDEZ
+                  _buildSection('ANÁLISE DE LIQUIDEZ'),
+                  _buildInfoRow(
+                    'Disponível Imediato',
+                    'R\$ ${FinanceiroServiceCaixa.saldoFinalDoCaixa.toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'A Receber (30 dias)',
+                    'R\$ ${_calcularRecebimentos30Dias().toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'A Pagar (30 dias)',
+                    'R\$ ${_calcularPagamentos30Dias().toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Índice de Liquidez',
+                    _formatarIndiceLiquidez(),
+                  ),
+                  pw.SizedBox(height: 15),
+
+                  // PROJEÇÕES FINANCEIRAS
+                  _buildSection('PROJEÇÕES FINANCEIRAS'),
+                  _buildInfoRow(
+                    'Saldo em 30 dias',
+                    'R\$ ${_calcularSaldoPrevisto().toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Saldo em 60 dias',
+                    'R\$ ${_calcularSaldoPrevisto60Dias().toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Saldo em 90 dias',
+                    'R\$ ${_calcularSaldoPrevisto90Dias().toStringAsFixed(2)}',
+                  ),
+                  pw.SizedBox(height: 15),
+
+                  // ANÁLISE DE RISCO
+                  _buildSection('ANÁLISE DE RISCO'),
+                  _buildInfoRow('Risco de Liquidez', _avaliarRiscoLiquidez()),
+                  _buildInfoRow(
+                    'Risco de Inadimplência',
+                    _avaliarRiscoInadimplencia(),
+                  ),
+                  _buildInfoRow(
+                    'Risco de Superendividamento',
+                    _avaliarRiscoSuperendividamento(),
+                  ),
+                  pw.SizedBox(height: 20),
+
+                  // INDICADORES DE PERFORMANCE
+                  _buildSection('INDICADORES DE PERFORMANCE (KPIs)'),
+                  _buildInfoRow(
+                    'Margem Operacional',
+                    '${_calcularMargemOperacional().toStringAsFixed(1)}%',
+                  ),
+                  _buildInfoRow(
+                    'Retorno sobre Investimento',
+                    '${_calcularROI().toStringAsFixed(1)}%',
+                  ),
+                  _buildInfoRow(
+                    'Ciclo Operacional',
+                    '${_calcularCicloOperacional().toStringAsFixed(0)} dias',
+                  ),
+                  pw.SizedBox(height: 20),
+
+                  // Data e Hora
+                  _buildInfoRow(
+                    'Data do Relatório',
+                    _formatter.format(DateTime.now()),
+                  ),
+                  _buildInfoRow('Gerado por', 'Sistema Decimus'),
+                  pw.SizedBox(height: 20),
+                  pw.Text(
+                    'Página 1 de 4 - Resumo Executivo e Análises',
+                    style: pw.TextStyle(
+                      fontSize: 10,
+                      color: PdfColors.grey600,
+                      fontStyle: pw.FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         ),
@@ -192,56 +194,58 @@ class RelatoriosService {
 
       // PÁGINA 2: MOVIMENTAÇÕES DE ENTRADA DETALHADAS
       pdf.addPage(
-        pw.Page(
+        pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
-            return pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildHeader('MOVIMENTAÇÕES DE ENTRADA DETALHADAS'),
-                pw.SizedBox(height: 20),
+            return _asMultiPage(
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  _buildHeader('MOVIMENTAÇÕES DE ENTRADA DETALHADAS'),
+                  pw.SizedBox(height: 20),
 
-                // RESUMO DAS ENTRADAS
-                _buildSection('RESUMO DAS ENTRADAS REALIZADAS'),
-                _buildInfoRow(
-                  'Total Recebido',
-                  'R\$ ${FinanceiroServiceDevedores.totalPagamentosRecebidos.toStringAsFixed(2)}',
-                  isBold: true,
-                ),
-                _buildInfoRow(
-                  'Quantidade de Pagamentos',
-                  '${_getQuantidadePagamentosRecebidos()} pagamentos',
-                ),
-                _buildInfoRow('Período Analisado', 'Últimos 12 meses'),
-                pw.SizedBox(height: 20),
-
-                // LISTA DETALHADA DE PAGAMENTOS RECEBIDOS
-                _buildSection('PAGAMENTOS RECEBIDOS - LISTA COMPLETA'),
-                pw.SizedBox(height: 10),
-                ..._buildListaCompletaPagamentosRecebidos(),
-                pw.SizedBox(height: 20),
-
-                // RESUMO DOS RECEBÍVEIS PENDENTES
-                _buildSection('RECEBÍVEIS PENDENTES - LISTA COMPLETA'),
-                pw.SizedBox(height: 10),
-                ..._buildListaCompletaRecebiveisPendentes(),
-                pw.SizedBox(height: 20),
-
-                // Data e Hora
-                _buildInfoRow(
-                  'Data do Relatório',
-                  _formatter.format(DateTime.now()),
-                ),
-                pw.SizedBox(height: 20),
-                pw.Text(
-                  'Página 2 de 4 - Movimentações de Entrada',
-                  style: pw.TextStyle(
-                    fontSize: 10,
-                    color: PdfColors.grey600,
-                    fontStyle: pw.FontStyle.italic,
+                  // RESUMO DAS ENTRADAS
+                  _buildSection('RESUMO DAS ENTRADAS REALIZADAS'),
+                  _buildInfoRow(
+                    'Total Recebido',
+                    'R\$ ${FinanceiroServiceDevedores.totalPagamentosRecebidos.toStringAsFixed(2)}',
+                    isBold: true,
                   ),
-                ),
-              ],
+                  _buildInfoRow(
+                    'Quantidade de Pagamentos',
+                    '${_getQuantidadePagamentosRecebidos()} pagamentos',
+                  ),
+                  _buildInfoRow('Período Analisado', 'Últimos 12 meses'),
+                  pw.SizedBox(height: 20),
+
+                  // LISTA DETALHADA DE PAGAMENTOS RECEBIDOS
+                  _buildSection('PAGAMENTOS RECEBIDOS - LISTA COMPLETA'),
+                  pw.SizedBox(height: 10),
+                  ..._buildListaCompletaPagamentosRecebidos(),
+                  pw.SizedBox(height: 20),
+
+                  // RESUMO DOS RECEBÍVEIS PENDENTES
+                  _buildSection('RECEBÍVEIS PENDENTES - LISTA COMPLETA'),
+                  pw.SizedBox(height: 10),
+                  ..._buildListaCompletaRecebiveisPendentes(),
+                  pw.SizedBox(height: 20),
+
+                  // Data e Hora
+                  _buildInfoRow(
+                    'Data do Relatório',
+                    _formatter.format(DateTime.now()),
+                  ),
+                  pw.SizedBox(height: 20),
+                  pw.Text(
+                    'Página 2 de 4 - Movimentações de Entrada',
+                    style: pw.TextStyle(
+                      fontSize: 10,
+                      color: PdfColors.grey600,
+                      fontStyle: pw.FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         ),
@@ -249,56 +253,58 @@ class RelatoriosService {
 
       // PÁGINA 3: MOVIMENTAÇÕES DE SAÍDA DETALHADAS
       pdf.addPage(
-        pw.Page(
+        pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
-            return pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildHeader('MOVIMENTAÇÕES DE SAÍDA DETALHADAS'),
-                pw.SizedBox(height: 20),
+            return _asMultiPage(
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  _buildHeader('MOVIMENTAÇÕES DE SAÍDA DETALHADAS'),
+                  pw.SizedBox(height: 20),
 
-                // RESUMO DAS SAÍDAS
-                _buildSection('RESUMO DAS SAÍDAS REALIZADAS'),
-                _buildInfoRow(
-                  'Total Pago',
-                  'R\$ ${FinanceiroServiceDespesas.totalDespesasPagas.toStringAsFixed(2)}',
-                  isBold: true,
-                ),
-                _buildInfoRow(
-                  'Quantidade de Despesas Pagas',
-                  '${_getQuantidadeDespesasPagas()} despesas',
-                ),
-                _buildInfoRow('Período Analisado', 'Últimos 12 meses'),
-                pw.SizedBox(height: 20),
-
-                // LISTA DETALHADA DE DESPESAS PAGAS
-                _buildSection('DESPESAS PAGAS - LISTA COMPLETA'),
-                pw.SizedBox(height: 10),
-                ..._buildListaCompletaDespesasPagas(),
-                pw.SizedBox(height: 20),
-
-                // LISTA DETALHADA DE DESPESAS PENDENTES
-                _buildSection('DESPESAS PENDENTES - LISTA COMPLETA'),
-                pw.SizedBox(height: 10),
-                ..._buildListaCompletaDespesasPendentes(),
-                pw.SizedBox(height: 20),
-
-                // Data e Hora
-                _buildInfoRow(
-                  'Data do Relatório',
-                  _formatter.format(DateTime.now()),
-                ),
-                pw.SizedBox(height: 20),
-                pw.Text(
-                  'Página 3 de 4 - Movimentações de Saída',
-                  style: pw.TextStyle(
-                    fontSize: 10,
-                    color: PdfColors.grey600,
-                    fontStyle: pw.FontStyle.italic,
+                  // RESUMO DAS SAÍDAS
+                  _buildSection('RESUMO DAS SAÍDAS REALIZADAS'),
+                  _buildInfoRow(
+                    'Total Pago',
+                    'R\$ ${FinanceiroServiceDespesas.totalDespesasPagas.toStringAsFixed(2)}',
+                    isBold: true,
                   ),
-                ),
-              ],
+                  _buildInfoRow(
+                    'Quantidade de Despesas Pagas',
+                    '${_getQuantidadeDespesasPagas()} despesas',
+                  ),
+                  _buildInfoRow('Período Analisado', 'Últimos 12 meses'),
+                  pw.SizedBox(height: 20),
+
+                  // LISTA DETALHADA DE DESPESAS PAGAS
+                  _buildSection('DESPESAS PAGAS - LISTA COMPLETA'),
+                  pw.SizedBox(height: 10),
+                  ..._buildListaCompletaDespesasPagas(),
+                  pw.SizedBox(height: 20),
+
+                  // LISTA DETALHADA DE DESPESAS PENDENTES
+                  _buildSection('DESPESAS PENDENTES - LISTA COMPLETA'),
+                  pw.SizedBox(height: 10),
+                  ..._buildListaCompletaDespesasPendentes(),
+                  pw.SizedBox(height: 20),
+
+                  // Data e Hora
+                  _buildInfoRow(
+                    'Data do Relatório',
+                    _formatter.format(DateTime.now()),
+                  ),
+                  pw.SizedBox(height: 20),
+                  pw.Text(
+                    'Página 3 de 4 - Movimentações de Saída',
+                    style: pw.TextStyle(
+                      fontSize: 10,
+                      color: PdfColors.grey600,
+                      fontStyle: pw.FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         ),
@@ -306,55 +312,60 @@ class RelatoriosService {
 
       // PÁGINA 4: RECOMENDAÇÕES E ANÁLISE FINAL
       pdf.addPage(
-        pw.Page(
+        pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
-            return pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildHeader('RECOMENDAÇÕES E ANÁLISE FINAL'),
-                pw.SizedBox(height: 20),
+            return _asMultiPage(
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  _buildHeader('RECOMENDAÇÕES E ANÁLISE FINAL'),
+                  pw.SizedBox(height: 20),
 
-                // RECOMENDAÇÕES E SUGESTÕES
-                _buildSection('RECOMENDAÇÕES E SUGESTÕES'),
-                ..._buildRecomendacoes(),
-                pw.SizedBox(height: 20),
+                  // RECOMENDAÇÕES E SUGESTÕES
+                  _buildSection('RECOMENDAÇÕES E SUGESTÕES'),
+                  ..._buildRecomendacoes(),
+                  pw.SizedBox(height: 20),
 
-                // DETALHAMENTO DAS MOVIMENTAÇÕES
-                _buildSection('RESUMO VISUAL DAS MOVIMENTAÇÕES'),
-                pw.SizedBox(height: 10),
-                ..._buildMovimentacoesDetalhadas(),
-                pw.SizedBox(height: 20),
+                  // DETALHAMENTO DAS MOVIMENTAÇÕES
+                  _buildSection('RESUMO VISUAL DAS MOVIMENTAÇÕES'),
+                  pw.SizedBox(height: 10),
+                  ..._buildMovimentacoesDetalhadas(),
+                  pw.SizedBox(height: 20),
 
-                // ANÁLISE DE TENDÊNCIAS
-                _buildSection('ANÁLISE DE TENDÊNCIAS'),
-                _buildInfoRow(
-                  'Tendência de Recebimentos',
-                  _analisarTendenciaRecebimentos(),
-                ),
-                _buildInfoRow(
-                  'Tendência de Despesas',
-                  _analisarTendenciaDespesas(),
-                ),
-                _buildInfoRow('Previsão para Próximo Mês', _preverProximoMes()),
-                pw.SizedBox(height: 20),
-
-                // Data e Hora
-                _buildInfoRow(
-                  'Data do Relatório',
-                  _formatter.format(DateTime.now()),
-                ),
-                _buildInfoRow('Gerado por', 'Sistema Decimus'),
-                pw.SizedBox(height: 20),
-                pw.Text(
-                  'Página 4 de 4 - Recomendações e Análise Final',
-                  style: pw.TextStyle(
-                    fontSize: 10,
-                    color: PdfColors.grey600,
-                    fontStyle: pw.FontStyle.italic,
+                  // ANÁLISE DE TENDÊNCIAS
+                  _buildSection('ANÁLISE DE TENDÊNCIAS'),
+                  _buildInfoRow(
+                    'Tendência de Recebimentos',
+                    _analisarTendenciaRecebimentos(),
                   ),
-                ),
-              ],
+                  _buildInfoRow(
+                    'Tendência de Despesas',
+                    _analisarTendenciaDespesas(),
+                  ),
+                  _buildInfoRow(
+                    'Previsão para Próximo Mês',
+                    _preverProximoMes(),
+                  ),
+                  pw.SizedBox(height: 20),
+
+                  // Data e Hora
+                  _buildInfoRow(
+                    'Data do Relatório',
+                    _formatter.format(DateTime.now()),
+                  ),
+                  _buildInfoRow('Gerado por', 'Sistema Decimus'),
+                  pw.SizedBox(height: 20),
+                  pw.Text(
+                    'Página 4 de 4 - Recomendações e Análise Final',
+                    style: pw.TextStyle(
+                      fontSize: 10,
+                      color: PdfColors.grey600,
+                      fontStyle: pw.FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         ),
@@ -364,8 +375,8 @@ class RelatoriosService {
         pdf,
         'relatorio_geral_completo_4paginas.pdf',
       );
-    } catch (e) {
-      print('Erro ao gerar relatório geral: $e');
+    } catch (e, s) {
+      _debugError('Erro ao gerar relatório geral', e, s);
       rethrow;
     }
   }
@@ -376,63 +387,65 @@ class RelatoriosService {
       final pdf = pw.Document();
 
       pdf.addPage(
-        pw.Page(
+        pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
-            return pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildHeader('RELATÓRIO DE CAIXA'),
-                pw.SizedBox(height: 20),
+            return _asMultiPage(
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  _buildHeader('RELATÓRIO DE CAIXA'),
+                  pw.SizedBox(height: 20),
 
-                // Movimentações do Caixa
-                _buildSection('MOVIMENTAÇÕES DO CAIXA'),
-                _buildInfoRow(
-                  'Entradas (Recebíveis + Pagamentos)',
-                  'R\$ ${FinanceiroServicesGlobal.totalEmCaixa.toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Saídas (Despesas Pagas)',
-                  'R\$ ${FinanceiroServiceDespesas.totalDespesasPagas.toStringAsFixed(2)}',
-                ),
-                pw.Divider(thickness: 2),
-                _buildInfoRow(
-                  'SALDO ATUAL',
-                  'R\$ ${FinanceiroServiceCaixa.saldoFinalDoCaixa.toStringAsFixed(2)}',
-                  isBold: true,
-                ),
-                pw.SizedBox(height: 20),
+                  // Movimentações do Caixa
+                  _buildSection('MOVIMENTAÇÕES DO CAIXA'),
+                  _buildInfoRow(
+                    'Entradas (Recebíveis + Pagamentos)',
+                    'R\$ ${FinanceiroServicesGlobal.totalEmCaixa.toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Saídas (Despesas Pagas)',
+                    'R\$ ${FinanceiroServiceDespesas.totalDespesasPagas.toStringAsFixed(2)}',
+                  ),
+                  pw.Divider(thickness: 2),
+                  _buildInfoRow(
+                    'SALDO ATUAL',
+                    'R\$ ${FinanceiroServiceCaixa.saldoFinalDoCaixa.toStringAsFixed(2)}',
+                    isBold: true,
+                  ),
+                  pw.SizedBox(height: 20),
 
-                // Análise de Liquidez
-                _buildSection('ANÁLISE DE LIQUIDEZ'),
-                _buildInfoRow(
-                  'Disponível Imediato',
-                  'R\$ ${FinanceiroServiceCaixa.saldoFinalDoCaixa.toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'A Receber (30 dias)',
-                  'R\$ ${FinanceiroServiceDevedores.devedoresPendentes.toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'A Pagar (30 dias)',
-                  'R\$ ${FinanceiroServiceDespesas.totalDespesasPendentes.toStringAsFixed(2)}',
-                ),
-                pw.SizedBox(height: 20),
+                  // Análise de Liquidez
+                  _buildSection('ANÁLISE DE LIQUIDEZ'),
+                  _buildInfoRow(
+                    'Disponível Imediato',
+                    'R\$ ${FinanceiroServiceCaixa.saldoFinalDoCaixa.toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'A Receber (30 dias)',
+                    'R\$ ${FinanceiroServiceDevedores.devedoresPendentes.toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'A Pagar (30 dias)',
+                    'R\$ ${FinanceiroServiceDespesas.totalDespesasPendentes.toStringAsFixed(2)}',
+                  ),
+                  pw.SizedBox(height: 20),
 
-                // Data e Hora
-                _buildInfoRow(
-                  'Data do Relatório',
-                  _formatter.format(DateTime.now()),
-                ),
-              ],
+                  // Data e Hora
+                  _buildInfoRow(
+                    'Data do Relatório',
+                    _formatter.format(DateTime.now()),
+                  ),
+                ],
+              ),
             );
           },
         ),
       );
 
       await _salvarECompartilharPDF(pdf, 'relatorio_caixa.pdf');
-    } catch (e) {
-      print('Erro ao gerar relatório de caixa: $e');
+    } catch (e, s) {
+      _debugError('Erro ao gerar relatório de caixa', e, s);
       rethrow;
     }
   }
@@ -446,70 +459,72 @@ class RelatoriosService {
       final pdf = pw.Document();
 
       pdf.addPage(
-        pw.Page(
+        pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
-            return pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildHeader('RELATÓRIO DE RECEBÍVEIS'),
-                pw.SizedBox(height: 20),
+            return _asMultiPage(
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  _buildHeader('RELATÓRIO DE RECEBÍVEIS'),
+                  pw.SizedBox(height: 20),
 
-                // Resumo dos Recebíveis
-                _buildSection('RESUMO DOS RECEBÍVEIS'),
-                _buildInfoRow(
-                  'Total de Recebíveis',
-                  'R\$ ${FinanceiroServiceRecebiveis.totalRecebiveis.toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Devedores Pendentes',
-                  'R\$ ${FinanceiroServiceDevedores.devedoresPendentes.toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Pagamentos Recebidos',
-                  'R\$ ${FinanceiroServiceDevedores.totalPagamentosRecebidos.toStringAsFixed(2)}',
-                ),
-                pw.SizedBox(height: 15),
+                  // Resumo dos Recebíveis
+                  _buildSection('RESUMO DOS RECEBÍVEIS'),
+                  _buildInfoRow(
+                    'Total de Recebíveis',
+                    'R\$ ${FinanceiroServiceRecebiveis.totalRecebiveis.toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Devedores Pendentes',
+                    'R\$ ${FinanceiroServiceDevedores.devedoresPendentes.toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Pagamentos Recebidos',
+                    'R\$ ${FinanceiroServiceDevedores.totalPagamentosRecebidos.toStringAsFixed(2)}',
+                  ),
+                  pw.SizedBox(height: 15),
 
-                // Análise de Inadimplência
-                _buildSection('ANÁLISE DE INADIMPLÊNCIA'),
-                pw.SizedBox(height: 10),
-                _buildInfoRow(
-                  'Percentual Recebido',
-                  '${_calcularPercentualRecebido().toStringAsFixed(1)}%',
-                ),
-                _buildInfoRow(
-                  'Percentual Pendente',
-                  '${(100 - _calcularPercentualRecebido()).toStringAsFixed(1)}%',
-                ),
-                pw.SizedBox(height: 20),
+                  // Análise de Inadimplência
+                  _buildSection('ANÁLISE DE INADIMPLÊNCIA'),
+                  pw.SizedBox(height: 10),
+                  _buildInfoRow(
+                    'Percentual Recebido',
+                    '${_calcularPercentualRecebido().toStringAsFixed(1)}%',
+                  ),
+                  _buildInfoRow(
+                    'Percentual Pendente',
+                    '${(100 - _calcularPercentualRecebido()).toStringAsFixed(1)}%',
+                  ),
+                  pw.SizedBox(height: 20),
 
-                // Últimos Recebíveis Cadastrados
-                _buildSection('ÚLTIMOS RECEBÍVEIS CADASTRADOS'),
-                pw.SizedBox(height: 10),
-                ..._buildRecebiveisDetalhados(),
-                pw.SizedBox(height: 20),
+                  // Últimos Recebíveis Cadastrados
+                  _buildSection('ÚLTIMOS RECEBÍVEIS CADASTRADOS'),
+                  pw.SizedBox(height: 10),
+                  ..._buildRecebiveisDetalhados(),
+                  pw.SizedBox(height: 20),
 
-                // Últimos Devedores Cadastrados Pagos
-                _buildSection('ÚLTIMOS DEVEDORES CADASTRADOS PAGOS'),
-                pw.SizedBox(height: 10),
-                ..._buildDevedoresPagosDetalhados(),
-                pw.SizedBox(height: 20),
+                  // Últimos Devedores Cadastrados Pagos
+                  _buildSection('ÚLTIMOS DEVEDORES CADASTRADOS PAGOS'),
+                  pw.SizedBox(height: 10),
+                  ..._buildDevedoresPagosDetalhados(),
+                  pw.SizedBox(height: 20),
 
-                // Data e Hora
-                _buildInfoRow(
-                  'Data do Relatório',
-                  _formatter.format(DateTime.now()),
-                ),
-              ],
+                  // Data e Hora
+                  _buildInfoRow(
+                    'Data do Relatório',
+                    _formatter.format(DateTime.now()),
+                  ),
+                ],
+              ),
             );
           },
         ),
       );
 
       await _salvarECompartilharPDF(pdf, 'relatorio_recebiveis.pdf');
-    } catch (e) {
-      print('Erro ao gerar relatório de recebíveis: $e');
+    } catch (e, s) {
+      _debugError('Erro ao gerar relatório de recebíveis', e, s);
       rethrow;
     }
   }
@@ -520,58 +535,60 @@ class RelatoriosService {
       final pdf = pw.Document();
 
       pdf.addPage(
-        pw.Page(
+        pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
-            return pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildHeader('RELATÓRIO DE DESPESAS'),
-                pw.SizedBox(height: 20),
+            return _asMultiPage(
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  _buildHeader('RELATÓRIO DE DESPESAS'),
+                  pw.SizedBox(height: 20),
 
-                // Resumo das Despesas
-                _buildSection('RESUMO DAS DESPESAS'),
-                _buildInfoRow(
-                  'Total de Despesas',
-                  'R\$ ${FinanceiroServiceDespesas.totalDespesas.toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Despesas Pendentes',
-                  'R\$ ${FinanceiroServiceDespesas.totalDespesasPendentes.toStringAsFixed(2)}',
-                ),
-                _buildInfoRow(
-                  'Despesas Pagas',
-                  'R\$ ${FinanceiroServiceDespesas.totalDespesasPagas.toStringAsFixed(2)}',
-                ),
-                pw.SizedBox(height: 15),
+                  // Resumo das Despesas
+                  _buildSection('RESUMO DAS DESPESAS'),
+                  _buildInfoRow(
+                    'Total de Despesas',
+                    'R\$ ${FinanceiroServiceDespesas.totalDespesas.toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Despesas Pendentes',
+                    'R\$ ${FinanceiroServiceDespesas.totalDespesasPendentes.toStringAsFixed(2)}',
+                  ),
+                  _buildInfoRow(
+                    'Despesas Pagas',
+                    'R\$ ${FinanceiroServiceDespesas.totalDespesasPagas.toStringAsFixed(2)}',
+                  ),
+                  pw.SizedBox(height: 15),
 
-                // Análise de Controle
-                _buildSection('ANÁLISE DE CONTROLE'),
-                pw.SizedBox(height: 10),
-                _buildInfoRow(
-                  'Percentual Pago',
-                  '${_calcularPercentualPago().toStringAsFixed(1)}%',
-                ),
-                _buildInfoRow(
-                  'Percentual Pendente',
-                  '${(100 - _calcularPercentualPago()).toStringAsFixed(1)}%',
-                ),
-                pw.SizedBox(height: 20),
+                  // Análise de Controle
+                  _buildSection('ANÁLISE DE CONTROLE'),
+                  pw.SizedBox(height: 10),
+                  _buildInfoRow(
+                    'Percentual Pago',
+                    '${_calcularPercentualPago().toStringAsFixed(1)}%',
+                  ),
+                  _buildInfoRow(
+                    'Percentual Pendente',
+                    '${(100 - _calcularPercentualPago()).toStringAsFixed(1)}%',
+                  ),
+                  pw.SizedBox(height: 20),
 
-                // Data e Hora
-                _buildInfoRow(
-                  'Data do Relatório',
-                  _formatter.format(DateTime.now()),
-                ),
-              ],
+                  // Data e Hora
+                  _buildInfoRow(
+                    'Data do Relatório',
+                    _formatter.format(DateTime.now()),
+                  ),
+                ],
+              ),
             );
           },
         ),
       );
 
       await _salvarECompartilharPDF(pdf, 'relatorio_despesas.pdf');
-    } catch (e) {
-      print('Erro ao gerar relatório de despesas: $e');
+    } catch (e, s) {
+      _debugError('Erro ao gerar relatório de despesas', e, s);
       rethrow;
     }
   }
@@ -629,13 +646,15 @@ class RelatoriosService {
       // Nota: Ajuste manual das colunas no Excel
 
       await _salvarECompartilharExcel(excel, 'relatorio_caixa.xlsx');
-    } catch (e) {
-      print('Erro ao gerar relatório Excel: $e');
+    } catch (e, s) {
+      _debugError('Erro ao gerar relatório Excel', e, s);
       rethrow;
     }
   }
 
   // Métodos auxiliares para construção do PDF
+  static List<pw.Widget> _asMultiPage(pw.Widget widget) => [widget];
+
   static pw.Widget _buildHeader(String title) {
     return pw.Container(
       width: double.infinity,
@@ -721,11 +740,14 @@ class RelatoriosService {
 
   // Métodos auxiliares para cálculos
   static double _calcularPercentualRecebido() {
-    return FinanceiroServicesGlobal.totalEmCaixa > 0
-        ? ((FinanceiroServiceDevedores.totalPagamentosRecebidos /
-                FinanceiroServicesGlobal.totalEmCaixa) *
-            100)
-        : 0.0;
+    final recebido = FinanceiroServiceDevedores.totalPagamentosRecebidos;
+    final pendente = FinanceiroServiceDevedores.devedoresPendentes;
+    final baseCalculo = recebido + pendente;
+
+    if (baseCalculo <= 0) return 0.0;
+
+    final percentual = (recebido / baseCalculo) * 100;
+    return percentual.clamp(0.0, 100.0).toDouble();
   }
 
   static double _calcularPercentualPago() {
@@ -826,12 +848,24 @@ class RelatoriosService {
         FinanceiroServiceCaixa.saldoFinalDoCaixa +
         _calcularRecebimentos30Dias();
     final passivoCirculante = _calcularPagamentos30Dias();
-    return passivoCirculante > 0 ? ativoCirculante / passivoCirculante : 0.0;
+
+    if (passivoCirculante <= 0) {
+      return ativoCirculante > 0 ? double.infinity : 0.0;
+    }
+
+    return ativoCirculante / passivoCirculante;
   }
 
   // Avaliação de risco de liquidez
+  static String _formatarIndiceLiquidez() {
+    final indice = _calcularIndiceLiquidez();
+    if (indice.isInfinite) return 'Sem passivos (favoravel)';
+    return indice.toStringAsFixed(2);
+  }
+
   static String _avaliarRiscoLiquidez() {
     final indice = _calcularIndiceLiquidez();
+    if (indice.isInfinite) return 'BAIXO';
     if (indice >= 2.0) return 'BAIXO';
     if (indice >= 1.0) return 'MÉDIO';
     return 'ALTO';
@@ -1100,7 +1134,7 @@ class RelatoriosService {
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
                 pw.Text(
-                  'Tipo: ${recebivel.tipo}',
+                  'Tipo: ${recebivel.tipo.isEmpty ? "Nao informado" : recebivel.tipo}',
                   style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
                 ),
                 pw.Text(
@@ -1343,7 +1377,7 @@ class RelatoriosService {
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
                 pw.Text(
-                  'Tipo: ${recebivel.tipo}',
+                  'Tipo: ${recebivel.tipo.isEmpty ? "Nao informado" : recebivel.tipo}',
                   style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
                 ),
                 pw.Text(
@@ -1610,11 +1644,21 @@ class RelatoriosService {
 
   // Método para obter quantidade de pagamentos recebidos
   static String _getQuantidadePagamentosRecebidos() {
-    return FinanceiroServiceDevedores.totalPagamentosRecebidos.toString();
+    final quantidade =
+        FinanceiroServiceDevedores.listDevedor.where((d) => d.pago).length;
+    return quantidade.toString();
   }
 
   // Método para obter quantidade de despesas pagas
   static String _getQuantidadeDespesasPagas() {
-    return FinanceiroServiceDespesas.totalDespesasPagas.toString();
+    final quantidade =
+        FinanceiroServiceDespesas.listaConta.where((d) => d.pago).length;
+    return quantidade.toString();
+  }
+
+  static void _debugError(String message, Object error, StackTrace stackTrace) {
+    if (!kDebugMode) return;
+    debugPrint('[RelatoriosService] $message: $error');
+    debugPrint('$stackTrace');
   }
 }

@@ -1,5 +1,6 @@
 import 'package:decimus/models/models_recebiveis.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 class FinanceiroServiceRecebiveis {
   static List<Recebimento> listaRecebimentos = [];
@@ -11,7 +12,7 @@ class FinanceiroServiceRecebiveis {
         await FirebaseFirestore.instance.collection('recebiveis').get();
 
     totalRecebiveis = snapshot.docs.fold(0.0, (soma, doc) {
-      return soma + (doc['valor'] ?? 0);
+      return soma + _toDouble(doc.data()['valor']);
     });
   }
 
@@ -24,26 +25,48 @@ class FinanceiroServiceRecebiveis {
           snapshot.docs.map((doc) {
             final data = doc.data();
             return Recebimento(
-              nome: data['nome'] ?? '',
-              tipo: data['tipo'] ?? '',
-              valor: (data['valor'] ?? 0).toDouble(),
+              nome: (data['nome'] ?? '').toString(),
+              tipo: (data['tipo'] ?? data['descricao'] ?? '').toString(),
+              valor: _toDouble(data['valor']),
               data:
                   data['data'] is Timestamp
                       ? (data['data'] as Timestamp).toDate()
                       : DateTime.tryParse(data['data'] ?? '') ?? DateTime.now(),
-              pago: data['pago'] ?? true,
+              pago: _toBool(data['pago']),
             );
           }).toList();
 
-      // Ordenar por data (mais recentes primeiro)
+      // Sort by date (most recent first)
       listaRecebimentos.sort((a, b) => b.data.compareTo(a.data));
-    } catch (e) {
-      print('Erro ao carregar recebíveis: $e');
+    } catch (e, s) {
+      _debugError('Erro ao carregar recebiveis', e, s);
     }
   }
 
   static List<Recebimento> get ultimosRecebiveis {
-    // Retorna os últimos 10 recebíveis cadastrados
     return listaRecebimentos.take(10).toList();
+  }
+
+  static double _toDouble(dynamic valor) {
+    if (valor is num) return valor.toDouble();
+    if (valor is String) return double.tryParse(valor) ?? 0.0;
+    return 0.0;
+  }
+
+  static bool _toBool(dynamic valor) {
+    if (valor is bool) return valor;
+    if (valor is String) {
+      final normalized = valor.toLowerCase().trim();
+      if (normalized == 'true') return true;
+      if (normalized == 'false') return false;
+    }
+    // Backward compatibility: old records had no `pago` field.
+    return true;
+  }
+
+  static void _debugError(String message, Object error, StackTrace stackTrace) {
+    if (!kDebugMode) return;
+    debugPrint('[FinanceiroServiceRecebiveis] $message: $error');
+    debugPrint('$stackTrace');
   }
 }
