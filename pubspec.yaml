@@ -1,5 +1,5 @@
 name: decimus
-description: "A new Flutter project."
+description: "Decimus - Gerenciamento Completo de Dízimos, Despesas e Finanças Paroquiais. Aplicativo profissional para igrejas e comunidades católicas, com controle de caixa, relatórios financeiros e autenticação segura."
 publish_to: 'none' 
 version: 1.0.0+1
 

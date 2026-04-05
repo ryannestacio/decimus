@@ -1,11 +1,11 @@
 {
-    "name": "decimus",
-    "short_name": "decimus",
+    "name": "Decimus - Gestão de Finanças Paroquiais",
+    "short_name": "Decimus",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#1a5f3f",
+    "theme_color": "#1a5f3f",
+    "description": "Aplicativo profissional para gerenciamento completo de dízimos, despesas e finanças paroquiais. Controle de caixa, relatórios financeiros e autenticação segura.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
