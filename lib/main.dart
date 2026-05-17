@@ -4,13 +4,14 @@ import 'package:decimus/screens/devedores.dart';
 import 'package:decimus/screens/recebiveis.dart';
 import 'package:decimus/screens/mural.dart';
 import 'package:decimus/screens/gestao_mural.dart';
+import 'package:decimus/services/services_autorizacao.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'screens/login.dart';
 import 'screens/home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-//import 'package:page_transition/page_transition.dart';
 import 'package:go_router/go_router.dart';
 
 void main() async {
@@ -97,7 +98,7 @@ final GoRouter router = GoRouter(
       },
     ),
   ],
-  redirect: (BuildContext context, GoRouterState state) {
+  redirect: (BuildContext context, GoRouterState state) async {
     //Obtendo o estado de login do usuário
     final isLoggedIn = FirebaseAuth.instance.currentUser != null;
 
@@ -140,9 +141,15 @@ final GoRouter router = GoRouter(
       // Rota pública - permitir acesso sem login
       return null;
     }
-    if (!isLoggedIn && goingGestaoMural) {
-      //Ele irá retornar para o login
-      return loginRouter;
+    if (goingGestaoMural) {
+      if (!isLoggedIn) {
+        return loginRouter;
+      }
+
+      final isAdmin = await AutorizacaoService.usuarioAtualEhAdmin();
+      if (!isAdmin) {
+        return homeRouter;
+      }
     }
 
     //Se o usuário está lgado e quer
@@ -162,6 +169,15 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Decimus',
       routerConfig: router,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('pt', 'BR'),
+        Locale('en', 'US'),
+      ],
     );
   }
 }

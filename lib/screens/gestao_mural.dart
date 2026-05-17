@@ -13,7 +13,7 @@ class GestaoMuralScreen extends StatefulWidget {
 
 class _GestaoMuralScreenState extends State<GestaoMuralScreen> {
   void _compartilharLinkMural() {
-    final linkMural = 'decimus://mural';
+    final linkMural = 'decimus://mural-publico';
 
     showDialog(
       context: context,
@@ -61,7 +61,7 @@ class _GestaoMuralScreenState extends State<GestaoMuralScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'O fiél pode clicar neste link ou procurar pelo "Mural" no menu principal do app.',
+                  'Este link abre o mural publico (sem exigir login).',
                   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],

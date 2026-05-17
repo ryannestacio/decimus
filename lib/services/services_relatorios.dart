@@ -453,7 +453,8 @@ class RelatoriosService {
   // Relatório de Recebíveis
   static Future<void> gerarRelatorioRecebiveis() async {
     try {
-      // Carregar recebíveis antes de gerar o relatório
+      // Recalcular totais e carregar recebíveis antes de gerar o relatório
+      await FinanceiroServiceRecebiveis.calcularTotalRecebiveis();
       await FinanceiroServiceRecebiveis.carregarRecebiveis();
 
       final pdf = pw.Document();

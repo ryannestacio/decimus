@@ -144,6 +144,14 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
       );
   }
 
+  void _debugError(String scope, Object error, StackTrace stackTrace) {
+    assert(() {
+      debugPrint('[BodyRecebiveis][$scope] $error');
+      debugPrint('$stackTrace');
+      return true;
+    }());
+  }
+
   Future<void> _pickDate() async {
     final pickedDate = await showDatePicker(
       context: context,
@@ -249,7 +257,8 @@ class _BodyRecebiveisState extends State<BodyRecebiveis> {
       });
 
       _showFeedback('Recebimento salvo com sucesso.');
-    } catch (_) {
+    } catch (e, s) {
+      _debugError('_criarRecebimento', e, s);
       _showFeedback(
         'Nao foi possivel salvar agora. Tente novamente.',
         isError: true,

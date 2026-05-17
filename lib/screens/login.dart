@@ -99,8 +99,14 @@ class _BodyLoginState extends State<BodyLogin> {
 
       _emailController.clear();
       _passwordController.clear();
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, s) {
+      _debugError('_validation.FirebaseAuthException', e, s);
       _showFeedback(_translateFirebaseError(e));
+    } catch (e, s) {
+      _debugError('_validation.Unhandled', e, s);
+      _showFeedback(
+        'Nao foi possivel entrar agora. Verifique sua conexao e tente novamente.',
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -114,6 +120,15 @@ class _BodyLoginState extends State<BodyLogin> {
     if (e.code == 'user-not-found') {
       return 'Nao encontramos uma conta com este e-mail.';
     }
+    if (e.code == 'invalid-email') {
+      return 'E-mail invalido. Verifique e tente novamente.';
+    }
+    if (e.code == 'user-disabled') {
+      return 'Esta conta foi desativada. Fale com o administrador.';
+    }
+    if (e.code == 'network-request-failed') {
+      return 'Sem conexao com a internet. Tente novamente.';
+    }
     if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
       return 'Senha invalida. Tente novamente.';
     }
@@ -121,6 +136,14 @@ class _BodyLoginState extends State<BodyLogin> {
       return 'Muitas tentativas. Aguarde um pouco e tente de novo.';
     }
     return 'Nao foi possivel entrar agora. Tente novamente em instantes.';
+  }
+
+  void _debugError(String scope, Object error, StackTrace stackTrace) {
+    assert(() {
+      debugPrint('[BodyLogin][$scope] $error');
+      debugPrint('$stackTrace');
+      return true;
+    }());
   }
 
   void _showFeedback(String message, {bool isError = true}) {

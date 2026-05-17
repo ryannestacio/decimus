@@ -9,7 +9,6 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
-import 'dart:typed_data';
 
 class MuralScreen extends StatelessWidget {
   const MuralScreen({super.key});
@@ -466,6 +465,21 @@ class _FormularioMuralFielState extends State<FormularioMuralFiel> {
 
   final List<String> _tipos = ['aviso', 'missa', 'evento', 'culto'];
 
+  void _debugLog(String message) {
+    assert(() {
+      debugPrint('[FormularioMuralFiel] $message');
+      return true;
+    }());
+  }
+
+  void _debugError(String scope, Object error, StackTrace stackTrace) {
+    assert(() {
+      debugPrint('[FormularioMuralFiel][$scope] $error');
+      debugPrint('$stackTrace');
+      return true;
+    }());
+  }
+
   @override
   void initState() {
     super.initState();
@@ -541,7 +555,8 @@ class _FormularioMuralFielState extends State<FormularioMuralFiel> {
           _imagemUrlController.clear();
         });
       }
-    } catch (e) {
+    } catch (e, s) {
+      _debugError('_selecionarImagem', e, s);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erro ao selecionar imagem: $e')),
@@ -551,7 +566,7 @@ class _FormularioMuralFielState extends State<FormularioMuralFiel> {
   }
 
   Future<void> _salvar() async {
-    print('[Salvar] Iniciando salvamento...');
+    _debugLog('Iniciando salvamento');
 
     if (_tituloController.text.isEmpty || _descricaoController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -569,32 +584,28 @@ class _FormularioMuralFielState extends State<FormularioMuralFiel> {
 
       // Upload de arquivo (mobile/desktop)
       if (_imagemSelecionada != null) {
-        print(
-          '[Salvar] Detectado upload mobile. Caminho: ${_imagemSelecionada!.path}',
-        );
+        _debugLog('Upload mobile detectado: ${_imagemSelecionada!.path}');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Fazendo upload da imagem...')),
         );
         imagemUrl = await MuralUploadService.uploadImagemMural(
           _imagemSelecionada!,
         );
-        print('[Salvar] Upload mobile concluído. URL: $imagemUrl');
+        _debugLog('Upload mobile concluido');
       }
       // Upload de bytes (web)
       else if (_imagemBytesWeb != null) {
-        print(
-          '[Salvar] Detectado upload web. Tamanho: ${_imagemBytesWeb!.length} bytes',
-        );
+        _debugLog('Upload web detectado: ${_imagemBytesWeb!.length} bytes');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Fazendo upload da imagem...')),
         );
         imagemUrl = await MuralUploadService.uploadImagemMuralBytes(
           _imagemBytesWeb!,
         );
-        print('[Salvar] Upload web concluído. URL: $imagemUrl');
+        _debugLog('Upload web concluido');
       }
 
-      print('[Salvar] Preparando para salvar no Firestore...');
+      _debugLog('Preparando para salvar no Firestore');
       final muralItem = MuralItem(
         id: widget.item?.id ?? '',
         titulo: _tituloController.text,
@@ -609,18 +620,18 @@ class _FormularioMuralFielState extends State<FormularioMuralFiel> {
 
       if (widget.item != null) {
         // Editar
-        print('[Salvar] Editando item...');
+        _debugLog('Editando item');
         await MuralService.atualizarMuralItem(widget.item!.id, muralItem);
-        print('[Salvar] Item editado');
+        _debugLog('Item editado');
       } else {
         // Criar novo
-        print('[Salvar] Criando novo item...');
+        _debugLog('Criando novo item');
         await MuralService.criarMuralItem(muralItem);
-        print('[Salvar] Item criado');
+        _debugLog('Item criado');
       }
 
       if (mounted) {
-        print('[Salvar] Fechando modal...');
+        _debugLog('Fechando modal');
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -630,8 +641,8 @@ class _FormularioMuralFielState extends State<FormularioMuralFiel> {
           ),
         );
       }
-    } catch (e) {
-      print('[Salvar] ERRO: $e');
+    } catch (e, s) {
+      _debugError('_salvar', e, s);
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -639,7 +650,7 @@ class _FormularioMuralFielState extends State<FormularioMuralFiel> {
       }
     } finally {
       if (mounted) {
-        print('[Salvar] Finalizando...');
+        _debugLog('Finalizando salvamento');
         setState(() => _isLoading = false);
       }
     }

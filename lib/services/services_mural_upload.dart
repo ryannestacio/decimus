@@ -1,33 +1,42 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'dart:async';
+import 'dart:io';
+
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 class MuralUploadService {
   static final FirebaseStorage _storage = FirebaseStorage.instance;
   static const String _bucketPath = 'mural_imagens';
 
-  /// Faz upload de um arquivo de imagem local para o Firebase Storage
-  /// Retorna a URL da imagem armazenada
+  static void _debugLog(String message) {
+    if (!kDebugMode) return;
+    debugPrint('[MuralUploadService] $message');
+  }
+
+  static void _debugError(String scope, Object error, StackTrace stackTrace) {
+    if (!kDebugMode) return;
+    debugPrint('[MuralUploadService][$scope] $error');
+    debugPrint('$stackTrace');
+  }
+
+  /// Faz upload de um arquivo de imagem local para o Firebase Storage.
+  /// Retorna a URL da imagem armazenada.
   static Future<String> uploadImagemMural(File arquivo) async {
     try {
-      print('[Upload Mobile] Iniciando upload do arquivo: ${arquivo.path}');
+      _debugLog('Upload mobile iniciado: ${arquivo.path}');
       final fileSize = await arquivo.length();
-      print('[Upload Mobile] Tamanho do arquivo: $fileSize bytes');
+      _debugLog('Upload mobile tamanho: $fileSize bytes');
 
-      // Gerar ID único para a imagem
       const uuid = Uuid();
       final nomeArquivo =
           '${uuid.v4()}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      print('[Upload Mobile] Nome do arquivo: $nomeArquivo');
+      _debugLog('Upload mobile arquivo: $nomeArquivo');
 
-      // Referência do Firebase Storage
       final referencia = _storage.ref('$_bucketPath/$nomeArquivo');
-      print('[Upload Mobile] Referência criada');
+      _debugLog('Upload mobile referencia criada');
 
-      // Fazer upload do arquivo com timeout
-      print('[Upload Mobile] Iniciando putFile...');
+      _debugLog('Upload mobile putFile iniciado');
       final tarefa = await referencia
           .putFile(arquivo)
           .timeout(
@@ -36,42 +45,38 @@ class MuralUploadService {
               throw TimeoutException('Upload excedeu 60 segundos');
             },
           );
-      print('[Upload Mobile] Upload concluído, obtendo URL...');
+      _debugLog('Upload mobile concluido, solicitando URL');
 
-      // Obter URL da imagem
       final url = await tarefa.ref.getDownloadURL().timeout(
         const Duration(seconds: 30),
         onTimeout: () {
           throw TimeoutException('getDownloadURL excedeu 30 segundos');
         },
       );
-      print('[Upload Mobile] URL obtida: $url');
+      _debugLog('Upload mobile URL obtida');
 
       return url;
-    } catch (e) {
-      print('[Upload Mobile] ERRO: $e');
+    } catch (e, s) {
+      _debugError('uploadImagemMural', e, s);
       throw Exception('Erro ao fazer upload da imagem: $e');
     }
   }
 
-  /// Faz upload de bytes de imagem (para web)
-  /// Retorna a URL da imagem armazenada
+  /// Faz upload de bytes de imagem (para web).
+  /// Retorna a URL da imagem armazenada.
   static Future<String> uploadImagemMuralBytes(Uint8List bytes) async {
     try {
-      print('[Upload Web] Iniciando upload de ${bytes.length} bytes');
+      _debugLog('Upload web iniciado: ${bytes.length} bytes');
 
-      // Gerar ID único para a imagem
       const uuid = Uuid();
       final nomeArquivo =
           '${uuid.v4()}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      print('[Upload Web] Nome do arquivo: $nomeArquivo');
+      _debugLog('Upload web arquivo: $nomeArquivo');
 
-      // Referência do Firebase Storage
       final referencia = _storage.ref('$_bucketPath/$nomeArquivo');
-      print('[Upload Web] Referência criada');
+      _debugLog('Upload web referencia criada');
 
-      // Fazer upload dos bytes com timeout
-      print('[Upload Web] Iniciando putData...');
+      _debugLog('Upload web putData iniciado');
       final tarefa = await referencia
           .putData(bytes)
           .timeout(
@@ -80,25 +85,24 @@ class MuralUploadService {
               throw TimeoutException('Upload excedeu 60 segundos');
             },
           );
-      print('[Upload Web] Upload concluído, obtendo URL...');
+      _debugLog('Upload web concluido, solicitando URL');
 
-      // Obter URL da imagem
       final url = await tarefa.ref.getDownloadURL().timeout(
         const Duration(seconds: 30),
         onTimeout: () {
           throw TimeoutException('getDownloadURL excedeu 30 segundos');
         },
       );
-      print('[Upload Web] URL obtida: $url');
+      _debugLog('Upload web URL obtida');
 
       return url;
-    } catch (e) {
-      print('[Upload Web] ERRO: $e');
+    } catch (e, s) {
+      _debugError('uploadImagemMuralBytes', e, s);
       throw Exception('Erro ao fazer upload da imagem: $e');
     }
   }
 
-  /// Deleta uma imagem do Firebase Storage pela URL
+  /// Deleta uma imagem do Firebase Storage pela URL.
   static Future<void> deletarImagemMural(String urlImagem) async {
     try {
       final referencia = _storage.refFromURL(urlImagem);

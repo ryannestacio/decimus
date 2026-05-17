@@ -129,6 +129,14 @@ class _BodyDespesasState extends State<BodyDespesas> {
       );
   }
 
+  void _debugError(String scope, Object error, StackTrace stackTrace) {
+    assert(() {
+      debugPrint('[BodyDespesas][$scope] $error');
+      debugPrint('$stackTrace');
+      return true;
+    }());
+  }
+
   InputDecoration _inputDecoration({
     required String labelText,
     required IconData icon,
@@ -242,7 +250,8 @@ class _BodyDespesasState extends State<BodyDespesas> {
       await FinanceiroServiceDespesas.sincronizarECarregarDespesas();
       if (!mounted) return;
       setState(() {});
-    } catch (_) {
+    } catch (e, s) {
+      _debugError('carregarDespesasDoFirestore', e, s);
       _showFeedback('Erro ao carregar despesas.', isError: true);
     }
   }
@@ -264,7 +273,8 @@ class _BodyDespesasState extends State<BodyDespesas> {
       await carregarTiposDeConta();
       _showFeedback('Tipo de conta salvo com sucesso.');
       return true;
-    } catch (_) {
+    } catch (e, s) {
+      _debugError('_validarESalvarTipoConta', e, s);
       _showFeedback('Erro ao salvar tipo de conta.', isError: true);
       return false;
     }
@@ -318,7 +328,8 @@ class _BodyDespesasState extends State<BodyDespesas> {
               : 'Conta cadastrada com sucesso.';
       _showFeedback(mensagem);
       return true;
-    } catch (_) {
+    } catch (e, s) {
+      _debugError('_validarESalvarNovaConta', e, s);
       _showFeedback('Erro ao salvar conta no Firestore.', isError: true);
       return false;
     }
@@ -338,7 +349,8 @@ class _BodyDespesasState extends State<BodyDespesas> {
       await carregarDespesasDoFirestore();
       _showFeedback('Pagamento confirmado com sucesso.');
       return true;
-    } catch (_) {
+    } catch (e, s) {
+      _debugError('_marcarComoPago', e, s);
       _showFeedback('Erro ao confirmar pagamento.', isError: true);
       return false;
     }

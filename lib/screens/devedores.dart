@@ -126,6 +126,14 @@ class _BodyDevedoresState extends State<BodyDevedores> {
       );
   }
 
+  void _debugError(String scope, Object error, StackTrace stackTrace) {
+    assert(() {
+      debugPrint('[BodyDevedores][$scope] $error');
+      debugPrint('$stackTrace');
+      return true;
+    }());
+  }
+
   InputDecoration _inputDecoration({
     required String labelText,
     required IconData icon,
@@ -450,7 +458,8 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                         navigator.pop();
                       }
                       _showFeedback('Devedor cadastrado com sucesso.');
-                    } catch (_) {
+                    } catch (e, s) {
+                      _debugError('_abrirDialogCadastro.salvarDevedor', e, s);
                       _showFeedback(
                         'Nao foi possivel cadastrar o devedor agora.',
                         isError: true,
@@ -622,7 +631,12 @@ class _BodyDevedoresState extends State<BodyDevedores> {
                   }
                   refreshDialog();
                   _showFeedback('Pagamento parcial registrado com sucesso.');
-                } catch (_) {
+                } catch (e, s) {
+                  _debugError(
+                    '_abrirDialogPagamentoParcial.registrarPagamentoParcial',
+                    e,
+                    s,
+                  );
                   _showFeedback(
                     'Erro ao processar pagamento parcial.',
                     isError: true,
@@ -726,7 +740,8 @@ class _BodyDevedoresState extends State<BodyDevedores> {
       await _carregarDevedores();
       refreshDialog();
       _showFeedback('Pagamento total confirmado com sucesso.');
-    } catch (_) {
+    } catch (e, s) {
+      _debugError('_confirmarPagamentoTotal', e, s);
       _showFeedback('Erro ao confirmar pagamento total.', isError: true);
     }
   }
